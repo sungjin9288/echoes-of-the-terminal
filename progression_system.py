@@ -1,0 +1,544 @@
+"""메타 진행도(재화/특성) 저장 및 정산을 담당하는 모듈."""
+
+import json
+import os
+import sys
+import warnings
+from copy import deepcopy
+from pathlib import Path
+from typing import Any
+
+from achievement_system import normalize_achievement_state
+from constants import (
+    DEATH_MULTIPLIER,
+    REWARD_PER_EASY,
+    REWARD_PER_HARD,
+    REWARD_PER_NIGHTMARE,
+    VICTORY_BONUS,
+)
+
+
+# 앱 전용 데이터 폴더 이름.
+APP_DATA_DIRNAME = "Echoes of the Terminal"
+
+# 세이브 파일 최대 허용 크기 (1 MB).
+_MAX_SAVE_FILE_SIZE: int = 1 * 1024 * 1024
+
+
+def _get_default_save_path() -> Path:
+    """
+    기본 세이브 파일 절대 경로를 계산한다.
+
+    정책:
+    - Windows APPDATA가 존재하면 AppData 하위에 저장 (배포 권장 경로)
+    - 그 외에는 실행 위치 기반 로컬 폴더에 저장
+      - PyInstaller 실행 파일: 실행 파일이 위치한 폴더
+      - 개발 환경: 현재 작업 디렉터리
+
+    주의:
+    - 절대 경로 계산 시 sys._MEIPASS는 사용하지 않는다.
+      _MEIPASS는 임시 압축 해제 영역이므로 세이브 영속성에 부적합하다.
+    """
+    appdata = os.getenv("APPDATA")
+    if appdata:
+        return (Path(appdata) / APP_DATA_DIRNAME / "save_data.json").resolve()
+
+    if getattr(sys, "frozen", False):
+        return (Path(sys.executable).resolve().parent / "save_data.json").resolve()
+
+    return (Path.cwd() / "save_data.json").resolve()
+
+
+def _resolve_save_path(file_path: str) -> Path:
+    """
+    세이브 파일 입력 경로를 실제 절대 경로로 변환한다.
+
+    - 절대 경로 입력: 그대로 사용
+    - 기본 파일명(save_data.json): 플랫폼 정책 경로(AppData/실행 폴더)로 라우팅
+    - 그 외 상대 경로: 현재 작업 디렉터리 기준
+    """
+    input_path = Path(file_path)
+    if input_path.is_absolute():
+        return input_path
+
+    if input_path == Path("save_data.json"):
+        return _get_default_save_path()
+
+    return (Path.cwd() / input_path).resolve()
+
+
+# ── 특성 메타데이터 (SSOT: 이 파일에서만 정의) ────────────────────────────────
+# main.py와 ui_renderer.py 양쪽이 이 파일에서 임포트해 사용한다.
+
+PERK_MENU_MAP: dict[str, str] = {
+    "1": "penalty_reduction",
+    "2": "time_extension",
+    "3": "glitch_filter",
+    "4": "backtrack_protocol",
+    "5": "lexical_assist",
+}
+
+PERK_LABEL_MAP: dict[str, str] = {
+    "penalty_reduction": "오류 허용 버퍼",
+    "time_extension": "타임 익스텐션",
+    "glitch_filter": "글리치 필터",
+    "backtrack_protocol": "백트랙 프로토콜",
+    "lexical_assist": "어휘 보조 모듈",
+}
+
+PERK_DESC_MAP: dict[str, str] = {
+    "penalty_reduction": "오답 시 추적도 상승량 15% 감소",
+    "time_extension": "입력 제한 시간 30초 → 40초",
+    "glitch_filter": "Hard 글리치 마스킹 단어 수 1개로 완화",
+    "backtrack_protocol": "사망 직전 추적도를 50%로 회복 (런당 1회)",
+    "lexical_assist": "NIGHTMARE 노드 진입 시 키워드 첫 글자 힌트 공개",
+}
+
+PERK_PRICES: dict[str, int] = {
+    "penalty_reduction": 50,
+    "time_extension": 30,
+    "glitch_filter": 20,
+    "backtrack_protocol": 80,
+    "lexical_assist": 60,
+}
+
+# ── 장기 캠페인(100시간 목표) 메타 진행도 ───────────────────────────────────────
+CAMPAIGN_TARGET_HOURS: int = 100
+CAMPAIGN_CLEAR_POINTS: int = 60000
+CAMPAIGN_CLEAR_TOTAL_VICTORIES: int = 450
+CAMPAIGN_CLEAR_CLASS_VICTORIES: int = 120
+CAMPAIGN_CLASS_KEYS: tuple[str, ...] = ("ANALYST", "GHOST", "CRACKER")
+ASCENSION_MAX_LEVEL: int = 20
+
+# 캠페인 수치 상한 — 저장 파일 조작이나 누적 오버플로로 인한 이상값을 방지한다.
+_MAX_CAMPAIGN_POINTS: int = 10_000_000
+_MAX_CAMPAIGN_RUNS: int = 100_000
+_MAX_CAMPAIGN_VICTORIES: int = 100_000
+_MAX_CAMPAIGN_CLASS_VICTORIES: int = 100_000
+
+# ASCENSION 고정 밸런스 테이블 (0~20)
+# 값 의미:
+# - penalty_flat: 오답 기본 페널티 추가값
+# - force_easy_glitch: Easy 노드 글리치 강제 여부
+# - time_limit_delta: 제한시간 보정(초, 음수면 단축)
+# - timeout_penalty_delta: 타임아웃 페널티 보정
+# - start_trace: 런 시작 추적도
+ASCENSION_TABLE: dict[int, dict[str, int | bool | float]] = {
+    0: {"penalty_flat": 0, "force_easy_glitch": False, "time_limit_delta": 0, "timeout_penalty_delta": 0, "start_trace": 0},
+    1: {"penalty_flat": 5, "force_easy_glitch": False, "time_limit_delta": 0, "timeout_penalty_delta": 0, "start_trace": 0},
+    2: {"penalty_flat": 5, "force_easy_glitch": True, "time_limit_delta": 0, "timeout_penalty_delta": 0, "start_trace": 0},
+    3: {"penalty_flat": 5, "force_easy_glitch": True, "time_limit_delta": -20, "timeout_penalty_delta": 0, "start_trace": 0},
+    4: {"penalty_flat": 5, "force_easy_glitch": True, "time_limit_delta": -20, "timeout_penalty_delta": 4, "start_trace": 0},
+    5: {"penalty_flat": 5, "force_easy_glitch": True, "time_limit_delta": -20, "timeout_penalty_delta": 4, "start_trace": 20},
+    6: {"penalty_flat": 5, "force_easy_glitch": True, "time_limit_delta": -20, "timeout_penalty_delta": 4, "start_trace": 20},
+    7: {"penalty_flat": 6, "force_easy_glitch": True, "time_limit_delta": -20, "timeout_penalty_delta": 4, "start_trace": 20},
+    8: {"penalty_flat": 6, "force_easy_glitch": True, "time_limit_delta": -21, "timeout_penalty_delta": 4, "start_trace": 20},
+    9: {"penalty_flat": 7, "force_easy_glitch": True, "time_limit_delta": -21, "timeout_penalty_delta": 5, "start_trace": 20},
+    10: {"penalty_flat": 7, "force_easy_glitch": True, "time_limit_delta": -21, "timeout_penalty_delta": 5, "start_trace": 20},
+    11: {"penalty_flat": 8, "force_easy_glitch": True, "time_limit_delta": -22, "timeout_penalty_delta": 5, "start_trace": 20},
+    12: {"penalty_flat": 8, "force_easy_glitch": True, "time_limit_delta": -22, "timeout_penalty_delta": 5, "start_trace": 20},
+    13: {"penalty_flat": 9, "force_easy_glitch": True, "time_limit_delta": -22, "timeout_penalty_delta": 6, "start_trace": 20},
+    14: {"penalty_flat": 9, "force_easy_glitch": True, "time_limit_delta": -23, "timeout_penalty_delta": 6, "start_trace": 20},
+    15: {"penalty_flat": 10, "force_easy_glitch": True, "time_limit_delta": -23, "timeout_penalty_delta": 6, "start_trace": 20},
+    16: {"penalty_flat": 10, "force_easy_glitch": True, "time_limit_delta": -23, "timeout_penalty_delta": 6, "start_trace": 20},
+    17: {"penalty_flat": 11, "force_easy_glitch": True, "time_limit_delta": -24, "timeout_penalty_delta": 7, "start_trace": 20},
+    18: {"penalty_flat": 11, "force_easy_glitch": True, "time_limit_delta": -24, "timeout_penalty_delta": 7, "start_trace": 20},
+    19: {"penalty_flat": 12, "force_easy_glitch": True, "time_limit_delta": -24, "timeout_penalty_delta": 7, "start_trace": 20},
+    20: {"penalty_flat": 12, "force_easy_glitch": True, "time_limit_delta": -25, "timeout_penalty_delta": 7, "start_trace": 20},
+}
+
+# 세이브 파일 경로와 기본 구조를 상수로 관리해 전체 코드에서 일관성을 유지한다.
+SAVE_FILE_PATH: str = str(_get_default_save_path())
+DEFAULT_SAVE_DATA: dict[str, Any] = {
+    "data_fragments": 0,
+    "perks": {
+        "penalty_reduction": False,
+        "time_extension": False,
+        "glitch_filter": False,
+        "backtrack_protocol": False,
+        "lexical_assist": False,
+    },
+    "campaign": {
+        "points": 0,
+        "runs": 0,
+        "victories": 0,
+        "ascension_unlocked": 0,
+        "class_victories": {
+            "ANALYST": 0,
+            "GHOST": 0,
+            "CRACKER": 0,
+        },
+        "cleared": False,
+    },
+    "achievements": {
+        "unlocked": [],
+    },
+    "daily": {
+        "last_played_date": "",
+        "history": [],
+        "best_score": 0,
+        "streak": 0,
+        "total_plays": 0,
+    },
+    "endings": {
+        "unlocked": [],
+    },
+}
+
+
+def _normalize_campaign(raw_campaign: Any) -> dict[str, Any]:
+    """캠페인 메타 진행도 구조를 정규화한다."""
+    defaults = deepcopy(DEFAULT_SAVE_DATA["campaign"])
+    if not isinstance(raw_campaign, dict):
+        return defaults
+
+    points = raw_campaign.get("points", 0)
+    if isinstance(points, int) and 0 <= points <= _MAX_CAMPAIGN_POINTS:
+        defaults["points"] = points
+
+    runs = raw_campaign.get("runs", 0)
+    if isinstance(runs, int) and 0 <= runs <= _MAX_CAMPAIGN_RUNS:
+        defaults["runs"] = runs
+
+    victories = raw_campaign.get("victories", 0)
+    if isinstance(victories, int) and 0 <= victories <= _MAX_CAMPAIGN_VICTORIES:
+        defaults["victories"] = victories
+
+    ascension_unlocked = raw_campaign.get("ascension_unlocked", 0)
+    if isinstance(ascension_unlocked, int):
+        defaults["ascension_unlocked"] = max(0, min(ASCENSION_MAX_LEVEL, ascension_unlocked))
+
+    class_victories = raw_campaign.get("class_victories", {})
+    if isinstance(class_victories, dict):
+        for class_key in CAMPAIGN_CLASS_KEYS:
+            raw_value = class_victories.get(class_key, 0)
+            if isinstance(raw_value, int) and 0 <= raw_value <= _MAX_CAMPAIGN_CLASS_VICTORIES:
+                defaults["class_victories"][class_key] = raw_value
+
+    defaults["cleared"] = bool(raw_campaign.get("cleared", False))
+    return defaults
+
+
+def _normalize_save_data(raw_data: Any) -> dict[str, Any]:
+    """
+    외부에서 들어온 데이터를 세이브 스키마에 맞춰 정규화한다.
+
+    잘못된 타입/누락 키가 있어도 기본값으로 보정하여
+    게임 실행 중 KeyError가 발생하지 않도록 방어한다.
+    """
+    data = deepcopy(DEFAULT_SAVE_DATA)
+    if not isinstance(raw_data, dict):
+        return data
+
+    fragments = raw_data.get("data_fragments", 0)
+    if isinstance(fragments, int) and fragments >= 0:
+        data["data_fragments"] = fragments
+
+    perks = raw_data.get("perks", {})
+    if isinstance(perks, dict):
+        for perk_name in data["perks"]:
+            data["perks"][perk_name] = bool(perks.get(perk_name, False))
+
+    data["campaign"] = _normalize_campaign(raw_data.get("campaign", {}))
+    data["achievements"] = normalize_achievement_state(raw_data.get("achievements", {}))
+    # daily/endings 상태는 각 모듈에서 자체 정규화하므로 raw 그대로 보존하되,
+    # 호출부의 원본 dict 공유를 피하기 위해 deepcopy한다.
+    raw_daily = raw_data.get("daily", {})
+    if isinstance(raw_daily, dict):
+        data["daily"] = deepcopy(raw_daily)
+    raw_endings = raw_data.get("endings", {})
+    if isinstance(raw_endings, dict):
+        data["endings"] = deepcopy(raw_endings)
+    return data
+
+
+def is_campaign_cleared(campaign: dict[str, Any]) -> bool:
+    """캠페인 클리어 조건(100시간 목표)을 충족했는지 판정한다."""
+    points = int(campaign.get("points", 0))
+    victories = int(campaign.get("victories", 0))
+    class_victories = campaign.get("class_victories", {})
+    if not isinstance(class_victories, dict):
+        class_victories = {}
+
+    class_condition = all(
+        int(class_victories.get(class_key, 0)) >= CAMPAIGN_CLEAR_CLASS_VICTORIES
+        for class_key in CAMPAIGN_CLASS_KEYS
+    )
+    return (
+        points >= CAMPAIGN_CLEAR_POINTS
+        and victories >= CAMPAIGN_CLEAR_TOTAL_VICTORIES
+        and class_condition
+    )
+
+
+
+def calculate_campaign_gain(reward: int, is_victory: bool) -> int:
+    """
+    단일 런 결과로 얻는 캠페인 포인트를 계산한다.
+
+    캠페인 포인트는 데이터 조각 보상 1:1로 환산된다.
+    사망 시에도 벌어들인 조각만큼 누적되어 장기 플레이가 보상받는다.
+    승리 시 CAMPAIGN_VICTORY_BONUS(+20)만큼 추가 포인트가 가산된다.
+
+    Args:
+        reward: 최종 지급 데이터 조각 수 (ascension 배율 적용 후)
+        is_victory: 런 승리 여부
+
+    Returns:
+        캠페인 포인트 증가량 (음수 없음)
+    """
+    from constants import CAMPAIGN_VICTORY_BONUS
+    bonus = CAMPAIGN_VICTORY_BONUS if is_victory else 0
+    return max(0, int(reward) + bonus)
+
+
+def update_campaign_progress(
+    save_data: dict[str, Any],
+    gain: int,
+    is_victory: bool,
+    class_key: str = "",
+    ascension_level: int = 0,
+) -> dict[str, Any]:
+    """
+    세이브 데이터에 캠페인 진행도를 반영하고 결과 스냅샷을 반환한다.
+
+    Returns:
+        just_cleared: 이번 반영으로 처음 클리어했는지 여부
+        campaign: 업데이트된 캠페인 dict
+    """
+    if "campaign" not in save_data or not isinstance(save_data["campaign"], dict):
+        save_data["campaign"] = _normalize_campaign({})
+    campaign = _normalize_campaign(save_data["campaign"])
+
+    was_cleared = bool(campaign.get("cleared", False))
+    campaign["runs"] = min(_MAX_CAMPAIGN_RUNS, int(campaign.get("runs", 0)) + 1)
+    campaign["points"] = min(
+        _MAX_CAMPAIGN_POINTS,
+        int(campaign.get("points", 0)) + max(0, int(gain)),
+    )
+
+    if is_victory:
+        campaign["victories"] = min(
+            _MAX_CAMPAIGN_VICTORIES, int(campaign.get("victories", 0)) + 1
+        )
+        if class_key in CAMPAIGN_CLASS_KEYS:
+            class_victories = campaign["class_victories"]
+            class_victories[class_key] = min(
+                _MAX_CAMPAIGN_CLASS_VICTORIES,
+                int(class_victories.get(class_key, 0)) + 1,
+            )
+        unlocked = int(campaign.get("ascension_unlocked", 0))
+        safe_asc = max(0, min(ASCENSION_MAX_LEVEL, int(ascension_level)))
+        if safe_asc >= unlocked and unlocked < ASCENSION_MAX_LEVEL:
+            campaign["ascension_unlocked"] = unlocked + 1
+
+    campaign["cleared"] = is_campaign_cleared(campaign)
+    save_data["campaign"] = campaign
+    return {
+        "just_cleared": bool(campaign["cleared"] and not was_cleared),
+        "campaign": campaign,
+    }
+
+
+def get_campaign_progress_snapshot(campaign: dict[str, Any]) -> dict[str, Any]:
+    """UI 표시에 사용할 캠페인 진행도 스냅샷을 생성한다."""
+    normalized = _normalize_campaign(campaign)
+    points = int(normalized["points"])
+    victories = int(normalized["victories"])
+    class_victories = normalized["class_victories"]
+
+    return {
+        "points": points,
+        "points_target": CAMPAIGN_CLEAR_POINTS,
+        "points_ratio": min(1.0, points / CAMPAIGN_CLEAR_POINTS),
+        "victories": victories,
+        "victories_target": CAMPAIGN_CLEAR_TOTAL_VICTORIES,
+        "victories_ratio": min(1.0, victories / CAMPAIGN_CLEAR_TOTAL_VICTORIES),
+        "class_victories": class_victories,
+        "class_target": CAMPAIGN_CLEAR_CLASS_VICTORIES,
+        "ascension_unlocked": int(normalized.get("ascension_unlocked", 0)),
+        "cleared": bool(normalized["cleared"]),
+        "target_hours": CAMPAIGN_TARGET_HOURS,
+    }
+
+
+def get_ascension_profile(level: int) -> dict[str, int | bool | float]:
+    """
+    각성 레벨 프로필을 반환한다.
+
+    범위를 벗어난 입력은 0~ASCENSION_MAX_LEVEL로 클램프한다.
+    """
+    safe_level = max(0, min(ASCENSION_MAX_LEVEL, int(level)))
+    raw = ASCENSION_TABLE.get(safe_level, ASCENSION_TABLE[0])
+    shop_cost_mult = 1.0
+    reward_mult = 1.0
+    boss_penalty_mult = 1.0
+    boss_phases = 1
+    boss_phase_time_delta = 0
+    boss_phase_penalty_step = 0.0
+    boss_block_cat_log_from_phase = 99
+    boss_block_skill_from_phase = 99
+    boss_command_violation_penalty = 0
+    boss_fake_keyword_count = 0
+    route_elite_chance = 0.0
+    route_relief_decay_chance = 0.0
+    route_min_elite_choices = 0
+    if safe_level >= 10:
+        shop_cost_mult = 1.15
+        reward_mult = 0.95
+        boss_penalty_mult = 1.10
+    if safe_level >= 12:
+        route_elite_chance = 0.15
+        route_relief_decay_chance = 0.10
+        route_min_elite_choices = 1
+    if safe_level >= 15:
+        shop_cost_mult = 1.30
+        reward_mult = 0.90
+        boss_penalty_mult = 1.20
+        route_elite_chance = 0.25
+        route_relief_decay_chance = 0.20
+        route_min_elite_choices = 2
+    if safe_level >= 18:
+        boss_phases = 2
+        boss_phase_time_delta = -2
+        boss_phase_penalty_step = 0.10
+    if safe_level >= 20:
+        shop_cost_mult = 1.50
+        reward_mult = 0.85
+        boss_penalty_mult = 1.35
+        boss_phases = 3
+        boss_phase_time_delta = -2
+        boss_phase_penalty_step = 0.12
+        boss_block_cat_log_from_phase = 2
+        boss_block_skill_from_phase = 3
+        boss_command_violation_penalty = 4
+        boss_fake_keyword_count = 4
+        route_elite_chance = 0.40
+        route_relief_decay_chance = 0.30
+        route_min_elite_choices = 3
+    return {
+        "level": safe_level,
+        "penalty_flat": int(raw["penalty_flat"]),
+        "force_easy_glitch": bool(raw["force_easy_glitch"]),
+        "time_limit_delta": int(raw["time_limit_delta"]),
+        "timeout_penalty_delta": int(raw["timeout_penalty_delta"]),
+        "start_trace": int(raw["start_trace"]),
+        "shop_cost_mult": shop_cost_mult,
+        "reward_mult": reward_mult,
+        "boss_penalty_mult": boss_penalty_mult,
+        "boss_phases": boss_phases,
+        "boss_phase_time_delta": boss_phase_time_delta,
+        "boss_phase_penalty_step": boss_phase_penalty_step,
+        "boss_block_cat_log_from_phase": boss_block_cat_log_from_phase,
+        "boss_block_skill_from_phase": boss_block_skill_from_phase,
+        "boss_command_violation_penalty": boss_command_violation_penalty,
+        "boss_fake_keyword_count": boss_fake_keyword_count,
+        "route_elite_chance": route_elite_chance,
+        "route_relief_decay_chance": route_relief_decay_chance,
+        "route_min_elite_choices": route_min_elite_choices,
+    }
+
+
+def save_game(data: dict[str, Any], file_path: str = SAVE_FILE_PATH) -> None:
+    """
+    현재 진행도 데이터를 JSON 파일에 저장한다.
+
+    파일 쓰기 실패 시 상위 호출부에서 안내할 수 있도록 OSError를 래핑해 전달한다.
+    """
+    normalized = _normalize_save_data(data)
+    resolved_path = _resolve_save_path(file_path)
+    try:
+        # 상위 폴더가 없으면 생성해 첫 실행에서도 저장이 실패하지 않게 한다.
+        resolved_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(resolved_path, "w", encoding="utf-8") as f:
+            json.dump(normalized, f, ensure_ascii=False, indent=2)
+    except OSError as exc:
+        raise OSError(f"세이브 파일 저장 실패: {resolved_path}") from exc
+
+
+def load_save(file_path: str = SAVE_FILE_PATH) -> dict[str, Any]:
+    """
+    세이브 파일을 로드한다.
+
+    - 파일이 없으면 기본값 파일을 생성한다.
+    - 파일이 손상되었거나 읽기 실패 시 기본값으로 복구를 시도한다.
+    """
+    resolved_path = _resolve_save_path(file_path)
+    try:
+        file_size = resolved_path.stat().st_size
+        if file_size > _MAX_SAVE_FILE_SIZE:
+            raise ValueError(
+                f"세이브 파일 크기({file_size:,} bytes)가 허용 한도를 초과합니다."
+            )
+        with open(resolved_path, "r", encoding="utf-8") as f:
+            raw_data = json.load(f)
+        normalized = _normalize_save_data(raw_data)
+        # 구조가 손상된 파일을 읽은 경우 즉시 정규화된 형태로 덮어써 복구한다.
+        if normalized != raw_data:
+            save_game(normalized, file_path=str(resolved_path))
+        return normalized
+    except FileNotFoundError:
+        # 첫 실행인 경우 기본 세이브를 생성한다.
+        default_data = deepcopy(DEFAULT_SAVE_DATA)
+        try:
+            save_game(default_data, file_path=str(resolved_path))
+        except OSError as exc:
+            # 저장 실패하더라도 런타임은 기본값으로 계속 진행 가능해야 한다.
+            warnings.warn(f"세이브 파일 초기 생성 실패 (진행은 가능): {exc}", RuntimeWarning, stacklevel=2)
+        return default_data
+    except (json.JSONDecodeError, OSError, TypeError, ValueError) as exc:
+        # 파일이 깨졌거나 접근 불가능한 경우 기본값으로 복구를 시도한다.
+        warnings.warn(f"세이브 파일 로드 실패, 기본값으로 복구합니다: {exc}", RuntimeWarning, stacklevel=2)
+        default_data = deepcopy(DEFAULT_SAVE_DATA)
+        try:
+            save_game(default_data, file_path=str(resolved_path))
+        except OSError as save_exc:
+            warnings.warn(f"세이브 파일 복구 저장 실패: {save_exc}", RuntimeWarning, stacklevel=2)
+        return default_data
+
+
+def _reward_for_difficulty(difficulty: str) -> int:
+    """단일 난이도 문자열에 대한 정답 보상액을 반환한다."""
+    diff_norm = str(difficulty).strip().upper()
+    if diff_norm == "HARD":
+        return REWARD_PER_HARD
+    if diff_norm == "NIGHTMARE":
+        return REWARD_PER_NIGHTMARE
+    return REWARD_PER_EASY
+
+
+def calculate_base_reward(node_difficulties: list[str]) -> int:
+    """
+    클리어한 노드 난이도 목록으로 기본 보상(승리 보너스 제외)을 계산한다.
+
+    정산 화면 표시용으로 main.py에서 호출한다.
+    """
+    return sum(_reward_for_difficulty(d) for d in node_difficulties)
+
+
+def calculate_reward(
+    correct_answers: int,
+    is_victory: bool,
+    node_difficulties: list[str] | None = None,
+) -> int:
+    """
+    정답 횟수와 종료 상태를 기반으로 최종 보상을 계산한다.
+
+    규칙:
+    - 난이도별 정답 보상: Easy=10, Hard=15, NIGHTMARE=30
+    - node_difficulties 미제공 시 Easy 기준으로 폴백
+    - 승리 시 VICTORY_BONUS 추가 지급
+    - 사망 시 기본 보상의 DEATH_MULTIPLIER(60%)만 지급 (int 반내림, 승리 보너스 없음)
+    """
+    safe_correct = max(0, min(_MAX_CAMPAIGN_RUNS, int(correct_answers)))
+    difficulties = list(node_difficulties or [])
+
+    # 정답 수와 난이도 목록 길이가 다를 경우 Easy로 채워 폴백한다.
+    while len(difficulties) < safe_correct:
+        difficulties.append("Easy")
+
+    base_reward = sum(_reward_for_difficulty(d) for d in difficulties[:safe_correct])
+
+    if is_victory:
+        return base_reward + VICTORY_BONUS
+    return int(base_reward * DEATH_MULTIPLIER)
