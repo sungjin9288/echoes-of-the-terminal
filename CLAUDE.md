@@ -28,23 +28,23 @@ pip install -r requirements-dev.txt      # 테스트 포함
 
 ```
 Echoes of the Terminal/
-├── main.py                  # 게임 루프 엔진 (1829줄)
+├── main.py                  # 게임 루프 엔진 (1831줄)
 ├── ui_renderer.py           # Rich 터미널 UI 렌더링 (713줄)
 ├── progression_system.py    # 세이브/퍼크/캠페인/어센션 (544줄)
-├── combat_commands.py       # 전투 커맨드 핸들러 + 페널티 계산 (279줄) ★신규
+├── combat_commands.py       # 전투 커맨드 핸들러 + 페널티 계산 (279줄)
 ├── artifact_system.py       # 15종 아티팩트 시스템 (258줄)
 ├── data_loader.py           # JSON 데이터 로딩 & 검증 (231줄)
 ├── daily_challenge.py       # 일일 도전 시스템 (219줄)
 ├── ending_system.py         # 5종 엔딩 판정 (205줄)
 ├── diver_class.py           # 3종 다이버 클래스 (194줄)
-├── achievement_system.py    # 11종 업적 시스템 (182줄)
+├── achievement_system.py    # 55종 업적 시스템 (546줄)
 ├── mutator_system.py        # Glitch 마스킹 텍스트 변형 (128줄)
 ├── route_map.py             # 노드 타입 라우팅 (94줄)
 ├── boss_phase_pack_tools.py # ASC20 보스 툴 (89줄)
-├── combat_timer.py          # 전투 타이머 캡슐화 (70줄) ★신규
+├── combat_timer.py          # 전투 타이머 캡슐화 (70줄)
 ├── constants.py             # 전역 상수 단일 출처 (37줄)
 │
-├── scenarios.json           # 118개 시나리오 데이터
+├── scenarios.json           # 128개 시나리오 데이터 (Pack 01-03)
 ├── boss_phase_pack.json     # ASC20 보스 페이즈 오버라이드
 ├── argos_taunts.json        # ARGOS AI 다이얼로그
 ├── save_data.json           # 플레이어 세이브 데이터 (런타임 생성)

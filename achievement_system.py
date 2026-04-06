@@ -169,6 +169,132 @@ ACHIEVEMENTS: tuple[dict[str, str], ...] = (
         "title": "전설적 침투",
         "desc": "Ascension 20에서 오답 없이 클리어했다.",
     },
+    # ── 탐험 확장 (Exploration+) ──────────────────────────────────────────────
+    {
+        "id": "runs_25",
+        "title": "단골 침입자",
+        "desc": "총 25회 런을 완료했다.",
+    },
+    {
+        "id": "runs_100",
+        "title": "베테랑 해커",
+        "desc": "총 100회 런을 완료했다.",
+    },
+    {
+        "id": "runs_200",
+        "title": "살아있는 전설",
+        "desc": "총 200회 런을 완료했다.",
+    },
+    {
+        "id": "victories_50",
+        "title": "엘리트 침투자",
+        "desc": "누적 50회 승리를 달성했다.",
+    },
+    {
+        "id": "victories_100",
+        "title": "시스템의 적",
+        "desc": "누적 100회 승리를 달성했다.",
+    },
+    # ── 완벽 수행 확장 (Perfection+) ─────────────────────────────────────────
+    {
+        "id": "perfect_ghost",
+        "title": "유령의 완전함",
+        "desc": "GHOST로 오답 없이 런을 클리어했다.",
+    },
+    {
+        "id": "perfect_cracker",
+        "title": "오류 없는 균열",
+        "desc": "CRACKER로 오답 없이 런을 클리어했다.",
+    },
+    {
+        "id": "no_skill_win",
+        "title": "맨 머리로 돌파",
+        "desc": "액티브 스킬을 한 번도 사용하지 않고 런을 클리어했다.",
+    },
+    # ── 클래스 마스터 확장 (Class+) ───────────────────────────────────────────
+    {
+        "id": "analyst_10",
+        "title": "알고리즘의 신",
+        "desc": "ANALYST로 10회 이상 승리했다.",
+    },
+    {
+        "id": "ghost_10",
+        "title": "그림자의 전설",
+        "desc": "GHOST로 10회 이상 승리했다.",
+    },
+    {
+        "id": "cracker_10",
+        "title": "파열의 달인",
+        "desc": "CRACKER로 10회 이상 승리했다.",
+    },
+    {
+        "id": "triple_10",
+        "title": "완전한 침입자",
+        "desc": "세 클래스 모두 10회 이상 승리했다.",
+    },
+    # ── 도전 확장 (Challenge+) ────────────────────────────────────────────────
+    {
+        "id": "ascension_3",
+        "title": "첫 번째 각성",
+        "desc": "Ascension 3 이상에서 승리했다.",
+    },
+    {
+        "id": "ascension_7",
+        "title": "시스템 압박",
+        "desc": "Ascension 7 이상에서 승리했다.",
+    },
+    {
+        "id": "ascension_12",
+        "title": "심화 침투",
+        "desc": "Ascension 12 이상에서 승리했다.",
+    },
+    {
+        "id": "ascension_17",
+        "title": "극한의 문턱",
+        "desc": "Ascension 17 이상에서 승리했다.",
+    },
+    # ── 수집 확장 (Collection+) ───────────────────────────────────────────────
+    {
+        "id": "campaign_points_50000",
+        "title": "데이터 폭풍",
+        "desc": "캠페인 포인트 50,000점을 달성했다.",
+    },
+    {
+        "id": "campaign_points_100000",
+        "title": "무한 데이터",
+        "desc": "캠페인 포인트 100,000점을 달성했다.",
+    },
+    # ── 극한 확장 (Extreme+) ──────────────────────────────────────────────────
+    {
+        "id": "ascension_20_analyst",
+        "title": "알고리즘의 끝자락",
+        "desc": "ANALYST로 Ascension 20을 클리어했다.",
+    },
+    {
+        "id": "ascension_20_ghost",
+        "title": "그림자의 정점",
+        "desc": "GHOST로 Ascension 20을 클리어했다.",
+    },
+    {
+        "id": "ascension_20_cracker",
+        "title": "균열의 완성",
+        "desc": "CRACKER로 Ascension 20을 클리어했다.",
+    },
+    {
+        "id": "asc20_no_perk",
+        "title": "맨손의 신",
+        "desc": "영구 특성 없이 Ascension 20을 클리어했다.",
+    },
+    {
+        "id": "asc20_trinity",
+        "title": "터미널의 지배자",
+        "desc": "세 클래스 모두로 Ascension 20을 클리어했다.",
+    },
+    {
+        "id": "analyst_zero_trace",
+        "title": "완벽한 분석",
+        "desc": "ANALYST로 런 종료 시 추적도 0%로 승리했다.",
+    },
 )
 
 ACHIEVEMENT_INDEX: dict[str, dict[str, str]] = {
@@ -263,6 +389,7 @@ def evaluate_achievements(
         trace_final = max(0, int(run_summary.get("trace_final", 100)))
         correct_answers = max(0, int(run_summary.get("correct_answers", 0)))
         cleared_difficulties: list[str] = list(run_summary.get("cleared_difficulties", []))
+        skill_used = bool(run_summary.get("skill_used", False))
 
         if result == "shutdown":
             _unlock("first_shutdown")
@@ -279,12 +406,20 @@ def evaluate_achievements(
                 _unlock("cracker_victory")
 
             # ASC 단계별 승리
+            if ascension_level >= 3:
+                _unlock("ascension_3")
             if ascension_level >= 5:
                 _unlock("ascension_5")
+            if ascension_level >= 7:
+                _unlock("ascension_7")
             if ascension_level >= 10:
                 _unlock("ascension_10")
+            if ascension_level >= 12:
+                _unlock("ascension_12")
             if ascension_level >= 15:
                 _unlock("ascension_15")
+            if ascension_level >= 17:
+                _unlock("ascension_17")
             if ascension_level >= 20:
                 _unlock("ascension_20")
 
@@ -293,10 +428,16 @@ def evaluate_achievements(
                 _unlock("perfect_infiltration")
                 if class_key == "ANALYST":
                     _unlock("perfect_analyst")
+                if class_key == "GHOST":
+                    _unlock("perfect_ghost")
+                if class_key == "CRACKER":
+                    _unlock("perfect_cracker")
                 if ascension_level >= 20:
                     _unlock("ascension_20_perfect")
             if trace_final == 0:
                 _unlock("zero_trace_win")
+                if class_key == "ANALYST":
+                    _unlock("analyst_zero_trace")
 
             # 전체 노드 정답 (8노드 클리어, 오답 0)
             if correct_answers >= 8 and wrong_analyzes == 0:
@@ -305,10 +446,25 @@ def evaluate_achievements(
             # 퍼크 없이 승리
             if not any(perks.values()):
                 _unlock("no_perk_win")
+                if ascension_level >= 20:
+                    _unlock("asc20_no_perk")
+
+            # 스킬 미사용 승리
+            if not skill_used:
+                _unlock("no_skill_win")
 
             # NIGHTMARE 노드 포함 런 클리어
             if any(d.strip().upper() == "NIGHTMARE" for d in cleared_difficulties):
                 _unlock("nightmare_clear")
+
+            # ASC 20 클래스별 승리
+            if ascension_level >= 20:
+                if class_key == "ANALYST":
+                    _unlock("ascension_20_analyst")
+                if class_key == "GHOST":
+                    _unlock("ascension_20_ghost")
+                if class_key == "CRACKER":
+                    _unlock("ascension_20_cracker")
 
     # 캠페인 누적 지표 (run_summary 없이도 평가)
     campaign_runs = int(campaign.get("runs", 0))
@@ -317,16 +473,30 @@ def evaluate_achievements(
 
     if campaign_runs >= 10:
         _unlock("runs_10")
+    if campaign_runs >= 25:
+        _unlock("runs_25")
     if campaign_runs >= 50:
         _unlock("runs_50")
+    if campaign_runs >= 100:
+        _unlock("runs_100")
+    if campaign_runs >= 200:
+        _unlock("runs_200")
     if campaign_victories >= 5:
         _unlock("victories_5")
     if campaign_victories >= 25:
         _unlock("victories_25")
+    if campaign_victories >= 50:
+        _unlock("victories_50")
+    if campaign_victories >= 100:
+        _unlock("victories_100")
     if campaign_points >= 10000:
         _unlock("campaign_points_10000")
     if campaign_points >= 30000:
         _unlock("campaign_points_30000")
+    if campaign_points >= 50000:
+        _unlock("campaign_points_50000")
+    if campaign_points >= 100000:
+        _unlock("campaign_points_100000")
 
     # 클래스 마스터 (class_victories 기반)
     if all(int(class_victories.get(ck, 0)) >= 1 for ck in ("ANALYST", "GHOST", "CRACKER")):
@@ -339,6 +509,14 @@ def evaluate_achievements(
         _unlock("cracker_master")
     if all(int(class_victories.get(ck, 0)) >= 5 for ck in ("ANALYST", "GHOST", "CRACKER")):
         _unlock("triple_master")
+    if int(class_victories.get("ANALYST", 0)) >= 10:
+        _unlock("analyst_10")
+    if int(class_victories.get("GHOST", 0)) >= 10:
+        _unlock("ghost_10")
+    if int(class_victories.get("CRACKER", 0)) >= 10:
+        _unlock("cracker_10")
+    if all(int(class_victories.get(ck, 0)) >= 10 for ck in ("ANALYST", "GHOST", "CRACKER")):
+        _unlock("triple_10")
 
     # 퍼크 수집
     if perks and all(bool(perks.get(perk_key, False)) for perk_key in perks):
@@ -354,6 +532,11 @@ def evaluate_achievements(
                 _unlock("endings_3")
             if endings_count >= 5:
                 _unlock("all_endings")
+
+    # ASC 20 삼중 클리어 (세 클래스 모두 asc20 승리 업적 보유 시)
+    asc20_classes = {"ascension_20_analyst", "ascension_20_ghost", "ascension_20_cracker"}
+    if asc20_classes.issubset(unlocked):
+        _unlock("asc20_trinity")
 
     # 캠페인 클리어
     if bool(campaign.get("cleared", False)):

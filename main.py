@@ -1260,7 +1260,7 @@ def run_game_session(
                     )
 
                     if combat_result == "death":
-                        return correct_answers, False, "shutdown", node_difficulties_cleared, {"wrong_analyzes": run_state.get("wrong_analyzes", 0), "timeout_events": run_state.get("timeout_events", 0), "trace_final": trace_level}
+                        return correct_answers, False, "shutdown", node_difficulties_cleared, {"wrong_analyzes": run_state.get("wrong_analyzes", 0), "timeout_events": run_state.get("timeout_events", 0), "trace_final": trace_level, "skill_used": bool(run_state.get("active_skill_used", False))}
 
                     if phase_index < total_boss_phases:
                         console.print(
@@ -1282,7 +1282,7 @@ def run_game_session(
                 )
 
             if combat_result == "death":
-                return correct_answers, False, "shutdown", node_difficulties_cleared, {"wrong_analyzes": run_state.get("wrong_analyzes", 0), "timeout_events": run_state.get("timeout_events", 0), "trace_final": trace_level}
+                return correct_answers, False, "shutdown", node_difficulties_cleared, {"wrong_analyzes": run_state.get("wrong_analyzes", 0), "timeout_events": run_state.get("timeout_events", 0), "trace_final": trace_level, "skill_used": bool(run_state.get("active_skill_used", False))}
 
             # 전투 클리어 후 처리
             correct_answers += 1
@@ -1348,7 +1348,7 @@ def run_game_session(
             current_node_type = left if path_choice.upper() == "A" else right
 
     console.print("[bold green]CORE BREACHED - 승리[/bold green]")
-    return correct_answers, True, "victory", node_difficulties_cleared, {"wrong_analyzes": run_state.get("wrong_analyzes", 0), "timeout_events": run_state.get("timeout_events", 0), "trace_final": trace_level}
+    return correct_answers, True, "victory", node_difficulties_cleared, {"wrong_analyzes": run_state.get("wrong_analyzes", 0), "timeout_events": run_state.get("timeout_events", 0), "trace_final": trace_level, "skill_used": bool(run_state.get("active_skill_used", False))}
 
 
 def run_shop(save_data: dict[str, Any]) -> None:
@@ -1782,6 +1782,7 @@ def run_lobby_loop() -> None:
                     "trace_final": run_stats.get("trace_final", 100),
                     "correct_answers": correct_answers,
                     "cleared_difficulties": node_difficulties_cleared,
+                    "skill_used": bool(run_stats.get("skill_used", False)),
                 }
                 # 엔딩 판정
                 triggered_ending = evaluate_ending(run_summary, save_data)
