@@ -122,12 +122,19 @@ def _build_runtime_modifiers(perks: dict[str, bool]) -> dict[str, Any]:
         timeout_penalty: 타임아웃 추적도 패널티 (기본 TIMEOUT_PENALTY)
         elite_penalty_cap: ELITE 노드 페널티 배율 상한 (기본 1.5, dual_core 보유 시 1.2)
     """
+    base_timeout = TIMEOUT_PENALTY
+    if perks.get("trace_dampener", False):
+        base_timeout = max(1, int(base_timeout * 0.9))
+
     return {
         "penalty_multiplier": 0.85 if perks.get("penalty_reduction", False) else 1.0,
         "time_limit_seconds": TIME_LIMIT_EXTENDED if perks.get("time_extension", False) else TIME_LIMIT_DEFAULT,
         "glitch_word_count": 1 if perks.get("glitch_filter", False) else None,
-        "timeout_penalty": TIMEOUT_PENALTY,
-        "elite_penalty_cap": ELITE_PENALTY_MULT,
+        "timeout_penalty": base_timeout,
+        "elite_penalty_cap": 1.35 if perks.get("elite_shield", False) else ELITE_PENALTY_MULT,
+        "node_scanner_active": bool(perks.get("node_scanner", False)),
+        "frag_reward_multiplier": 1.2 if perks.get("fragment_amplifier", False) else 1.0,
+        "on_correct_time_bonus": 3 if perks.get("keyword_echo", False) else 0,
     }
 
 

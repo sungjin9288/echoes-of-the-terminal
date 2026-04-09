@@ -1,9 +1,13 @@
-"""Campaign progression tests for 100h clear condition."""
+"""Campaign progression tests for 100h clear condition and perk system."""
 
 from progression_system import (
     CAMPAIGN_CLEAR_CLASS_VICTORIES,
     CAMPAIGN_CLEAR_POINTS,
     CAMPAIGN_CLEAR_TOTAL_VICTORIES,
+    PERK_DESC_MAP,
+    PERK_LABEL_MAP,
+    PERK_MENU_MAP,
+    PERK_PRICES,
     calculate_campaign_gain,
     get_campaign_progress_snapshot,
     is_campaign_cleared,
@@ -110,3 +114,40 @@ def test_campaign_snapshot_contains_ascension_unlocked() -> None:
         }
     )
     assert snapshot["ascension_unlocked"] == 7
+
+
+# ── 퍼크 시스템 구조 검증 (10종) ──────────────────────────────────────────────
+
+def test_perk_menu_map_has_10_entries() -> None:
+    assert len(PERK_MENU_MAP) == 10
+
+
+def test_all_perk_maps_cover_same_keys() -> None:
+    perk_ids = set(PERK_MENU_MAP.values())
+    assert perk_ids == set(PERK_LABEL_MAP.keys())
+    assert perk_ids == set(PERK_DESC_MAP.keys())
+    assert perk_ids == set(PERK_PRICES.keys())
+
+
+def test_perk_prices_are_positive_integers() -> None:
+    for perk_id, price in PERK_PRICES.items():
+        assert isinstance(price, int) and price > 0, (
+            f"{perk_id} 가격이 유효하지 않음: {price}"
+        )
+
+
+def test_new_perks_exist_in_all_maps() -> None:
+    new_perks = [
+        "node_scanner", "trace_dampener",
+        "fragment_amplifier", "elite_shield", "keyword_echo",
+    ]
+    for perk_id in new_perks:
+        assert perk_id in PERK_LABEL_MAP, f"{perk_id} LABEL_MAP 누락"
+        assert perk_id in PERK_DESC_MAP, f"{perk_id} DESC_MAP 누락"
+        assert perk_id in PERK_PRICES, f"{perk_id} PRICES 누락"
+        assert perk_id in set(PERK_MENU_MAP.values()), f"{perk_id} MENU_MAP 누락"
+
+
+def test_perk_menu_keys_are_single_chars() -> None:
+    for key in PERK_MENU_MAP:
+        assert len(key) == 1, f"메뉴 키가 단일 문자가 아님: '{key}'"

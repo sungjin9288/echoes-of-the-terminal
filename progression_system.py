@@ -76,6 +76,11 @@ PERK_MENU_MAP: dict[str, str] = {
     "3": "glitch_filter",
     "4": "backtrack_protocol",
     "5": "lexical_assist",
+    "6": "node_scanner",
+    "7": "trace_dampener",
+    "8": "fragment_amplifier",
+    "9": "elite_shield",
+    "0": "keyword_echo",
 }
 
 PERK_LABEL_MAP: dict[str, str] = {
@@ -84,6 +89,11 @@ PERK_LABEL_MAP: dict[str, str] = {
     "glitch_filter": "글리치 필터",
     "backtrack_protocol": "백트랙 프로토콜",
     "lexical_assist": "어휘 보조 모듈",
+    "node_scanner": "노드 스캐너",
+    "trace_dampener": "추적 완충기",
+    "fragment_amplifier": "파편 증폭기",
+    "elite_shield": "엘리트 실드",
+    "keyword_echo": "키워드 에코",
 }
 
 PERK_DESC_MAP: dict[str, str] = {
@@ -92,6 +102,11 @@ PERK_DESC_MAP: dict[str, str] = {
     "glitch_filter": "Hard 글리치 마스킹 단어 수 1개로 완화",
     "backtrack_protocol": "사망 직전 추적도를 50%로 회복 (런당 1회)",
     "lexical_assist": "NIGHTMARE 노드 진입 시 키워드 첫 글자 힌트 공개",
+    "node_scanner": "노드 진입 전 해당 노드 난이도 미리 공개",
+    "trace_dampener": "타임아웃 추적도 패널티 추가 10% 감소",
+    "fragment_amplifier": "런 완료 시 파편 보상 +20% 추가 지급",
+    "elite_shield": "ELITE 노드 페널티 배율 상한 1.5× → 1.35×",
+    "keyword_echo": "노드 정답 후 다음 노드 제한시간 +3초 보정",
 }
 
 PERK_PRICES: dict[str, int] = {
@@ -100,6 +115,11 @@ PERK_PRICES: dict[str, int] = {
     "glitch_filter": 20,
     "backtrack_protocol": 80,
     "lexical_assist": 60,
+    "node_scanner": 40,
+    "trace_dampener": 45,
+    "fragment_amplifier": 35,
+    "elite_shield": 70,
+    "keyword_echo": 65,
 }
 
 # ── 장기 캠페인(100시간 목표) 메타 진행도 ───────────────────────────────────────
