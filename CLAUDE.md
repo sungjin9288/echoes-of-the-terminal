@@ -35,7 +35,7 @@ Echoes of the Terminal/
 ├── artifact_system.py       # 20종 아티팩트 시스템 (314줄)
 ├── data_loader.py           # JSON 데이터 로딩 & 검증 (231줄)
 ├── daily_challenge.py       # 일일 도전 시스템 (219줄)
-├── ending_system.py         # 5종 엔딩 판정 (205줄)
+├── ending_system.py         # 8종 엔딩 판정 (264줄)
 ├── diver_class.py           # 3종 다이버 클래스 (194줄)
 ├── achievement_system.py    # 100종 업적 시스템 (908줄)
 ├── mutator_system.py        # Glitch 마스킹 텍스트 변형 (128줄)
@@ -44,18 +44,19 @@ Echoes of the Terminal/
 ├── combat_timer.py          # 전투 타이머 캡슐화 (70줄)
 ├── constants.py             # 전역 상수 단일 출처 (37줄)
 │
-├── scenarios.json           # 168개 시나리오 데이터 (Pack 01-08)
+├── scenarios.json           # 176개 시나리오 데이터 (Pack 01-09)
 ├── boss_phase_pack.json     # ASC20 보스 페이즈 오버라이드
 ├── argos_taunts.json        # ARGOS AI 다이얼로그
 ├── save_data.json           # 플레이어 세이브 데이터 (런타임 생성)
 │
-├── tests/                   # pytest 테스트 (8파일, 119케이스)
+├── tests/                   # pytest 테스트 (9파일, 137케이스)
 │   ├── test_achievement_system.py
 │   ├── test_artifact_effects.py
 │   ├── test_ascension_runtime.py
 │   ├── test_boss_phase_pack.py
 │   ├── test_boss_phase_pack_tools.py
 │   ├── test_campaign_progression.py
+│   ├── test_ending_system.py
 │   ├── test_penalty_calculation.py
 │   └── test_run_game_session.py
 │
@@ -262,6 +263,7 @@ def test_penalty_with_elite_modifier(monkeypatch) -> None:
 | `test_boss_phase_pack.py` | 2 | 보스 페이즈 로딩 |
 | `test_boss_phase_pack_tools.py` | 3 | 템플릿 생성 검증 |
 | `test_campaign_progression.py` | 12 | 100시간 캠페인 클리어 조건 + 퍼크 구조 |
+| `test_ending_system.py` | 18 | 8종 엔딩 조건 + 해금 기록 검증 |
 | `test_penalty_calculation.py` | 5 | 멀티플라이어 스태킹 |
 | `test_run_game_session.py` | 6 | 게임 루프 통합 테스트 |
 

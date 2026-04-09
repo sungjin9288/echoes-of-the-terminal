@@ -1,4 +1,4 @@
-"""멀티 엔딩 시스템 — 런 결과 조건에 따른 5종 엔딩 판정."""
+"""멀티 엔딩 시스템 — 런 결과 조건에 따른 8종 엔딩 판정."""
 
 from __future__ import annotations
 
@@ -21,7 +21,7 @@ class Ending:
     priority: int        # 낮을수록 먼저 표시 (복수 조건 충족 시)
 
 
-# ── 엔딩 정의 (5종) ──────────────────────────────────────────────────────────
+# ── 엔딩 정의 (8종) ──────────────────────────────────────────────────────────
 
 ENDINGS: dict[str, Ending] = {
     "TRUE_END": Ending(
@@ -94,6 +94,48 @@ ENDINGS: dict[str, Ending] = {
         border_style="#FF6347",
         priority=5,
     ),
+    "SPEEDRUN_END": Ending(
+        ending_id="SPEEDRUN_END",
+        title="ZERO LATENCY",
+        subtitle="완벽 속도 침투",
+        flavor_text=(
+            "오답 없음. 타임아웃 없음. ASC 10 이상.\n"
+            "당신은 시스템을 분해하듯 통과했다.\n\n"
+            "ARGOS는 당신을 추적조차 할 수 없었다.\n"
+            "빛보다 빠른 침투자."
+        ),
+        color="bold #E0E0FF",
+        border_style="#A0A0FF",
+        priority=6,
+    ),
+    "CRACKER_END": Ending(
+        ending_id="CRACKER_END",
+        title="CHAIN REACTION",
+        subtitle="연쇄 균열 돌파",
+        flavor_text=(
+            "CRACKER. 오답 없이 악몽을 통과했다.\n"
+            "연속 클리어 스트릭이 극에 달했을 때,\n\n"
+            "ARGOS의 방어선은 도미노처럼 무너졌다.\n"
+            "한 번의 균열이 전체를 삼켰다."
+        ),
+        color="bold #FFA500",
+        border_style="#FF8C00",
+        priority=7,
+    ),
+    "VETERAN_END": Ending(
+        ending_id="VETERAN_END",
+        title="IRON WILL",
+        subtitle="역경 속 철의 의지",
+        flavor_text=(
+            "세 번 틀렸다. 그래도 ASC 15 이상.\n"
+            "당신은 완벽하지 않았다. 하지만 포기하지 않았다.\n\n"
+            "ARGOS는 당신을 다 잡았다고 생각했다.\n"
+            "그러나 베테랑은 실수로부터 배운다."
+        ),
+        color="bold #CD853F",
+        border_style="#8B6914",
+        priority=8,
+    ),
 }
 
 # 잠금 해제 기록용 세이브 키
@@ -110,11 +152,13 @@ def evaluate_ending(
     Args:
         run_result: {
             "is_victory": bool,
-            "trace_final": int,          # 런 종료 시 추적도 (%)
-            "wrong_analyzes": int,        # 오답 횟수
-            "timeout_events": int,        # 타임아웃 횟수
-            "ascension_level": int,       # 플레이한 각성 레벨
-            "correct_answers": int,       # 클리어한 노드 수
+            "trace_final": int,              # 런 종료 시 추적도 (%)
+            "wrong_analyzes": int,            # 오답 횟수
+            "timeout_events": int,            # 타임아웃 횟수
+            "ascension_level": int,           # 플레이한 각성 레벨
+            "correct_answers": int,           # 클리어한 노드 수
+            "class_key": str,                 # 다이버 클래스 (ANALYST/GHOST/CRACKER)
+            "cleared_difficulties": list[str], # 클리어한 노드 난이도 목록
         }
         save_data: 전체 세이브 데이터
 
@@ -130,6 +174,8 @@ def evaluate_ending(
     timeouts = int(run_result.get("timeout_events", 0))
     asc = int(run_result.get("ascension_level", 0))
     correct = int(run_result.get("correct_answers", 0))
+    class_key = str(run_result.get("class_key", "")).upper()
+    cleared_difficulties: list[str] = list(run_result.get("cleared_difficulties", []))
 
     candidates: list[Ending] = []
 
@@ -152,6 +198,19 @@ def evaluate_ending(
     # SURVIVOR_END: 최종 추적도 90% 이상으로 승리
     if trace >= 90:
         candidates.append(ENDINGS["SURVIVOR_END"])
+
+    # SPEEDRUN_END: 오답 0 + 타임아웃 0 + ASC 10 이상
+    if wrong == 0 and timeouts == 0 and asc >= 10:
+        candidates.append(ENDINGS["SPEEDRUN_END"])
+
+    # CRACKER_END: CRACKER 클래스 + 오답 0 + NIGHTMARE 노드 포함 클리어
+    _has_nightmare = any(d.strip().upper() == "NIGHTMARE" for d in cleared_difficulties)
+    if class_key == "CRACKER" and wrong == 0 and _has_nightmare:
+        candidates.append(ENDINGS["CRACKER_END"])
+
+    # VETERAN_END: ASC 15 이상 + 오답 3회 이상으로 승리
+    if asc >= 15 and wrong >= 3:
+        candidates.append(ENDINGS["VETERAN_END"])
 
     if not candidates:
         return None
