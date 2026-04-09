@@ -214,19 +214,20 @@
   - `node_id`, `theme`, `difficulty`, `text_log`, `target_keyword`, `penalty_rate`
 
 ## 13. 현재 데이터셋 통계 (scenarios.json)
-- 총 시나리오: 152
-- 일반 시나리오: 130 (Easy 65 + Hard 65)
+- 총 시나리오: 160
+- 일반 시나리오: 138 (Easy 69 + Hard 69)
 - 보스 시나리오: 22 (NIGHTMARE 전용)
 - 난이도 분포
-  - Easy: 65 (일반)
-  - Hard: 65 (일반)
+  - Easy: 69 (일반)
+  - Hard: 69 (일반)
   - NIGHTMARE: 22 (보스 전용)
-- 테마 수: 86
+- 테마 수: 90
 - Pack 01~02: node_id 1~118 (기존)
 - Pack 03: node_id 119~128 (ANTARCTIC, RENAISSANCE, FUTURE_COURT, AI_LOG)
 - Pack 04: node_id 129~136 (POW_INTERROGATION, ANCIENT_EGYPT, CYBER_TERROR, COLONY_PLANET)
 - Pack 05: node_id 137~144 (ASYLUM_JOURNAL, JOSEON_ANNALS, MAFIA_DOCUMENT, SUBMARINE_LOG)
 - Pack 06: node_id 145~152 (MEDIEVAL_MONASTERY, COLD_WAR_SPY, DEEP_SEA_BASE, PLAGUE_RECORD)
+- Pack 07: node_id 153~160 (SPACE_STATION, VIKING_VOYAGE, PROHIBITION_ERA, ROMAN_LEGION)
 
 ## 14. 구현-설명 차이 메모 (현 시점)
 기준일 업데이트: 2026-04-06

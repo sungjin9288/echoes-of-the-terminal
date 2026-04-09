@@ -77,3 +77,61 @@ def test_overclock_extends_time_limit_by_five() -> None:
     apply_artifact_effect(_artifact("overclock"), runtime, run_state)
 
     assert runtime["time_limit_seconds"] == 35
+
+
+def test_signal_buffer_sets_on_timeout_skip_once() -> None:
+    runtime: dict[str, object] = {}
+    run_state: dict[str, object] = {}
+
+    apply_artifact_effect(_artifact("signal_buffer"), runtime, run_state)
+
+    assert run_state.get("on_timeout_skip_once") is True
+
+
+def test_frag_scanner_applies_shop_discount() -> None:
+    runtime: dict[str, float] = {}
+    run_state: dict[str, object] = {}
+
+    apply_artifact_effect(_artifact("frag_scanner"), runtime, run_state)
+
+    assert abs(runtime["shop_discount"] - 0.9) < 1e-9
+
+    # 중복 적용 시 복리로 곱해진다
+    apply_artifact_effect(_artifact("frag_scanner"), runtime, run_state)
+    assert abs(runtime["shop_discount"] - 0.81) < 1e-9
+
+
+def test_chrono_anchor_restores_time_on_wrong() -> None:
+    runtime: dict[str, object] = {}
+    run_state: dict[str, int] = {}
+
+    apply_artifact_effect(_artifact("chrono_anchor"), runtime, run_state)
+
+    assert run_state["on_wrong_time_restore"] == 3
+
+    # 중복 적용 시 누적
+    apply_artifact_effect(_artifact("chrono_anchor"), runtime, run_state)
+    assert run_state["on_wrong_time_restore"] == 6
+
+
+def test_entropy_sink_caps_elite_flat_penalty() -> None:
+    runtime: dict[str, int] = {}
+    run_state: dict[str, object] = {}
+
+    apply_artifact_effect(_artifact("entropy_sink"), runtime, run_state)
+
+    assert runtime["elite_flat_penalty_cap"] == 30
+
+    # 이미 낮은 값이면 더 낮은 쪽을 유지
+    runtime2: dict[str, int] = {"elite_flat_penalty_cap": 20}
+    apply_artifact_effect(_artifact("entropy_sink"), runtime2, run_state)
+    assert runtime2["elite_flat_penalty_cap"] == 20
+
+
+def test_system_purge_sets_clear_trace_to_zero() -> None:
+    runtime: dict[str, object] = {}
+    run_state: dict[str, object] = {}
+
+    apply_artifact_effect(_artifact("system_purge"), runtime, run_state)
+
+    assert run_state.get("clear_trace_to_zero") is True

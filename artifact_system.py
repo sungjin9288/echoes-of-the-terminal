@@ -19,7 +19,7 @@ class Artifact:
     rarity: str  # "COMMON" | "RARE" | "EPIC"
 
 
-# ── 아티팩트 풀 정의 (15종) ────────────────────────────────────────────────────
+# ── 아티팩트 풀 정의 (20종) ────────────────────────────────────────────────────
 # 효과는 main.py의 _apply_artifact_effects()에서 런타임 설정에 반영된다.
 ARTIFACT_POOL: list[Artifact] = [
     # COMMON (7종)
@@ -115,6 +115,39 @@ ARTIFACT_POOL: list[Artifact] = [
         "매 노드 진입 시 추적도 3% 자동 감소",
         "EPIC",
     ),
+    # COMMON 추가 (2종) ──────────────────────────────────────────────────────────
+    Artifact(
+        "signal_buffer",
+        "신호 버퍼",
+        "타임아웃 발생 시 첫 추적도 상승 1회 면제",
+        "COMMON",
+    ),
+    Artifact(
+        "frag_scanner",
+        "파편 스캐너",
+        "SHOP 노드 아이템 구매 비용 10% 감소",
+        "COMMON",
+    ),
+    # RARE 추가 (2종) ────────────────────────────────────────────────────────────
+    Artifact(
+        "chrono_anchor",
+        "크로노 앵커",
+        "오답 발생 시 제한시간 +3초 즉시 복구",
+        "RARE",
+    ),
+    Artifact(
+        "entropy_sink",
+        "엔트로피 싱크",
+        "ELITE 노드 오답 추적도 상한 30%로 제한",
+        "RARE",
+    ),
+    # EPIC 추가 (1종) ────────────────────────────────────────────────────────────
+    Artifact(
+        "system_purge",
+        "시스템 퍼지",
+        "런 클리어 시 최종 추적도를 0으로 기록",
+        "EPIC",
+    ),
 ]
 
 # ID → Artifact 빠른 조회용 맵
@@ -147,7 +180,11 @@ def apply_artifact_effect(
         skip_next_penalty, ghost_signal_active, phantom_core_active,
         quantum_key_active, per_node_trace_reduction,
         on_clear_trace_reduction, on_clear_frag_bonus, rest_heal_bonus,
-        memory_echo_active, echo_cache_active
+        memory_echo_active, echo_cache_active,
+        on_timeout_skip_once, on_wrong_time_restore, clear_trace_to_zero
+
+    runtime 추가 수정 키:
+        shop_discount, elite_flat_penalty_cap
     """
     art_id = artifact.artifact_id
 
@@ -210,6 +247,25 @@ def apply_artifact_effect(
 
     elif art_id == "coolant_pack":
         run_state["rest_heal_bonus"] = run_state.get("rest_heal_bonus", 0) + 10
+
+    elif art_id == "signal_buffer":
+        run_state.setdefault("on_timeout_skip_once", True)
+
+    elif art_id == "frag_scanner":
+        runtime["shop_discount"] = runtime.get("shop_discount", 1.0) * 0.9
+
+    elif art_id == "chrono_anchor":
+        run_state["on_wrong_time_restore"] = (
+            run_state.get("on_wrong_time_restore", 0) + 3
+        )
+
+    elif art_id == "entropy_sink":
+        runtime["elite_flat_penalty_cap"] = min(
+            runtime.get("elite_flat_penalty_cap", 999), 30
+        )
+
+    elif art_id == "system_purge":
+        run_state.setdefault("clear_trace_to_zero", True)
 
 
 def draw_artifacts(

@@ -32,7 +32,7 @@ Echoes of the Terminal/
 ├── ui_renderer.py           # Rich 터미널 UI 렌더링 (713줄)
 ├── progression_system.py    # 세이브/퍼크/캠페인/어센션 (544줄)
 ├── combat_commands.py       # 전투 커맨드 핸들러 + 페널티 계산 (279줄)
-├── artifact_system.py       # 15종 아티팩트 시스템 (258줄)
+├── artifact_system.py       # 20종 아티팩트 시스템 (314줄)
 ├── data_loader.py           # JSON 데이터 로딩 & 검증 (231줄)
 ├── daily_challenge.py       # 일일 도전 시스템 (219줄)
 ├── ending_system.py         # 5종 엔딩 판정 (205줄)
@@ -44,12 +44,12 @@ Echoes of the Terminal/
 ├── combat_timer.py          # 전투 타이머 캡슐화 (70줄)
 ├── constants.py             # 전역 상수 단일 출처 (37줄)
 │
-├── scenarios.json           # 152개 시나리오 데이터 (Pack 01-06)
+├── scenarios.json           # 160개 시나리오 데이터 (Pack 01-07)
 ├── boss_phase_pack.json     # ASC20 보스 페이즈 오버라이드
 ├── argos_taunts.json        # ARGOS AI 다이얼로그
 ├── save_data.json           # 플레이어 세이브 데이터 (런타임 생성)
 │
-├── tests/                   # pytest 테스트 (8파일, 109케이스)
+├── tests/                   # pytest 테스트 (8파일, 114케이스)
 │   ├── test_achievement_system.py
 │   ├── test_artifact_effects.py
 │   ├── test_ascension_runtime.py
@@ -257,7 +257,7 @@ def test_penalty_with_elite_modifier(monkeypatch) -> None:
 | 파일 | 케이스 | 내용 |
 |---|---|---|
 | `test_achievement_system.py` | 70 | 100종 업적 해금 조건 + 중복 방지 검증 |
-| `test_artifact_effects.py` | 7 | 15종 아티팩트 runtime 수정 검증 |
+| `test_artifact_effects.py` | 12 | 20종 아티팩트 runtime 수정 검증 |
 | `test_ascension_runtime.py` | 15 | 패널티 스케일링, 시간 조정, 보스 페이즈 |
 | `test_boss_phase_pack.py` | 2 | 보스 페이즈 로딩 |
 | `test_boss_phase_pack_tools.py` | 3 | 템플릿 생성 검증 |
