@@ -401,6 +401,136 @@ ACHIEVEMENTS: tuple[dict[str, str], ...] = (
         "title": "균열의 완성",
         "desc": "CRACKER로 Ascension 10 이상에서 오답 없이 승리했다.",
     },
+    # ── 탐험 최종 (Exploration Final) ────────────────────────────────────────
+    {
+        "id": "runs_300",
+        "title": "침입의 역사",
+        "desc": "총 300회 런을 완료했다.",
+    },
+    {
+        "id": "runs_500",
+        "title": "불멸의 해커",
+        "desc": "총 500회 런을 완료했다.",
+    },
+    {
+        "id": "victories_200",
+        "title": "무적의 침투자",
+        "desc": "누적 200회 승리를 달성했다.",
+    },
+    {
+        "id": "victories_500",
+        "title": "전설의 시작",
+        "desc": "누적 500회 승리를 달성했다.",
+    },
+    # ── 완벽 최종 (Perfection Final) ─────────────────────────────────────────
+    {
+        "id": "perfect_asc15",
+        "title": "각성의 완벽함",
+        "desc": "Ascension 15 이상에서 오답 없이 런을 클리어했다.",
+    },
+    {
+        "id": "no_skill_perfect",
+        "title": "본능적 침투",
+        "desc": "액티브 스킬 미사용으로 오답 없이 런을 클리어했다.",
+    },
+    {
+        "id": "ghost_trace_zero",
+        "title": "유령의 궤적",
+        "desc": "GHOST로 런 종료 시 추적도 0%로 승리했다.",
+    },
+    {
+        "id": "cracker_trace_zero",
+        "title": "균열 없는 균열",
+        "desc": "CRACKER로 런 종료 시 추적도 0%로 승리했다.",
+    },
+    {
+        "id": "no_timeout_asc15",
+        "title": "시간을 지배하는 자",
+        "desc": "Ascension 15 이상에서 타임아웃 없이 승리했다.",
+    },
+    {
+        "id": "survivor",
+        "title": "포기를 모르는 자",
+        "desc": "3회 이상 오답 입력 후에도 런을 클리어했다.",
+    },
+    # ── 클래스 최종 (Class Final) ─────────────────────────────────────────────
+    {
+        "id": "analyst_nightmare",
+        "title": "분석의 악몽",
+        "desc": "ANALYST로 NIGHTMARE 노드가 포함된 런을 클리어했다.",
+    },
+    {
+        "id": "ghost_nightmare",
+        "title": "유령의 악몽",
+        "desc": "GHOST로 NIGHTMARE 노드가 포함된 런을 클리어했다.",
+    },
+    {
+        "id": "perfect_analyst_asc20",
+        "title": "분석의 신",
+        "desc": "ANALYST로 Ascension 20에서 오답 없이 런을 클리어했다.",
+    },
+    {
+        "id": "perfect_ghost_asc20",
+        "title": "유령의 신",
+        "desc": "GHOST로 Ascension 20에서 오답 없이 런을 클리어했다.",
+    },
+    {
+        "id": "perfect_cracker_asc20",
+        "title": "균열의 신",
+        "desc": "CRACKER로 Ascension 20에서 오답 없이 런을 클리어했다.",
+    },
+    {
+        "id": "ghost_asc20_no_timeout",
+        "title": "유령의 침묵",
+        "desc": "GHOST로 Ascension 20에서 타임아웃 없이 승리했다.",
+    },
+    {
+        "id": "no_skill_asc20",
+        "title": "각성 속 맨주먹",
+        "desc": "Ascension 20에서 액티브 스킬을 사용하지 않고 승리했다.",
+    },
+    # ── 핸디캡 (Handicap) ────────────────────────────────────────────────────
+    {
+        "id": "no_skill_no_perk",
+        "title": "순수한 침투",
+        "desc": "영구 특성과 액티브 스킬 없이 런을 클리어했다.",
+    },
+    {
+        "id": "analyst_no_perk",
+        "title": "무장해제된 분석가",
+        "desc": "ANALYST로 영구 특성 없이 승리했다.",
+    },
+    {
+        "id": "ghost_no_perk",
+        "title": "무장해제된 유령",
+        "desc": "GHOST로 영구 특성 없이 승리했다.",
+    },
+    {
+        "id": "cracker_no_perk",
+        "title": "무장해제된 균열",
+        "desc": "CRACKER로 영구 특성 없이 승리했다.",
+    },
+    # ── 수집 최종 (Collection Final) ─────────────────────────────────────────
+    {
+        "id": "data_fragments_5000",
+        "title": "데이터 황제",
+        "desc": "데이터 파편을 5,000개 이상 보유했다.",
+    },
+    {
+        "id": "data_fragments_10000",
+        "title": "데이터 신",
+        "desc": "데이터 파편을 10,000개 이상 보유했다.",
+    },
+    {
+        "id": "campaign_points_200000",
+        "title": "무한 데이터 군주",
+        "desc": "캠페인 포인트 200,000점을 달성했다.",
+    },
+    {
+        "id": "campaign_points_500000",
+        "title": "시스템의 붕괴",
+        "desc": "캠페인 포인트 500,000점을 달성했다.",
+    },
 )
 
 ACHIEVEMENT_INDEX: dict[str, dict[str, str]] = {
@@ -592,6 +722,8 @@ def evaluate_achievements(
             # 클래스 심화
             if class_key == "GHOST" and timeout_events == 0:
                 _unlock("ghost_no_timeout")
+                if ascension_level >= 20:
+                    _unlock("ghost_asc20_no_timeout")
             if class_key == "CRACKER" and any(
                 d.strip().upper() == "NIGHTMARE" for d in cleared_difficulties
             ):
@@ -602,6 +734,59 @@ def evaluate_achievements(
                 _unlock("ghost_asc15")
             if class_key == "CRACKER" and ascension_level >= 15:
                 _unlock("cracker_asc15")
+
+            # NIGHTMARE 노드 포함 런 클래스별
+            _has_nightmare = any(d.strip().upper() == "NIGHTMARE" for d in cleared_difficulties)
+            if _has_nightmare:
+                if class_key == "ANALYST":
+                    _unlock("analyst_nightmare")
+                if class_key == "GHOST":
+                    _unlock("ghost_nightmare")
+
+            # 완벽 최종
+            if wrong_analyzes == 0 and timeout_events == 0:
+                if ascension_level >= 15:
+                    _unlock("perfect_asc15")
+                if ascension_level >= 20:
+                    if class_key == "ANALYST":
+                        _unlock("perfect_analyst_asc20")
+                    if class_key == "GHOST":
+                        _unlock("perfect_ghost_asc20")
+                    if class_key == "CRACKER":
+                        _unlock("perfect_cracker_asc20")
+
+            # 타임아웃 없이 고각성
+            if timeout_events == 0 and ascension_level >= 15:
+                _unlock("no_timeout_asc15")
+
+            # 스킬 미사용 + 완벽
+            if not skill_used and wrong_analyzes == 0:
+                _unlock("no_skill_perfect")
+            if not skill_used and ascension_level >= 20:
+                _unlock("no_skill_asc20")
+
+            # trace 0% 클래스별
+            if trace_final == 0:
+                if class_key == "GHOST":
+                    _unlock("ghost_trace_zero")
+                if class_key == "CRACKER":
+                    _unlock("cracker_trace_zero")
+
+            # 핸디캡
+            _no_perks = not any(perks.values())
+            if _no_perks and not skill_used:
+                _unlock("no_skill_no_perk")
+            if _no_perks:
+                if class_key == "ANALYST":
+                    _unlock("analyst_no_perk")
+                if class_key == "GHOST":
+                    _unlock("ghost_no_perk")
+                if class_key == "CRACKER":
+                    _unlock("cracker_no_perk")
+
+            # 역경 극복 (오답 3+ 후 승리)
+            if wrong_analyzes >= 3:
+                _unlock("survivor")
 
     # 캠페인 누적 지표 (run_summary 없이도 평가)
     campaign_runs = int(campaign.get("runs", 0))
@@ -618,6 +803,10 @@ def evaluate_achievements(
         _unlock("runs_100")
     if campaign_runs >= 200:
         _unlock("runs_200")
+    if campaign_runs >= 300:
+        _unlock("runs_300")
+    if campaign_runs >= 500:
+        _unlock("runs_500")
     if campaign_victories >= 5:
         _unlock("victories_5")
     if campaign_victories >= 10:
@@ -628,6 +817,10 @@ def evaluate_achievements(
         _unlock("victories_50")
     if campaign_victories >= 100:
         _unlock("victories_100")
+    if campaign_victories >= 200:
+        _unlock("victories_200")
+    if campaign_victories >= 500:
+        _unlock("victories_500")
     if campaign_points >= 10000:
         _unlock("campaign_points_10000")
     if campaign_points >= 30000:
@@ -636,6 +829,10 @@ def evaluate_achievements(
         _unlock("campaign_points_50000")
     if campaign_points >= 100000:
         _unlock("campaign_points_100000")
+    if campaign_points >= 200000:
+        _unlock("campaign_points_200000")
+    if campaign_points >= 500000:
+        _unlock("campaign_points_500000")
 
     # 클래스 마스터 (class_victories 기반)
     if all(int(class_victories.get(ck, 0)) >= 1 for ck in ("ANALYST", "GHOST", "CRACKER")):
@@ -693,6 +890,10 @@ def evaluate_achievements(
         _unlock("data_fragments_500")
     if data_fragments >= 2000:
         _unlock("data_fragments_2000")
+    if data_fragments >= 5000:
+        _unlock("data_fragments_5000")
+    if data_fragments >= 10000:
+        _unlock("data_fragments_10000")
 
     # ASC 20 삼중 클리어 (세 클래스 모두 asc20 승리 업적 보유 시)
     asc20_classes = {"ascension_20_analyst", "ascension_20_ghost", "ascension_20_cracker"}

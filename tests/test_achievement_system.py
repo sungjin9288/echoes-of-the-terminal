@@ -1,4 +1,4 @@
-"""Achievement system unit tests (55→75종 업적 커버리지)."""
+"""Achievement system unit tests (75→100종 업적 커버리지)."""
 
 from achievement_system import (
     ACHIEVEMENTS,
@@ -67,9 +67,9 @@ def _run(
 
 # ── 기본 구조 검증 ─────────────────────────────────────────────────────────────
 
-def test_achievements_tuple_has_75_entries_legacy() -> None:
-    # 이 테스트는 아래 test_achievements_tuple_has_75_entries로 대체됨
-    assert len(ACHIEVEMENTS) == 75
+def test_achievements_tuple_has_100_entries_legacy() -> None:
+    # 이 테스트는 아래 test_achievements_tuple_has_100_entries로 대체됨
+    assert len(ACHIEVEMENTS) == 100
 
 
 def test_achievement_index_matches_tuple() -> None:
@@ -117,7 +117,7 @@ def test_snapshot_counts_match() -> None:
     save = _clean_save(achievements_unlocked=["first_shutdown", "first_breach"])
     snap = get_achievement_snapshot(save["achievements"])
     assert snap["unlocked_count"] == 2
-    assert snap["total_count"] == 75
+    assert snap["total_count"] == 100
     assert snap["unlocked_ids"] == ["first_shutdown", "first_breach"]
 
 
@@ -314,7 +314,7 @@ def test_asc20_no_perk_requires_no_perks_at_asc20() -> None:
 def test_run_milestones() -> None:
     for run_count, expected_id in [
         (10, "runs_10"), (25, "runs_25"), (50, "runs_50"),
-        (100, "runs_100"), (200, "runs_200"),
+        (100, "runs_100"), (200, "runs_200"), (300, "runs_300"), (500, "runs_500"),
     ]:
         save = _clean_save(runs=run_count)
         newly = evaluate_achievements(save)
@@ -326,6 +326,7 @@ def test_victory_milestones() -> None:
     for v_count, expected_id in [
         (5, "victories_5"), (25, "victories_25"),
         (50, "victories_50"), (100, "victories_100"),
+        (200, "victories_200"), (500, "victories_500"),
     ]:
         save = _clean_save(victories=v_count)
         newly = evaluate_achievements(save)
@@ -339,6 +340,8 @@ def test_points_milestones() -> None:
         (30000, "campaign_points_30000"),
         (50000, "campaign_points_50000"),
         (100000, "campaign_points_100000"),
+        (200000, "campaign_points_200000"),
+        (500000, "campaign_points_500000"),
     ]:
         save = _clean_save(points=pts)
         newly = evaluate_achievements(save)
@@ -437,10 +440,10 @@ def test_save_data_achievements_updated_in_place() -> None:
     assert "first_shutdown" in save["achievements"]["unlocked"]
 
 
-# ── 신규 업적 (75종 확장) ─────────────────────────────────────────────────────
+# ── 신규 업적 (100종 확장) ────────────────────────────────────────────────────
 
-def test_achievements_tuple_has_75_entries() -> None:
-    assert len(ACHIEVEMENTS) == 75
+def test_achievements_tuple_has_100_entries() -> None:
+    assert len(ACHIEVEMENTS) == 100
 
 
 def test_victories_10_milestone() -> None:
@@ -621,3 +624,299 @@ def test_data_fragments_milestones() -> None:
     ids2 = [a["id"] for a in newly2]
     assert "data_fragments_500" in ids2
     assert "data_fragments_2000" in ids2
+
+    save3 = _clean_save()
+    save3["data_fragments"] = 10000
+    newly3 = evaluate_achievements(save3)
+    ids3 = [a["id"] for a in newly3]
+    assert "data_fragments_5000" in ids3
+    assert "data_fragments_10000" in ids3
+
+
+# ── 신규 업적 v2.0 (25종) ────────────────────────────────────────────────────
+
+def test_runs_300_500_milestones() -> None:
+    save = _clean_save(runs=300)
+    newly = evaluate_achievements(save)
+    ids = [a["id"] for a in newly]
+    assert "runs_300" in ids
+    assert "runs_500" not in ids
+
+    save2 = _clean_save(runs=500)
+    newly2 = evaluate_achievements(save2)
+    assert "runs_500" in [a["id"] for a in newly2]
+
+
+def test_victories_200_500_milestones() -> None:
+    save = _clean_save(victories=200)
+    newly = evaluate_achievements(save)
+    ids = [a["id"] for a in newly]
+    assert "victories_200" in ids
+    assert "victories_500" not in ids
+
+    save2 = _clean_save(victories=500)
+    newly2 = evaluate_achievements(save2)
+    assert "victories_500" in [a["id"] for a in newly2]
+
+
+def test_perfect_asc15_requires_asc15_and_no_errors() -> None:
+    save = _clean_save()
+    newly = evaluate_achievements(
+        save, _run(is_victory=True, ascension_level=15, wrong_analyzes=0, timeout_events=0)
+    )
+    ids = [a["id"] for a in newly]
+    assert "perfect_asc15" in ids
+
+    save2 = _clean_save()
+    newly2 = evaluate_achievements(
+        save2, _run(is_victory=True, ascension_level=14, wrong_analyzes=0, timeout_events=0)
+    )
+    assert "perfect_asc15" not in [a["id"] for a in newly2]
+
+    save3 = _clean_save()
+    newly3 = evaluate_achievements(
+        save3, _run(is_victory=True, ascension_level=15, wrong_analyzes=1, timeout_events=0)
+    )
+    assert "perfect_asc15" not in [a["id"] for a in newly3]
+
+
+def test_no_skill_perfect_requires_no_skill_and_no_wrong() -> None:
+    save = _clean_save()
+    newly = evaluate_achievements(
+        save, _run(is_victory=True, skill_used=False, wrong_analyzes=0)
+    )
+    assert "no_skill_perfect" in [a["id"] for a in newly]
+
+    save2 = _clean_save()
+    newly2 = evaluate_achievements(
+        save2, _run(is_victory=True, skill_used=True, wrong_analyzes=0)
+    )
+    assert "no_skill_perfect" not in [a["id"] for a in newly2]
+
+    save3 = _clean_save()
+    newly3 = evaluate_achievements(
+        save3, _run(is_victory=True, skill_used=False, wrong_analyzes=1)
+    )
+    assert "no_skill_perfect" not in [a["id"] for a in newly3]
+
+
+def test_ghost_trace_zero_and_cracker_trace_zero() -> None:
+    for class_key, expected_id in [
+        ("GHOST", "ghost_trace_zero"),
+        ("CRACKER", "cracker_trace_zero"),
+    ]:
+        save = _clean_save()
+        newly = evaluate_achievements(
+            save, _run(is_victory=True, class_key=class_key, trace_final=0)
+        )
+        assert expected_id in [a["id"] for a in newly]
+
+    # ANALYST로는 해당 없음
+    save2 = _clean_save()
+    newly2 = evaluate_achievements(
+        save2, _run(is_victory=True, class_key="ANALYST", trace_final=0)
+    )
+    ids2 = [a["id"] for a in newly2]
+    assert "ghost_trace_zero" not in ids2
+    assert "cracker_trace_zero" not in ids2
+
+
+def test_no_timeout_asc15_requires_asc15_and_zero_timeout() -> None:
+    save = _clean_save()
+    newly = evaluate_achievements(
+        save, _run(is_victory=True, ascension_level=15, timeout_events=0)
+    )
+    assert "no_timeout_asc15" in [a["id"] for a in newly]
+
+    save2 = _clean_save()
+    newly2 = evaluate_achievements(
+        save2, _run(is_victory=True, ascension_level=14, timeout_events=0)
+    )
+    assert "no_timeout_asc15" not in [a["id"] for a in newly2]
+
+    save3 = _clean_save()
+    newly3 = evaluate_achievements(
+        save3, _run(is_victory=True, ascension_level=15, timeout_events=1)
+    )
+    assert "no_timeout_asc15" not in [a["id"] for a in newly3]
+
+
+def test_survivor_requires_3_wrong_and_victory() -> None:
+    save = _clean_save()
+    newly = evaluate_achievements(
+        save, _run(is_victory=True, wrong_analyzes=3)
+    )
+    assert "survivor" in [a["id"] for a in newly]
+
+    save2 = _clean_save()
+    newly2 = evaluate_achievements(
+        save2, _run(is_victory=True, wrong_analyzes=2)
+    )
+    assert "survivor" not in [a["id"] for a in newly2]
+
+    save3 = _clean_save()
+    newly3 = evaluate_achievements(
+        save3, _run(is_victory=False, wrong_analyzes=5)
+    )
+    assert "survivor" not in [a["id"] for a in newly3]
+
+
+def test_analyst_nightmare_and_ghost_nightmare() -> None:
+    for class_key, expected_id in [
+        ("ANALYST", "analyst_nightmare"),
+        ("GHOST", "ghost_nightmare"),
+    ]:
+        save = _clean_save()
+        newly = evaluate_achievements(
+            save,
+            _run(
+                is_victory=True,
+                class_key=class_key,
+                cleared_difficulties=["Easy", "Hard", "NIGHTMARE"],
+            ),
+        )
+        assert expected_id in [a["id"] for a in newly]
+
+    # CRACKER는 cracker_nightmare만 해당 (analyst/ghost_nightmare 아님)
+    save2 = _clean_save()
+    newly2 = evaluate_achievements(
+        save2,
+        _run(
+            is_victory=True,
+            class_key="CRACKER",
+            cleared_difficulties=["Easy", "Hard", "NIGHTMARE"],
+        ),
+    )
+    ids2 = [a["id"] for a in newly2]
+    assert "analyst_nightmare" not in ids2
+    assert "ghost_nightmare" not in ids2
+
+
+def test_perfect_class_asc20_by_class() -> None:
+    for class_key, expected_id in [
+        ("ANALYST", "perfect_analyst_asc20"),
+        ("GHOST", "perfect_ghost_asc20"),
+        ("CRACKER", "perfect_cracker_asc20"),
+    ]:
+        save = _clean_save()
+        newly = evaluate_achievements(
+            save,
+            _run(
+                is_victory=True,
+                class_key=class_key,
+                ascension_level=20,
+                wrong_analyzes=0,
+                timeout_events=0,
+            ),
+        )
+        ids = [a["id"] for a in newly]
+        assert expected_id in ids, f"{expected_id} not unlocked for {class_key}"
+
+
+def test_ghost_asc20_no_timeout() -> None:
+    save = _clean_save()
+    newly = evaluate_achievements(
+        save, _run(is_victory=True, class_key="GHOST", ascension_level=20, timeout_events=0)
+    )
+    assert "ghost_asc20_no_timeout" in [a["id"] for a in newly]
+
+    save2 = _clean_save()
+    newly2 = evaluate_achievements(
+        save2, _run(is_victory=True, class_key="GHOST", ascension_level=19, timeout_events=0)
+    )
+    assert "ghost_asc20_no_timeout" not in [a["id"] for a in newly2]
+
+    save3 = _clean_save()
+    newly3 = evaluate_achievements(
+        save3, _run(is_victory=True, class_key="GHOST", ascension_level=20, timeout_events=1)
+    )
+    assert "ghost_asc20_no_timeout" not in [a["id"] for a in newly3]
+
+
+def test_no_skill_asc20_requires_asc20_and_no_skill() -> None:
+    save = _clean_save()
+    newly = evaluate_achievements(
+        save, _run(is_victory=True, ascension_level=20, skill_used=False)
+    )
+    assert "no_skill_asc20" in [a["id"] for a in newly]
+
+    save2 = _clean_save()
+    newly2 = evaluate_achievements(
+        save2, _run(is_victory=True, ascension_level=20, skill_used=True)
+    )
+    assert "no_skill_asc20" not in [a["id"] for a in newly2]
+
+    save3 = _clean_save()
+    newly3 = evaluate_achievements(
+        save3, _run(is_victory=True, ascension_level=19, skill_used=False)
+    )
+    assert "no_skill_asc20" not in [a["id"] for a in newly3]
+
+
+def test_no_skill_no_perk_requires_both_conditions() -> None:
+    save = _clean_save(perks={})
+    newly = evaluate_achievements(
+        save, _run(is_victory=True, skill_used=False)
+    )
+    assert "no_skill_no_perk" in [a["id"] for a in newly]
+
+    save2 = _clean_save(perks={"penalty_reduction": True})
+    newly2 = evaluate_achievements(
+        save2, _run(is_victory=True, skill_used=False)
+    )
+    assert "no_skill_no_perk" not in [a["id"] for a in newly2]
+
+    save3 = _clean_save(perks={})
+    newly3 = evaluate_achievements(
+        save3, _run(is_victory=True, skill_used=True)
+    )
+    assert "no_skill_no_perk" not in [a["id"] for a in newly3]
+
+
+def test_class_no_perk_by_class() -> None:
+    for class_key, expected_id in [
+        ("ANALYST", "analyst_no_perk"),
+        ("GHOST", "ghost_no_perk"),
+        ("CRACKER", "cracker_no_perk"),
+    ]:
+        save = _clean_save(perks={})
+        newly = evaluate_achievements(
+            save, _run(is_victory=True, class_key=class_key)
+        )
+        ids = [a["id"] for a in newly]
+        assert expected_id in ids, f"{expected_id} not unlocked for {class_key}"
+
+    # 퍼크가 있으면 해당 없음
+    save2 = _clean_save(perks={"time_extension": True})
+    newly2 = evaluate_achievements(
+        save2, _run(is_victory=True, class_key="ANALYST")
+    )
+    assert "analyst_no_perk" not in [a["id"] for a in newly2]
+
+
+def test_data_fragments_5000_10000() -> None:
+    save = _clean_save()
+    save["data_fragments"] = 5000
+    newly = evaluate_achievements(save)
+    ids = [a["id"] for a in newly]
+    assert "data_fragments_5000" in ids
+    assert "data_fragments_10000" not in ids
+
+    save2 = _clean_save()
+    save2["data_fragments"] = 10000
+    newly2 = evaluate_achievements(save2)
+    ids2 = [a["id"] for a in newly2]
+    assert "data_fragments_5000" in ids2
+    assert "data_fragments_10000" in ids2
+
+
+def test_campaign_points_200000_500000() -> None:
+    save = _clean_save(points=200000)
+    newly = evaluate_achievements(save)
+    ids = [a["id"] for a in newly]
+    assert "campaign_points_200000" in ids
+    assert "campaign_points_500000" not in ids
+
+    save2 = _clean_save(points=500000)
+    newly2 = evaluate_achievements(save2)
+    assert "campaign_points_500000" in [a["id"] for a in newly2]
