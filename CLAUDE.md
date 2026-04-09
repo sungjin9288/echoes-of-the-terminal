@@ -37,14 +37,14 @@ Echoes of the Terminal/
 ├── daily_challenge.py       # 일일 도전 시스템 (219줄)
 ├── ending_system.py         # 5종 엔딩 판정 (205줄)
 ├── diver_class.py           # 3종 다이버 클래스 (194줄)
-├── achievement_system.py    # 55종 업적 시스템 (546줄)
+├── achievement_system.py    # 75종 업적 시스템 (707줄)
 ├── mutator_system.py        # Glitch 마스킹 텍스트 변형 (128줄)
 ├── route_map.py             # 노드 타입 라우팅 (94줄)
 ├── boss_phase_pack_tools.py # ASC20 보스 툴 (89줄)
 ├── combat_timer.py          # 전투 타이머 캡슐화 (70줄)
 ├── constants.py             # 전역 상수 단일 출처 (37줄)
 │
-├── scenarios.json           # 136개 시나리오 데이터 (Pack 01-04)
+├── scenarios.json           # 144개 시나리오 데이터 (Pack 01-05)
 ├── boss_phase_pack.json     # ASC20 보스 페이즈 오버라이드
 ├── argos_taunts.json        # ARGOS AI 다이얼로그
 ├── save_data.json           # 플레이어 세이브 데이터 (런타임 생성)
@@ -256,7 +256,7 @@ def test_penalty_with_elite_modifier(monkeypatch) -> None:
 
 | 파일 | 케이스 | 내용 |
 |---|---|---|
-| `test_achievement_system.py` | 36 | 55종 업적 해금 조건 + 중복 방지 검증 |
+| `test_achievement_system.py` | 50 | 75종 업적 해금 조건 + 중복 방지 검증 |
 | `test_artifact_effects.py` | 7 | 15종 아티팩트 runtime 수정 검증 |
 | `test_ascension_runtime.py` | 15 | 패널티 스케일링, 시간 조정, 보스 페이즈 |
 | `test_boss_phase_pack.py` | 2 | 보스 페이즈 로딩 |
