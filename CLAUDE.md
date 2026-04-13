@@ -44,18 +44,19 @@ Echoes of the Terminal/
 ├── combat_timer.py          # 전투 타이머 캡슐화 (70줄)
 ├── constants.py             # 전역 상수 단일 출처 (37줄)
 │
-├── scenarios.json           # 176개 시나리오 데이터 (Pack 01-09)
+├── scenarios.json           # 184개 시나리오 데이터 (Pack 01-10)
 ├── boss_phase_pack.json     # ASC20 보스 페이즈 오버라이드
 ├── argos_taunts.json        # ARGOS AI 다이얼로그
 ├── save_data.json           # 플레이어 세이브 데이터 (런타임 생성)
 │
-├── tests/                   # pytest 테스트 (9파일, 137케이스)
+├── tests/                   # pytest 테스트 (10파일, 185케이스)
 │   ├── test_achievement_system.py
 │   ├── test_artifact_effects.py
 │   ├── test_ascension_runtime.py
 │   ├── test_boss_phase_pack.py
 │   ├── test_boss_phase_pack_tools.py
 │   ├── test_campaign_progression.py
+│   ├── test_daily_challenge.py
 │   ├── test_ending_system.py
 │   ├── test_penalty_calculation.py
 │   └── test_run_game_session.py
