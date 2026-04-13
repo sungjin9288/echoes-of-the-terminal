@@ -12,14 +12,16 @@ class NodeType(str, Enum):
     REST = "REST"
     ELITE = "ELITE"
     BOSS = "BOSS"
+    MYSTERY = "MYSTERY"
 
 
 # 노드 타입별 출현 가중치
 _WEIGHTS: dict[NodeType, int] = {
-    NodeType.NORMAL: 50,
-    NodeType.REST: 20,
-    NodeType.SHOP: 15,
-    NodeType.ELITE: 15,
+    NodeType.NORMAL: 45,
+    NodeType.REST: 18,
+    NodeType.SHOP: 14,
+    NodeType.ELITE: 13,
+    NodeType.MYSTERY: 10,
 }
 
 _TYPE_LABELS: dict[NodeType, str] = {
@@ -28,6 +30,7 @@ _TYPE_LABELS: dict[NodeType, str] = {
     NodeType.REST: "휴식 노드",
     NodeType.ELITE: "엘리트 노드",
     NodeType.BOSS: "보스 노드",
+    NodeType.MYSTERY: "미스터리 노드",
 }
 
 _TYPE_DESCS: dict[NodeType, str] = {
@@ -36,6 +39,7 @@ _TYPE_DESCS: dict[NodeType, str] = {
     NodeType.REST: "추적도 20% 감소. 잠시 숨을 고른다.",
     NodeType.ELITE: "강화된 ARGOS 방벽. 페널티 ×1.5, 보상 ×1.5.",
     NodeType.BOSS: "최종 방벽 — NIGHTMARE 프로토콜 활성화.",
+    NodeType.MYSTERY: "정체불명 시스템 이벤트. 개입 여부를 선택하라.",
 }
 
 _TYPE_STYLES: dict[NodeType, str] = {
@@ -44,6 +48,7 @@ _TYPE_STYLES: dict[NodeType, str] = {
     NodeType.REST: "bold cyan",
     NodeType.ELITE: "bold magenta",
     NodeType.BOSS: "bold red",
+    NodeType.MYSTERY: "bold #FF8C00",
 }
 
 

@@ -56,6 +56,11 @@ from combat_commands import (
 )
 from data_loader import load_argos_taunts, load_boss_phase_pack, load_scenarios
 from mutator_system import apply_glitch_masking
+from mystery_system import (
+    apply_mystery_outcome,
+    pick_mystery,
+    resolve_mystery_outcome,
+)
 from progression_system import (
     ASCENSION_MAX_LEVEL,
     CAMPAIGN_CLEAR_CLASS_VICTORIES,
@@ -1044,6 +1049,94 @@ def _select_ascension_level(save_data: dict[str, Any]) -> int:
     return selected
 
 
+def _run_mystery_node(
+    save_data: dict[str, Any],
+    trace_level: int,
+    run_seed: int,
+    node_position: int,
+) -> tuple[int, dict[str, Any]]:
+    """
+    미스터리 노드를 실행하고 업데이트된 (trace_level, save_data)를 반환한다.
+
+    플레이어는 [A] 개입 또는 [B] 무시를 선택한다.
+    개입 선택 시 런 시드와 포지션으로 결정된 결과가 적용된다.
+
+    Args:
+        save_data: 현재 세이브 데이터 (data_fragments 포함)
+        trace_level: 현재 추적도
+        run_seed: 런 고유 시드
+        node_position: 현재 노드 포지션
+
+    Returns:
+        (new_trace_level, new_save_data)
+    """
+    from rich.panel import Panel
+    from rich.text import Text
+
+    event = pick_mystery(run_seed, node_position)
+
+    console.clear()
+    render_logo()
+
+    header = Text("[ MYSTERY NODE ]", style="bold #FF8C00", justify="center")
+    console.print(header)
+    console.print()
+
+    event_panel = Panel(
+        f"[bold #FFD700]{event.title}[/bold #FFD700]\n\n"
+        f"{event.description}\n\n"
+        f"[dim]──────────────────────────────────────────────[/dim]\n"
+        f"[bold white][A][/bold white] {event.engage_prompt}\n"
+        f"[bold white][B][/bold white] 무시하고 다음 노드로 진행한다. (안전)",
+        border_style="#FF8C00",
+        title="[bold #FF8C00]정체불명 시스템 이벤트[/bold #FF8C00]",
+    )
+    console.print(event_panel)
+    console.print()
+
+    choice = ""
+    while choice not in ("a", "b"):
+        choice = Prompt.ask(
+            "[bold #FF8C00]선택[/bold #FF8C00]",
+            choices=["A", "B", "a", "b"],
+            show_choices=False,
+        ).strip().lower()
+
+    if choice == "b":
+        type_text(
+            "[MYSTERY] 이벤트를 무시했다. 아무 일도 일어나지 않았다.",
+            style="dim",
+            delay=0.02,
+        )
+        _wait_for_enter()
+        return trace_level, save_data
+
+    # 개입 선택
+    is_good = resolve_mystery_outcome(run_seed, node_position)
+    new_trace, new_save_data, message = apply_mystery_outcome(
+        event, is_good, trace_level, save_data
+    )
+
+    result_style = "bold green" if is_good else "bold red"
+    type_text(message, style=result_style, delay=0.03)
+    console.print(
+        f"[{result_style}]추적도: {trace_level}% → {new_trace}%[/{result_style}]"
+    )
+
+    frag_before = int(save_data.get("data_fragments", 0))
+    frag_after = int(new_save_data.get("data_fragments", 0))
+    if frag_after != frag_before:
+        delta = frag_after - frag_before
+        sign = "+" if delta > 0 else ""
+        console.print(
+            f"[bold yellow]데이터 조각: {frag_before} → {frag_after} "
+            f"({sign}{delta})[/bold yellow]"
+        )
+
+    _wait_for_enter()
+    return new_trace, new_save_data
+
+
 def _initialize_run_state(
     perks: dict[str, bool],
     diver_class: "DiverClass | None",
@@ -1157,6 +1250,7 @@ def run_game_session(
         ascension_level=ascension_level,
     )
     acquired_artifacts: list[Artifact] = []
+    run_seed = random.randint(1, 2**31 - 1)
 
     result = _load_combat_pools(ascension_level=ascension_level)
     if result is None:
@@ -1219,6 +1313,12 @@ def run_game_session(
         # ── SHOP NODE ────────────────────────────────────────────────────────
         elif ntype == NodeType.SHOP:
             trace_level = _run_mid_run_shop(save_data, trace_level, run_state, runtime)
+
+        # ── MYSTERY NODE ─────────────────────────────────────────────────────
+        elif ntype == NodeType.MYSTERY:
+            trace_level, save_data = _run_mystery_node(
+                save_data, trace_level, run_seed, position
+            )
 
         # ── COMBAT NODE (NORMAL / ELITE / BOSS) ─────────────────────────────
         else:
@@ -1517,6 +1617,13 @@ def run_daily_challenge(save_data: dict[str, Any]) -> None:
         # ── SHOP NODE ─────────────────────────────────────────────────────
         elif ntype == NodeType.SHOP:
             trace_level = _run_mid_run_shop(save_data, trace_level, run_state, runtime)
+
+        # ── MYSTERY NODE ──────────────────────────────────────────────────
+        elif ntype == NodeType.MYSTERY:
+            daily_run_seed = get_daily_seed(today)
+            trace_level, save_data = _run_mystery_node(
+                save_data, trace_level, daily_run_seed, position
+            )
 
         # ── COMBAT NODE (NORMAL / ELITE / BOSS) ───────────────────────────
         else:

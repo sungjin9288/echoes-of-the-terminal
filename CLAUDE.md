@@ -28,28 +28,29 @@ pip install -r requirements-dev.txt      # 테스트 포함
 
 ```
 Echoes of the Terminal/
-├── main.py                  # 게임 루프 엔진 (1831줄)
+├── main.py                  # 게임 루프 엔진 (1945줄)
 ├── ui_renderer.py           # Rich 터미널 UI 렌더링 (713줄)
 ├── progression_system.py    # 세이브/퍼크/캠페인/어센션 (564줄)
 ├── combat_commands.py       # 전투 커맨드 핸들러 + 페널티 계산 (279줄)
 ├── artifact_system.py       # 20종 아티팩트 시스템 (314줄)
+├── mystery_system.py        # MYSTERY 노드 이벤트 시스템 10종 (272줄)
 ├── data_loader.py           # JSON 데이터 로딩 & 검증 (231줄)
-├── daily_challenge.py       # 일일 도전 시스템 (219줄)
+├── daily_challenge.py       # 일일 도전 시스템 (341줄)
 ├── ending_system.py         # 8종 엔딩 판정 (264줄)
 ├── diver_class.py           # 3종 다이버 클래스 (194줄)
 ├── achievement_system.py    # 100종 업적 시스템 (908줄)
 ├── mutator_system.py        # Glitch 마스킹 텍스트 변형 (128줄)
-├── route_map.py             # 노드 타입 라우팅 (94줄)
+├── route_map.py             # 노드 타입 라우팅 (99줄)
 ├── boss_phase_pack_tools.py # ASC20 보스 툴 (89줄)
 ├── combat_timer.py          # 전투 타이머 캡슐화 (70줄)
 ├── constants.py             # 전역 상수 단일 출처 (37줄)
 │
-├── scenarios.json           # 184개 시나리오 데이터 (Pack 01-10)
+├── scenarios.json           # 192개 시나리오 데이터 (Pack 01-11)
 ├── boss_phase_pack.json     # ASC20 보스 페이즈 오버라이드
 ├── argos_taunts.json        # ARGOS AI 다이얼로그
 ├── save_data.json           # 플레이어 세이브 데이터 (런타임 생성)
 │
-├── tests/                   # pytest 테스트 (10파일, 185케이스)
+├── tests/                   # pytest 테스트 (11파일, 216케이스)
 │   ├── test_achievement_system.py
 │   ├── test_artifact_effects.py
 │   ├── test_ascension_runtime.py
@@ -58,6 +59,7 @@ Echoes of the Terminal/
 │   ├── test_campaign_progression.py
 │   ├── test_daily_challenge.py
 │   ├── test_ending_system.py
+│   ├── test_mystery_system.py
 │   ├── test_penalty_calculation.py
 │   └── test_run_game_session.py
 │
