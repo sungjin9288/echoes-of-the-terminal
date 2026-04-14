@@ -50,6 +50,9 @@ def _run(
     correct_answers: int = 0,
     cleared_difficulties: list | None = None,
     skill_used: bool = False,
+    mystery_engaged: int = 0,
+    mystery_good: int = 0,
+    mystery_skipped: int = 0,
 ) -> dict:
     return {
         "result": result,
@@ -62,14 +65,17 @@ def _run(
         "correct_answers": correct_answers,
         "cleared_difficulties": cleared_difficulties or [],
         "skill_used": skill_used,
+        "mystery_engaged": mystery_engaged,
+        "mystery_good": mystery_good,
+        "mystery_skipped": mystery_skipped,
     }
 
 
 # ── 기본 구조 검증 ─────────────────────────────────────────────────────────────
 
-def test_achievements_tuple_has_100_entries_legacy() -> None:
-    # 이 테스트는 아래 test_achievements_tuple_has_100_entries로 대체됨
-    assert len(ACHIEVEMENTS) == 100
+def test_achievements_tuple_has_105_entries() -> None:
+    # 100종 + MYSTERY 노드 관련 5종 = 105종
+    assert len(ACHIEVEMENTS) == 105
 
 
 def test_achievement_index_matches_tuple() -> None:
@@ -117,7 +123,7 @@ def test_snapshot_counts_match() -> None:
     save = _clean_save(achievements_unlocked=["first_shutdown", "first_breach"])
     snap = get_achievement_snapshot(save["achievements"])
     assert snap["unlocked_count"] == 2
-    assert snap["total_count"] == 100
+    assert snap["total_count"] == 105
     assert snap["unlocked_ids"] == ["first_shutdown", "first_breach"]
 
 
@@ -440,10 +446,10 @@ def test_save_data_achievements_updated_in_place() -> None:
     assert "first_shutdown" in save["achievements"]["unlocked"]
 
 
-# ── 신규 업적 (100종 확장) ────────────────────────────────────────────────────
+# ── 신규 업적 (105종 확장) ────────────────────────────────────────────────────
 
-def test_achievements_tuple_has_100_entries() -> None:
-    assert len(ACHIEVEMENTS) == 100
+def test_achievements_tuple_has_105_entries_v2() -> None:
+    assert len(ACHIEVEMENTS) == 105
 
 
 def test_victories_10_milestone() -> None:
@@ -920,3 +926,101 @@ def test_campaign_points_200000_500000() -> None:
     save2 = _clean_save(points=500000)
     newly2 = evaluate_achievements(save2)
     assert "campaign_points_500000" in [a["id"] for a in newly2]
+
+
+# ── MYSTERY 노드 업적 (105종 확장) ────────────────────────────────────────────
+
+def test_mystery_new_achievements_present() -> None:
+    mystery_ids = {
+        "mystery_first_engage", "mystery_good_5", "mystery_engaged_20",
+        "mystery_all_good_run", "mystery_all_skip_run",
+    }
+    all_ids = {a["id"] for a in ACHIEVEMENTS}
+    assert mystery_ids.issubset(all_ids)
+
+
+def test_mystery_first_engage_unlocks_on_first_engagement() -> None:
+    save = _clean_save()
+    newly = evaluate_achievements(save, _run(mystery_engaged=1))
+    ids = [a["id"] for a in newly]
+    assert "mystery_first_engage" in ids
+
+
+def test_mystery_first_engage_not_unlocked_on_skip_only() -> None:
+    save = _clean_save()
+    newly = evaluate_achievements(save, _run(mystery_skipped=3))
+    ids = [a["id"] for a in newly]
+    assert "mystery_first_engage" not in ids
+
+
+def test_mystery_good_5_requires_cumulative_5_good() -> None:
+    save = _clean_save()
+    # 4회 좋은 결과 → 미달
+    evaluate_achievements(save, _run(mystery_engaged=4, mystery_good=4))
+    newly2 = evaluate_achievements(save, _run(mystery_engaged=1, mystery_good=1))
+    ids2 = [a["id"] for a in newly2]
+    assert "mystery_good_5" in ids2
+
+
+def test_mystery_good_5_not_unlocked_below_5() -> None:
+    save = _clean_save()
+    newly = evaluate_achievements(save, _run(mystery_engaged=4, mystery_good=4))
+    ids = [a["id"] for a in newly]
+    assert "mystery_good_5" not in ids
+
+
+def test_mystery_engaged_20_cumulative() -> None:
+    save = _clean_save()
+    # 3회 × 5 = 15회 — 미달
+    for _ in range(3):
+        evaluate_achievements(save, _run(mystery_engaged=5))
+    ids_mid = [a["id"] for a in evaluate_achievements(save, _run(mystery_engaged=0))]
+    assert "mystery_engaged_20" not in ids_mid
+    # 5회 추가 → 총 20회 달성
+    newly = evaluate_achievements(save, _run(mystery_engaged=5))
+    ids = [a["id"] for a in newly]
+    assert "mystery_engaged_20" in ids
+
+
+def test_mystery_all_good_run_requires_min_2_engagements() -> None:
+    save = _clean_save()
+    # 1회 개입, 1회 성공 → 조건 미달 (최소 2회 필요)
+    newly = evaluate_achievements(save, _run(mystery_engaged=1, mystery_good=1))
+    ids = [a["id"] for a in newly]
+    assert "mystery_all_good_run" not in ids
+
+
+def test_mystery_all_good_run_unlocks_when_all_good() -> None:
+    save = _clean_save()
+    newly = evaluate_achievements(save, _run(mystery_engaged=3, mystery_good=3))
+    ids = [a["id"] for a in newly]
+    assert "mystery_all_good_run" in ids
+
+
+def test_mystery_all_good_run_not_unlocked_if_any_bad() -> None:
+    save = _clean_save()
+    newly = evaluate_achievements(save, _run(mystery_engaged=3, mystery_good=2))
+    ids = [a["id"] for a in newly]
+    assert "mystery_all_good_run" not in ids
+
+
+def test_mystery_all_skip_run_requires_min_2_skips() -> None:
+    save = _clean_save()
+    # 1회 스킵 → 조건 미달
+    newly = evaluate_achievements(save, _run(mystery_skipped=1))
+    ids = [a["id"] for a in newly]
+    assert "mystery_all_skip_run" not in ids
+
+
+def test_mystery_all_skip_run_unlocks_when_all_skipped() -> None:
+    save = _clean_save()
+    newly = evaluate_achievements(save, _run(mystery_skipped=3))
+    ids = [a["id"] for a in newly]
+    assert "mystery_all_skip_run" in ids
+
+
+def test_mystery_all_skip_run_not_unlocked_if_any_engaged() -> None:
+    save = _clean_save()
+    newly = evaluate_achievements(save, _run(mystery_skipped=2, mystery_engaged=1))
+    ids = [a["id"] for a in newly]
+    assert "mystery_all_skip_run" not in ids

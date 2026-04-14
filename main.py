@@ -1054,18 +1054,21 @@ def _run_mystery_node(
     trace_level: int,
     run_seed: int,
     node_position: int,
+    run_state: dict[str, Any] | None = None,
 ) -> tuple[int, dict[str, Any]]:
     """
     미스터리 노드를 실행하고 업데이트된 (trace_level, save_data)를 반환한다.
 
     플레이어는 [A] 개입 또는 [B] 무시를 선택한다.
     개입 선택 시 런 시드와 포지션으로 결정된 결과가 적용된다.
+    run_state가 제공되면 mystery_engaged, mystery_good, mystery_skipped 카운터를 기록한다.
 
     Args:
         save_data: 현재 세이브 데이터 (data_fragments 포함)
         trace_level: 현재 추적도
         run_seed: 런 고유 시드
         node_position: 현재 노드 포지션
+        run_state: 런 상태 dict (통계 추적용, 선택)
 
     Returns:
         (new_trace_level, new_save_data)
@@ -1108,11 +1111,17 @@ def _run_mystery_node(
             style="dim",
             delay=0.02,
         )
+        if run_state is not None:
+            run_state["mystery_skipped"] = run_state.get("mystery_skipped", 0) + 1
         _wait_for_enter()
         return trace_level, save_data
 
     # 개입 선택
+    if run_state is not None:
+        run_state["mystery_engaged"] = run_state.get("mystery_engaged", 0) + 1
     is_good = resolve_mystery_outcome(run_seed, node_position)
+    if is_good and run_state is not None:
+        run_state["mystery_good"] = run_state.get("mystery_good", 0) + 1
     new_trace, new_save_data, message = apply_mystery_outcome(
         event, is_good, trace_level, save_data
     )
@@ -1317,7 +1326,7 @@ def run_game_session(
         # ── MYSTERY NODE ─────────────────────────────────────────────────────
         elif ntype == NodeType.MYSTERY:
             trace_level, save_data = _run_mystery_node(
-                save_data, trace_level, run_seed, position
+                save_data, trace_level, run_seed, position, run_state
             )
 
         # ── COMBAT NODE (NORMAL / ELITE / BOSS) ─────────────────────────────
@@ -1367,7 +1376,7 @@ def run_game_session(
                     )
 
                     if combat_result == "death":
-                        return correct_answers, False, "shutdown", node_difficulties_cleared, {"wrong_analyzes": run_state.get("wrong_analyzes", 0), "timeout_events": run_state.get("timeout_events", 0), "trace_final": trace_level, "skill_used": bool(run_state.get("active_skill_used", False))}
+                        return correct_answers, False, "shutdown", node_difficulties_cleared, {"wrong_analyzes": run_state.get("wrong_analyzes", 0), "timeout_events": run_state.get("timeout_events", 0), "trace_final": trace_level, "skill_used": bool(run_state.get("active_skill_used", False)), "mystery_engaged": run_state.get("mystery_engaged", 0), "mystery_good": run_state.get("mystery_good", 0), "mystery_skipped": run_state.get("mystery_skipped", 0)}
 
                     if phase_index < total_boss_phases:
                         console.print(
@@ -1389,7 +1398,7 @@ def run_game_session(
                 )
 
             if combat_result == "death":
-                return correct_answers, False, "shutdown", node_difficulties_cleared, {"wrong_analyzes": run_state.get("wrong_analyzes", 0), "timeout_events": run_state.get("timeout_events", 0), "trace_final": trace_level, "skill_used": bool(run_state.get("active_skill_used", False))}
+                return correct_answers, False, "shutdown", node_difficulties_cleared, {"wrong_analyzes": run_state.get("wrong_analyzes", 0), "timeout_events": run_state.get("timeout_events", 0), "trace_final": trace_level, "skill_used": bool(run_state.get("active_skill_used", False)), "mystery_engaged": run_state.get("mystery_engaged", 0), "mystery_good": run_state.get("mystery_good", 0), "mystery_skipped": run_state.get("mystery_skipped", 0)}
 
             # 전투 클리어 후 처리
             correct_answers += 1
@@ -1455,7 +1464,7 @@ def run_game_session(
             current_node_type = left if path_choice.upper() == "A" else right
 
     console.print("[bold green]CORE BREACHED - 승리[/bold green]")
-    return correct_answers, True, "victory", node_difficulties_cleared, {"wrong_analyzes": run_state.get("wrong_analyzes", 0), "timeout_events": run_state.get("timeout_events", 0), "trace_final": trace_level, "skill_used": bool(run_state.get("active_skill_used", False))}
+    return correct_answers, True, "victory", node_difficulties_cleared, {"wrong_analyzes": run_state.get("wrong_analyzes", 0), "timeout_events": run_state.get("timeout_events", 0), "trace_final": trace_level, "skill_used": bool(run_state.get("active_skill_used", False)), "mystery_engaged": run_state.get("mystery_engaged", 0), "mystery_good": run_state.get("mystery_good", 0), "mystery_skipped": run_state.get("mystery_skipped", 0)}
 
 
 def run_shop(save_data: dict[str, Any]) -> None:
@@ -1622,7 +1631,7 @@ def run_daily_challenge(save_data: dict[str, Any]) -> None:
         elif ntype == NodeType.MYSTERY:
             daily_run_seed = get_daily_seed(today)
             trace_level, save_data = _run_mystery_node(
-                save_data, trace_level, daily_run_seed, position
+                save_data, trace_level, daily_run_seed, position, run_state
             )
 
         # ── COMBAT NODE (NORMAL / ELITE / BOSS) ───────────────────────────
@@ -1897,6 +1906,9 @@ def run_lobby_loop() -> None:
                     "correct_answers": correct_answers,
                     "cleared_difficulties": node_difficulties_cleared,
                     "skill_used": bool(run_stats.get("skill_used", False)),
+                    "mystery_engaged": run_stats.get("mystery_engaged", 0),
+                    "mystery_good": run_stats.get("mystery_good", 0),
+                    "mystery_skipped": run_stats.get("mystery_skipped", 0),
                 }
                 # 엔딩 판정
                 triggered_ending = evaluate_ending(run_summary, save_data)

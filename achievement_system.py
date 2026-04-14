@@ -531,6 +531,32 @@ ACHIEVEMENTS: tuple[dict[str, str], ...] = (
         "title": "시스템의 붕괴",
         "desc": "캠페인 포인트 500,000점을 달성했다.",
     },
+    # ── MYSTERY (미스터리 노드) ───────────────────────────────────────────────
+    {
+        "id": "mystery_first_engage",
+        "title": "첫 번째 도박",
+        "desc": "처음으로 MYSTERY 노드에서 이벤트에 개입했다.",
+    },
+    {
+        "id": "mystery_good_5",
+        "title": "행운의 다이버",
+        "desc": "MYSTERY 노드 개입에서 좋은 결과를 누적 5회 얻었다.",
+    },
+    {
+        "id": "mystery_engaged_20",
+        "title": "위험 중독자",
+        "desc": "MYSTERY 노드에서 총 20회 이상 개입했다.",
+    },
+    {
+        "id": "mystery_all_good_run",
+        "title": "완벽한 직관",
+        "desc": "한 런에서 모든 MYSTERY 개입에서 좋은 결과를 얻었다 (최소 2회 이상 개입).",
+    },
+    {
+        "id": "mystery_all_skip_run",
+        "title": "신중한 해커",
+        "desc": "한 런에서 모든 MYSTERY 노드를 무시했다 (최소 2회 이상 등장).",
+    },
 )
 
 ACHIEVEMENT_INDEX: dict[str, dict[str, str]] = {
@@ -903,6 +929,34 @@ def evaluate_achievements(
     # 캠페인 클리어
     if bool(campaign.get("cleared", False)):
         _unlock("campaign_clear")
+
+    # ── MYSTERY 노드 업적 ─────────────────────────────────────────────────────
+    mystery_engaged = int(run_summary.get("mystery_engaged", 0)) if run_summary else 0
+    mystery_good = int(run_summary.get("mystery_good", 0)) if run_summary else 0
+    mystery_skipped = int(run_summary.get("mystery_skipped", 0)) if run_summary else 0
+    mystery_total = mystery_engaged + mystery_skipped  # 런에서 등장한 MYSTERY 노드 수
+
+    # 첫 번째 개입
+    if mystery_engaged >= 1:
+        _unlock("mystery_first_engage")
+
+    # 누적 카운터는 save_data에 기록
+    if "mystery_stats" not in save_data or not isinstance(save_data["mystery_stats"], dict):
+        save_data["mystery_stats"] = {"total_engaged": 0, "total_good": 0}
+    m_stats = save_data["mystery_stats"]
+    m_stats["total_engaged"] = int(m_stats.get("total_engaged", 0)) + mystery_engaged
+    m_stats["total_good"] = int(m_stats.get("total_good", 0)) + mystery_good
+
+    if m_stats["total_good"] >= 5:
+        _unlock("mystery_good_5")
+    if m_stats["total_engaged"] >= 20:
+        _unlock("mystery_engaged_20")
+
+    # 런 단위 업적
+    if mystery_engaged >= 2 and mystery_engaged == mystery_good:
+        _unlock("mystery_all_good_run")
+    if mystery_total >= 2 and mystery_skipped == mystery_total:
+        _unlock("mystery_all_skip_run")
 
     save_data["achievements"] = achievement_state
     return newly_unlocked
