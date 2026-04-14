@@ -1283,12 +1283,15 @@ def run_game_session(
     correct_answers = 0
     node_difficulties_cleared: list[str] = []
     backtrack_used = False
+    max_trace_reached = trace_level  # 런 중 최대 추적도 기록
 
     current_node_type = NodeType.NORMAL
     combat_pool_idx = 0
 
     for position in range(total_positions):
         ntype = NodeType.BOSS if position == MAX_NODES_PER_RUN else current_node_type
+        if trace_level > max_trace_reached:
+            max_trace_reached = trace_level
 
         # ── 포지션 시작: argos_fragment 자동 추적도 감소 ─────────────────────
         per_node_reduce = run_state.get("per_node_trace_reduction", 0)
@@ -1376,7 +1379,7 @@ def run_game_session(
                     )
 
                     if combat_result == "death":
-                        return correct_answers, False, "shutdown", node_difficulties_cleared, {"wrong_analyzes": run_state.get("wrong_analyzes", 0), "timeout_events": run_state.get("timeout_events", 0), "trace_final": trace_level, "skill_used": bool(run_state.get("active_skill_used", False)), "mystery_engaged": run_state.get("mystery_engaged", 0), "mystery_good": run_state.get("mystery_good", 0), "mystery_skipped": run_state.get("mystery_skipped", 0)}
+                        return correct_answers, False, "shutdown", node_difficulties_cleared, {"wrong_analyzes": run_state.get("wrong_analyzes", 0), "timeout_events": run_state.get("timeout_events", 0), "trace_final": trace_level, "skill_used": bool(run_state.get("active_skill_used", False)), "mystery_engaged": run_state.get("mystery_engaged", 0), "mystery_good": run_state.get("mystery_good", 0), "mystery_skipped": run_state.get("mystery_skipped", 0), "artifacts_held": len(acquired_artifacts), "max_trace_reached": max_trace_reached}
 
                     if phase_index < total_boss_phases:
                         console.print(
@@ -1398,7 +1401,7 @@ def run_game_session(
                 )
 
             if combat_result == "death":
-                return correct_answers, False, "shutdown", node_difficulties_cleared, {"wrong_analyzes": run_state.get("wrong_analyzes", 0), "timeout_events": run_state.get("timeout_events", 0), "trace_final": trace_level, "skill_used": bool(run_state.get("active_skill_used", False)), "mystery_engaged": run_state.get("mystery_engaged", 0), "mystery_good": run_state.get("mystery_good", 0), "mystery_skipped": run_state.get("mystery_skipped", 0)}
+                return correct_answers, False, "shutdown", node_difficulties_cleared, {"wrong_analyzes": run_state.get("wrong_analyzes", 0), "timeout_events": run_state.get("timeout_events", 0), "trace_final": trace_level, "skill_used": bool(run_state.get("active_skill_used", False)), "mystery_engaged": run_state.get("mystery_engaged", 0), "mystery_good": run_state.get("mystery_good", 0), "mystery_skipped": run_state.get("mystery_skipped", 0), "artifacts_held": len(acquired_artifacts), "max_trace_reached": max_trace_reached}
 
             # 전투 클리어 후 처리
             correct_answers += 1
@@ -1464,7 +1467,7 @@ def run_game_session(
             current_node_type = left if path_choice.upper() == "A" else right
 
     console.print("[bold green]CORE BREACHED - 승리[/bold green]")
-    return correct_answers, True, "victory", node_difficulties_cleared, {"wrong_analyzes": run_state.get("wrong_analyzes", 0), "timeout_events": run_state.get("timeout_events", 0), "trace_final": trace_level, "skill_used": bool(run_state.get("active_skill_used", False)), "mystery_engaged": run_state.get("mystery_engaged", 0), "mystery_good": run_state.get("mystery_good", 0), "mystery_skipped": run_state.get("mystery_skipped", 0)}
+    return correct_answers, True, "victory", node_difficulties_cleared, {"wrong_analyzes": run_state.get("wrong_analyzes", 0), "timeout_events": run_state.get("timeout_events", 0), "trace_final": trace_level, "skill_used": bool(run_state.get("active_skill_used", False)), "mystery_engaged": run_state.get("mystery_engaged", 0), "mystery_good": run_state.get("mystery_good", 0), "mystery_skipped": run_state.get("mystery_skipped", 0), "artifacts_held": len(acquired_artifacts), "max_trace_reached": max_trace_reached}
 
 
 def run_shop(save_data: dict[str, Any]) -> None:
@@ -1582,6 +1585,7 @@ def run_daily_challenge(save_data: dict[str, Any]) -> None:
     combat_pool_idx = 0
     combat_result = "cleared"
     total_positions = MAX_NODES_PER_RUN + 1
+    max_trace_reached = trace_level  # 데일리 런 중 최대 추적도 기록
 
     # 날짜 시드로 루트 선택지 결정 (재현성 보장)
     _rng_state = random.getstate()
@@ -1594,6 +1598,8 @@ def run_daily_challenge(save_data: dict[str, Any]) -> None:
     # ── 데일리 런 루프 ──────────────────────────────────────────────────────
     for position in range(total_positions):
         ntype = NodeType.BOSS if position == MAX_NODES_PER_RUN else current_node_type
+        if trace_level > max_trace_reached:
+            max_trace_reached = trace_level
 
         # argos_fragment 자동 추적도 감소
         per_node_reduce = run_state.get("per_node_trace_reduction", 0)
@@ -1909,6 +1915,8 @@ def run_lobby_loop() -> None:
                     "mystery_engaged": run_stats.get("mystery_engaged", 0),
                     "mystery_good": run_stats.get("mystery_good", 0),
                     "mystery_skipped": run_stats.get("mystery_skipped", 0),
+                    "artifacts_held": run_stats.get("artifacts_held", 0),
+                    "max_trace_reached": run_stats.get("max_trace_reached", 0),
                 }
                 # 엔딩 판정
                 triggered_ending = evaluate_ending(run_summary, save_data)

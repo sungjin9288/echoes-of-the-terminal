@@ -26,6 +26,10 @@ def _run(
     correct_answers: int = 7,
     class_key: str = "ANALYST",
     cleared_difficulties: list | None = None,
+    mystery_engaged: int = 0,
+    mystery_good: int = 0,
+    artifacts_held: int = 0,
+    max_trace_reached: int = 50,
 ) -> dict:
     return {
         "is_victory": is_victory,
@@ -36,6 +40,10 @@ def _run(
         "correct_answers": correct_answers,
         "class_key": class_key,
         "cleared_difficulties": cleared_difficulties or ["Easy", "Hard"],
+        "mystery_engaged": mystery_engaged,
+        "mystery_good": mystery_good,
+        "artifacts_held": artifacts_held,
+        "max_trace_reached": max_trace_reached,
     }
 
 
@@ -68,8 +76,8 @@ def _save_empty() -> dict:
 
 # ── 구조 검증 ─────────────────────────────────────────────────────────────────
 
-def test_endings_dict_has_8_entries() -> None:
-    assert len(ENDINGS) == 8
+def test_endings_dict_has_11_entries() -> None:
+    assert len(ENDINGS) == 11
 
 
 def test_all_endings_have_required_fields() -> None:
@@ -89,7 +97,8 @@ def test_ending_priorities_are_unique() -> None:
 
 
 def test_new_endings_present() -> None:
-    for ending_id in ("SPEEDRUN_END", "CRACKER_END", "VETERAN_END"):
+    for ending_id in ("SPEEDRUN_END", "CRACKER_END", "VETERAN_END",
+                      "MYSTERY_END", "COLLECTOR_END", "COMEBACK_END"):
         assert ending_id in ENDINGS, f"{ending_id} 누락"
 
 
@@ -255,6 +264,73 @@ def test_priority_true_end_beats_ascension_end() -> None:
     assert result.ending_id == "TRUE_END"
 
 
+# ── evaluate_ending: 신규 3종 (MYSTERY / COLLECTOR / COMEBACK) ────────────────
+
+def test_mystery_end_requires_3_engagements_all_good() -> None:
+    # mystery_engaged >= 3, 모두 성공 → MYSTERY_END
+    result = evaluate_ending(
+        _run(mystery_engaged=3, mystery_good=3, wrong_analyzes=1),  # wrong=1 → ANALYST_END 회피
+        _save_empty(),
+    )
+    assert result is not None
+    assert result.ending_id == "MYSTERY_END"
+
+    # 개입 2회는 미충족
+    result2 = evaluate_ending(
+        _run(mystery_engaged=2, mystery_good=2, wrong_analyzes=1),
+        _save_empty(),
+    )
+    assert result2 is None or result2.ending_id != "MYSTERY_END"
+
+    # 개입 중 실패가 있으면 미충족
+    result3 = evaluate_ending(
+        _run(mystery_engaged=3, mystery_good=2, wrong_analyzes=1),
+        _save_empty(),
+    )
+    assert result3 is None or result3.ending_id != "MYSTERY_END"
+
+
+def test_collector_end_requires_4_artifacts() -> None:
+    # artifacts_held >= 4 → COLLECTOR_END (wrong=1 → ANALYST_END 회피)
+    result = evaluate_ending(
+        _run(artifacts_held=4, wrong_analyzes=1),
+        _save_empty(),
+    )
+    assert result is not None
+    assert result.ending_id == "COLLECTOR_END"
+
+    # 아티팩트 3개는 미충족
+    result2 = evaluate_ending(
+        _run(artifacts_held=3, wrong_analyzes=1),
+        _save_empty(),
+    )
+    assert result2 is None or result2.ending_id != "COLLECTOR_END"
+
+
+def test_comeback_end_requires_max95_and_final60() -> None:
+    # max_trace_reached >= 95, trace_final <= 60 → COMEBACK_END (wrong=1, trace<90 → SURVIVOR/ANALYST 회피)
+    result = evaluate_ending(
+        _run(max_trace_reached=95, trace_final=55, wrong_analyzes=1),
+        _save_empty(),
+    )
+    assert result is not None
+    assert result.ending_id == "COMEBACK_END"
+
+    # max_trace 94는 미충족
+    result2 = evaluate_ending(
+        _run(max_trace_reached=94, trace_final=55, wrong_analyzes=1),
+        _save_empty(),
+    )
+    assert result2 is None or result2.ending_id != "COMEBACK_END"
+
+    # 최종 trace 61은 미충족
+    result3 = evaluate_ending(
+        _run(max_trace_reached=95, trace_final=61, wrong_analyzes=1),
+        _save_empty(),
+    )
+    assert result3 is None or result3.ending_id != "COMEBACK_END"
+
+
 # ── record_ending_unlock ──────────────────────────────────────────────────────
 
 def test_record_ending_unlock_returns_true_on_first_unlock() -> None:
@@ -274,10 +350,10 @@ def test_record_ending_unlock_returns_false_on_duplicate() -> None:
 
 # ── get_endings_snapshot ──────────────────────────────────────────────────────
 
-def test_get_endings_snapshot_total_is_8() -> None:
+def test_get_endings_snapshot_total_is_11() -> None:
     save = _save_empty()
     snap = get_endings_snapshot(save)
-    assert snap["total_count"] == 8
+    assert snap["total_count"] == 11
     assert snap["unlocked_count"] == 0
 
 

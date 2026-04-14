@@ -136,6 +136,47 @@ ENDINGS: dict[str, Ending] = {
         border_style="#8B6914",
         priority=8,
     ),
+    "MYSTERY_END": Ending(
+        ending_id="MYSTERY_END",
+        title="CHAOS PROTOCOL",
+        subtitle="미지의 신호를 타고",
+        flavor_text=(
+            "당신은 ARGOS의 함정을 함정으로 되돌렸다.\n"
+            "미스터리는 위험이 아닌 무기였다.\n\n"
+            "ARGOS는 예측 불가능한 것을 두려워한다.\n"
+            "그리고 당신은 그 예측 불가능함 그 자체였다."
+        ),
+        color="bold #FF8C00",
+        border_style="#FF6600",
+        priority=9,
+    ),
+    "COLLECTOR_END": Ending(
+        ending_id="COLLECTOR_END",
+        title="FULL LOADOUT",
+        subtitle="완전 무장 침투",
+        flavor_text=(
+            "4개의 유물. 런 내내 당신의 손은 가득 찼다.\n"
+            "각각의 유물이 ARGOS의 방벽에 균열을 냈다.\n\n"
+            "수집가는 강하다. 당신은 그것을 증명했다."
+        ),
+        color="bold #9370DB",
+        border_style="#7B68EE",
+        priority=10,
+    ),
+    "COMEBACK_END": Ending(
+        ending_id="COMEBACK_END",
+        title="LAST SIGNAL",
+        subtitle="벼랑 끝 역전",
+        flavor_text=(
+            "추적도 95%. 한 발짝만 더 틀렸어도 끝이었다.\n"
+            "그러나 당신은 그 상황에서 역전했다.\n\n"
+            "ARGOS는 승리를 확신했다.\n"
+            "그것이 ARGOS의 마지막 오류였다."
+        ),
+        color="bold #DC143C",
+        border_style="#B22222",
+        priority=11,
+    ),
 }
 
 # 잠금 해제 기록용 세이브 키
@@ -176,6 +217,10 @@ def evaluate_ending(
     correct = int(run_result.get("correct_answers", 0))
     class_key = str(run_result.get("class_key", "")).upper()
     cleared_difficulties: list[str] = list(run_result.get("cleared_difficulties", []))
+    mystery_engaged = int(run_result.get("mystery_engaged", 0))
+    mystery_good = int(run_result.get("mystery_good", 0))
+    artifacts_held = int(run_result.get("artifacts_held", 0))
+    max_trace_reached = int(run_result.get("max_trace_reached", 0))
 
     candidates: list[Ending] = []
 
@@ -211,6 +256,18 @@ def evaluate_ending(
     # VETERAN_END: ASC 15 이상 + 오답 3회 이상으로 승리
     if asc >= 15 and wrong >= 3:
         candidates.append(ENDINGS["VETERAN_END"])
+
+    # MYSTERY_END: MYSTERY 노드 개입 3회 이상 + 모든 개입이 성공
+    if mystery_engaged >= 3 and mystery_engaged == mystery_good:
+        candidates.append(ENDINGS["MYSTERY_END"])
+
+    # COLLECTOR_END: 런 중 아티팩트 4종 이상 보유하고 승리
+    if artifacts_held >= 4:
+        candidates.append(ENDINGS["COLLECTOR_END"])
+
+    # COMEBACK_END: 런 중 최대 추적도 95% 이상 + 최종 추적도 60% 이하로 역전 승리
+    if max_trace_reached >= 95 and trace <= 60:
+        candidates.append(ENDINGS["COMEBACK_END"])
 
     if not candidates:
         return None

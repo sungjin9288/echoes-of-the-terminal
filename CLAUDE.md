@@ -36,21 +36,21 @@ Echoes of the Terminal/
 ├── mystery_system.py        # MYSTERY 노드 이벤트 시스템 10종 (272줄)
 ├── data_loader.py           # JSON 데이터 로딩 & 검증 (231줄)
 ├── daily_challenge.py       # 일일 도전 시스템 (341줄)
-├── ending_system.py         # 8종 엔딩 판정 (264줄)
+├── ending_system.py         # 11종 엔딩 판정 (322줄)
 ├── diver_class.py           # 3종 다이버 클래스 (194줄)
-├── achievement_system.py    # 100종 업적 시스템 (908줄)
+├── achievement_system.py    # 105종 업적 시스템 (962줄)
 ├── mutator_system.py        # Glitch 마스킹 텍스트 변형 (128줄)
 ├── route_map.py             # 노드 타입 라우팅 (99줄)
 ├── boss_phase_pack_tools.py # ASC20 보스 툴 (89줄)
 ├── combat_timer.py          # 전투 타이머 캡슐화 (70줄)
 ├── constants.py             # 전역 상수 단일 출처 (37줄)
 │
-├── scenarios.json           # 200개 시나리오 데이터 (Pack 01-12)
+├── scenarios.json           # 208개 시나리오 데이터 (Pack 01-13)
 ├── boss_phase_pack.json     # ASC20 보스 페이즈 오버라이드
 ├── argos_taunts.json        # ARGOS AI 다이얼로그
 ├── save_data.json           # 플레이어 세이브 데이터 (런타임 생성)
 │
-├── tests/                   # pytest 테스트 (11파일, 228케이스)
+├── tests/                   # pytest 테스트 (11파일, 231케이스)
 │   ├── test_achievement_system.py
 │   ├── test_artifact_effects.py
 │   ├── test_ascension_runtime.py
@@ -163,7 +163,7 @@ trace += 30  # 금지
 
 - **Runtime Dict** (세션 중 불변): Ascension 수정자, 아티팩트 효과 플래그, 클래스 패시브 설정
 - **Run State Dict** (세션 중 가변): 현재 trace, 오답 횟수, 타임아웃 이벤트, Cracker 스트릭 카운터
-- **Save Data Dict** (영속 JSON): `data_fragments`, `perks`, `campaign`, `achievements`, `daily`, `endings`
+- **Save Data Dict** (영속 JSON): `data_fragments`, `perks`, `campaign`, `achievements`, `daily`, `endings`, `mystery_stats`
 
 세이브 데이터는 `progression_system.py`에서만 읽고 써야 한다. 다른 모듈에서 직접 파일 I/O 금지.
 
@@ -176,10 +176,11 @@ trace += 30  # 금지
 ```
 초기화 (Ascension + Perks → runtime modifiers)
     ↓
-루트 생성 (NORMAL/SHOP/REST/ELITE 7노드)
+루트 생성 (NORMAL/SHOP/REST/ELITE/MYSTERY 7노드)
     ↓
 노드 순회 루프
     ├── SHOP/REST → 특수 노드 처리
+    ├── MYSTERY → _run_mystery_node() (개입/무시 선택)
     └── NORMAL/ELITE/BOSS → _run_combat_node()
             ↓
         로그 표시 (glitch masking 적용)
