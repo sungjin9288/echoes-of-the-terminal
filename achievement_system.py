@@ -562,6 +562,22 @@ ACHIEVEMENTS: tuple[dict[str, str], ...] = (
         "title": "신중한 해커",
         "desc": "한 런에서 모든 MYSTERY 노드를 무시했다 (최소 2회 이상 등장).",
     },
+    # ── 아티팩트 (Artifact) ───────────────────────────────────────────────────
+    {
+        "id": "artifact_first_win",
+        "title": "첫 번째 강화 장비",
+        "desc": "아티팩트를 1종 이상 보유한 채 처음으로 승리했다.",
+    },
+    {
+        "id": "artifact_hoarder",
+        "title": "장비 욕심쟁이",
+        "desc": "한 런에서 아티팩트 3종 이상을 보유한 채 승리했다.",
+    },
+    {
+        "id": "artifact_zealot",
+        "title": "완전 무장 전술가",
+        "desc": "한 런에서 아티팩트 5종 이상을 보유한 채 승리했다.",
+    },
 )
 
 ACHIEVEMENT_INDEX: dict[str, dict[str, str]] = {
@@ -964,6 +980,17 @@ def evaluate_achievements(
         _unlock("mystery_all_good_run")
     if mystery_total >= 2 and mystery_skipped == mystery_total:
         _unlock("mystery_all_skip_run")
+
+    # ── 아티팩트 업적 ──────────────────────────────────────────────────────────
+    if run_summary:
+        artifacts_held = int(run_summary.get("artifacts_held", 0))
+        is_vic = bool(run_summary.get("is_victory", False))
+        if is_vic and artifacts_held >= 1:
+            _unlock("artifact_first_win")
+        if is_vic and artifacts_held >= 3:
+            _unlock("artifact_hoarder")
+        if is_vic and artifacts_held >= 5:
+            _unlock("artifact_zealot")
 
     save_data["achievements"] = achievement_state
     return newly_unlocked

@@ -53,6 +53,7 @@ def _run(
     mystery_engaged: int = 0,
     mystery_good: int = 0,
     mystery_skipped: int = 0,
+    artifacts_held: int = 0,
 ) -> dict:
     return {
         "result": result,
@@ -68,14 +69,15 @@ def _run(
         "mystery_engaged": mystery_engaged,
         "mystery_good": mystery_good,
         "mystery_skipped": mystery_skipped,
+        "artifacts_held": artifacts_held,
     }
 
 
 # ── 기본 구조 검증 ─────────────────────────────────────────────────────────────
 
-def test_achievements_tuple_has_106_entries() -> None:
-    # 100종 + MYSTERY 5종 + endings_8 1종 = 106종
-    assert len(ACHIEVEMENTS) == 106
+def test_achievements_tuple_has_109_entries() -> None:
+    # 100종 + MYSTERY 5종 + endings_8 1종 + artifact 3종 = 109종
+    assert len(ACHIEVEMENTS) == 109
 
 
 def test_achievement_index_matches_tuple() -> None:
@@ -123,7 +125,7 @@ def test_snapshot_counts_match() -> None:
     save = _clean_save(achievements_unlocked=["first_shutdown", "first_breach"])
     snap = get_achievement_snapshot(save["achievements"])
     assert snap["unlocked_count"] == 2
-    assert snap["total_count"] == 106
+    assert snap["total_count"] == 109
     assert snap["unlocked_ids"] == ["first_shutdown", "first_breach"]
 
 
@@ -458,8 +460,8 @@ def test_save_data_achievements_updated_in_place() -> None:
 
 # ── 신규 업적 (105종 확장) ────────────────────────────────────────────────────
 
-def test_achievements_tuple_has_106_entries_v2() -> None:
-    assert len(ACHIEVEMENTS) == 106
+def test_achievements_tuple_has_109_entries_v2() -> None:
+    assert len(ACHIEVEMENTS) == 109
 
 
 def test_victories_10_milestone() -> None:
@@ -1059,3 +1061,44 @@ def test_mystery_all_skip_run_not_unlocked_if_any_engaged() -> None:
     newly = evaluate_achievements(save, _run(mystery_skipped=2, mystery_engaged=1))
     ids = [a["id"] for a in newly]
     assert "mystery_all_skip_run" not in ids
+
+
+# ── 아티팩트 업적 (3종) ────────────────────────────────────────────────────────
+
+def test_artifact_new_achievements_present() -> None:
+    for aid in ("artifact_first_win", "artifact_hoarder", "artifact_zealot"):
+        assert aid in ACHIEVEMENT_INDEX, f"{aid} 누락"
+
+
+def test_artifact_first_win_unlocks_on_victory_with_artifact() -> None:
+    save = _clean_save()
+    newly = evaluate_achievements(save, _run(is_victory=True, artifacts_held=1))
+    assert "artifact_first_win" in [a["id"] for a in newly]
+
+
+def test_artifact_first_win_not_unlocked_on_defeat() -> None:
+    save = _clean_save()
+    newly = evaluate_achievements(save, _run(is_victory=False, artifacts_held=2))
+    assert "artifact_first_win" not in [a["id"] for a in newly]
+
+
+def test_artifact_hoarder_requires_3_or_more() -> None:
+    save2 = _clean_save()
+    ids2 = [a["id"] for a in evaluate_achievements(save2, _run(is_victory=True, artifacts_held=2))]
+    assert "artifact_hoarder" not in ids2
+
+    save3 = _clean_save()
+    ids3 = [a["id"] for a in evaluate_achievements(save3, _run(is_victory=True, artifacts_held=3))]
+    assert "artifact_hoarder" in ids3
+
+
+def test_artifact_zealot_requires_5_or_more() -> None:
+    save4 = _clean_save()
+    ids4 = [a["id"] for a in evaluate_achievements(save4, _run(is_victory=True, artifacts_held=4))]
+    assert "artifact_zealot" not in ids4
+
+    save5 = _clean_save()
+    ids5 = [a["id"] for a in evaluate_achievements(save5, _run(is_victory=True, artifacts_held=5))]
+    assert "artifact_zealot" in ids5
+    assert "artifact_hoarder" in ids5  # 5종이면 3종 조건도 충족
+    assert "artifact_first_win" in ids5  # 5종이면 1종 조건도 충족

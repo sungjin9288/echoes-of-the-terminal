@@ -93,3 +93,32 @@ def test_penalty_has_minimum_floor_of_one() -> None:
     assert raw == 1
     assert memory_applied is False
     assert boss_cap_applied is False
+
+
+def test_trace_shield_reduces_penalty_above_70_percent() -> None:
+    """trace_shield_active: 추적도 70% 이상 구간에서 패널티 20% 감소."""
+    run_state_high = {"trace_shield_active": True, "current_trace": 75}
+    applied_high, raw_high, _, _ = _calculate_analyze_penalty(
+        base_penalty=20,
+        runtime=_runtime(),
+        node_type=NodeType.NORMAL,
+        diver_class=None,
+        run_state=run_state_high,
+        scenario_theme="General",
+    )
+    # 20 * 0.8 = 16
+    assert applied_high == 16
+    assert raw_high == 16
+
+    # 추적도 69% — 효과 없음
+    run_state_low = {"trace_shield_active": True, "current_trace": 69}
+    applied_low, raw_low, _, _ = _calculate_analyze_penalty(
+        base_penalty=20,
+        runtime=_runtime(),
+        node_type=NodeType.NORMAL,
+        diver_class=None,
+        run_state=run_state_low,
+        scenario_theme="General",
+    )
+    assert applied_low == 20
+    assert raw_low == 20
