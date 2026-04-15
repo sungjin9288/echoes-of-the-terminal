@@ -1055,6 +1055,7 @@ def _run_mystery_node(
     run_seed: int,
     node_position: int,
     run_state: dict[str, Any] | None = None,
+    runtime: dict[str, Any] | None = None,
 ) -> tuple[int, dict[str, Any]]:
     """
     미스터리 노드를 실행하고 업데이트된 (trace_level, save_data)를 반환한다.
@@ -1125,6 +1126,19 @@ def _run_mystery_node(
     new_trace, new_save_data, message = apply_mystery_outcome(
         event, is_good, trace_level, save_data
     )
+
+    # mystery_lens 아티팩트: 실패 시 추적도 패널티 절반 감소
+    if not is_good and runtime is not None:
+        fail_mult = runtime.get("mystery_fail_penalty_mult", 1.0)
+        if fail_mult < 1.0:
+            raw_delta = event.bad_trace_delta
+            reduced_delta = max(0, int(raw_delta * fail_mult))
+            new_trace = min(100, max(0, trace_level + reduced_delta))
+
+    # neural_override 아티팩트: 추적도 90% 도달 시 즉시 -10% (1회)
+    if run_state is not None and run_state.get("neural_override_active") and new_trace >= 90:
+        new_trace = max(0, new_trace - 10)
+        run_state["neural_override_active"] = False
 
     result_style = "bold green" if is_good else "bold red"
     type_text(message, style=result_style, delay=0.03)
@@ -1292,6 +1306,8 @@ def run_game_session(
         ntype = NodeType.BOSS if position == MAX_NODES_PER_RUN else current_node_type
         if trace_level > max_trace_reached:
             max_trace_reached = trace_level
+        # trace_shield 아티팩트용 현재 추적도 동기화
+        run_state["current_trace"] = trace_level
 
         # ── 포지션 시작: argos_fragment 자동 추적도 감소 ─────────────────────
         per_node_reduce = run_state.get("per_node_trace_reduction", 0)
@@ -1329,7 +1345,7 @@ def run_game_session(
         # ── MYSTERY NODE ─────────────────────────────────────────────────────
         elif ntype == NodeType.MYSTERY:
             trace_level, save_data = _run_mystery_node(
-                save_data, trace_level, run_seed, position, run_state
+                save_data, trace_level, run_seed, position, run_state, runtime
             )
 
         # ── COMBAT NODE (NORMAL / ELITE / BOSS) ─────────────────────────────
@@ -1600,6 +1616,8 @@ def run_daily_challenge(save_data: dict[str, Any]) -> None:
         ntype = NodeType.BOSS if position == MAX_NODES_PER_RUN else current_node_type
         if trace_level > max_trace_reached:
             max_trace_reached = trace_level
+        # trace_shield 아티팩트용 현재 추적도 동기화
+        run_state["current_trace"] = trace_level
 
         # argos_fragment 자동 추적도 감소
         per_node_reduce = run_state.get("per_node_trace_reduction", 0)
@@ -1637,7 +1655,7 @@ def run_daily_challenge(save_data: dict[str, Any]) -> None:
         elif ntype == NodeType.MYSTERY:
             daily_run_seed = get_daily_seed(today)
             trace_level, save_data = _run_mystery_node(
-                save_data, trace_level, daily_run_seed, position, run_state
+                save_data, trace_level, daily_run_seed, position, run_state, runtime
             )
 
         # ── COMBAT NODE (NORMAL / ELITE / BOSS) ───────────────────────────

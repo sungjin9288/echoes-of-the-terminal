@@ -135,3 +135,53 @@ def test_system_purge_sets_clear_trace_to_zero() -> None:
     apply_artifact_effect(_artifact("system_purge"), runtime, run_state)
 
     assert run_state.get("clear_trace_to_zero") is True
+
+
+# ── v8.8 신규 아티팩트 4종 ────────────────────────────────────────────────────
+
+def test_mystery_lens_sets_fail_penalty_mult() -> None:
+    runtime: dict[str, float] = {}
+    run_state: dict[str, object] = {}
+
+    apply_artifact_effect(_artifact("mystery_lens"), runtime, run_state)
+
+    assert abs(runtime["mystery_fail_penalty_mult"] - 0.5) < 1e-9
+
+    # 이미 더 낮은 값이 있으면 그 값을 유지
+    runtime2: dict[str, float] = {"mystery_fail_penalty_mult": 0.3}
+    apply_artifact_effect(_artifact("mystery_lens"), runtime2, run_state)
+    assert abs(runtime2["mystery_fail_penalty_mult"] - 0.3) < 1e-9
+
+
+def test_fragment_cache_adds_to_clear_frag_bonus() -> None:
+    runtime: dict[str, object] = {}
+    run_state: dict[str, int] = {}
+
+    apply_artifact_effect(_artifact("fragment_cache"), runtime, run_state)
+    assert run_state["on_clear_frag_bonus"] == 8
+
+    # data_shard_x와 함께 사용하면 누적
+    apply_artifact_effect(_artifact("data_shard_x"), runtime, run_state)
+    assert run_state["on_clear_frag_bonus"] == 11  # 8 + 3
+
+
+def test_trace_shield_sets_active_flag() -> None:
+    runtime: dict[str, object] = {}
+    run_state: dict[str, object] = {}
+
+    apply_artifact_effect(_artifact("trace_shield"), runtime, run_state)
+
+    assert run_state.get("trace_shield_active") is True
+
+    # 중복 적용해도 True 유지
+    apply_artifact_effect(_artifact("trace_shield"), runtime, run_state)
+    assert run_state.get("trace_shield_active") is True
+
+
+def test_neural_override_sets_active_flag() -> None:
+    runtime: dict[str, object] = {}
+    run_state: dict[str, object] = {}
+
+    apply_artifact_effect(_artifact("neural_override"), runtime, run_state)
+
+    assert run_state.get("neural_override_active") is True

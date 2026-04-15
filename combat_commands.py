@@ -81,9 +81,24 @@ def calculate_analyze_penalty(
             memory_echo_mult = 0.8
             memory_echo_applied = True
 
+    # trace_shield 아티팩트: 현재 추적도 70% 이상 구간에서 패널티 20% 감소
+    trace_shield_mult = 1.0
+    if run_state.get("trace_shield_active"):
+        current_trace = int(run_state.get("current_trace", 0))
+        if current_trace >= 70:
+            trace_shield_mult = 0.8
+
     raw_penalty = max(
         1,
-        int(safe_base * penalty_mult * elite_mult * cracker_mult * analyst_mult * memory_echo_mult),
+        int(
+            safe_base
+            * penalty_mult
+            * elite_mult
+            * cracker_mult
+            * analyst_mult
+            * memory_echo_mult
+            * trace_shield_mult
+        ),
     )
 
     if node_type == NodeType.BOSS:

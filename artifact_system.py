@@ -19,7 +19,7 @@ class Artifact:
     rarity: str  # "COMMON" | "RARE" | "EPIC"
 
 
-# ── 아티팩트 풀 정의 (20종) ────────────────────────────────────────────────────
+# ── 아티팩트 풀 정의 (24종) ────────────────────────────────────────────────────
 # 효과는 main.py의 _apply_artifact_effects()에서 런타임 설정에 반영된다.
 ARTIFACT_POOL: list[Artifact] = [
     # COMMON (7종)
@@ -148,6 +148,31 @@ ARTIFACT_POOL: list[Artifact] = [
         "런 클리어 시 최종 추적도를 0으로 기록",
         "EPIC",
     ),
+    # v8.8 추가 (4종) ────────────────────────────────────────────────────────────
+    Artifact(
+        "mystery_lens",
+        "미스터리 렌즈",
+        "MYSTERY 개입 실패 시 추적도 패널티 50% 감소",
+        "COMMON",
+    ),
+    Artifact(
+        "fragment_cache",
+        "파편 캐시",
+        "노드 클리어 시 데이터 조각 +8 추가 (data_shard_x와 스택)",
+        "COMMON",
+    ),
+    Artifact(
+        "trace_shield",
+        "추적 방어막",
+        "추적도 70% 이상 구간에서 오답 패널티 20% 추가 감소",
+        "RARE",
+    ),
+    Artifact(
+        "neural_override",
+        "신경 재정의",
+        "추적도 90% 도달 시 즉시 -10% 자동 차감 (런 1회)",
+        "EPIC",
+    ),
 ]
 
 # ID → Artifact 빠른 조회용 맵
@@ -266,6 +291,26 @@ def apply_artifact_effect(
 
     elif art_id == "system_purge":
         run_state.setdefault("clear_trace_to_zero", True)
+
+    elif art_id == "mystery_lens":
+        # MYSTERY 개입 실패 시 추적도 패널티 절반으로 감소
+        runtime["mystery_fail_penalty_mult"] = min(
+            runtime.get("mystery_fail_penalty_mult", 1.0), 0.5
+        )
+
+    elif art_id == "fragment_cache":
+        # data_shard_x 와 같은 키에 누적 → 기존 메커니즘 재사용
+        run_state["on_clear_frag_bonus"] = (
+            run_state.get("on_clear_frag_bonus", 0) + 8
+        )
+
+    elif art_id == "trace_shield":
+        # 추적도 70% 이상 구간 오답 패널티 감소 활성 플래그
+        run_state.setdefault("trace_shield_active", True)
+
+    elif art_id == "neural_override":
+        # 추적도 90% 도달 시 자동 -10% 차감 (1회)
+        run_state.setdefault("neural_override_active", True)
 
 
 def draw_artifacts(
