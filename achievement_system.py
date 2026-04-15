@@ -138,9 +138,14 @@ ACHIEVEMENTS: tuple[dict[str, str], ...] = (
         "desc": "3종 이상의 엔딩을 해금했다.",
     },
     {
+        "id": "endings_8",
+        "title": "결말의 수집가",
+        "desc": "8종 이상의 엔딩을 해금했다.",
+    },
+    {
         "id": "all_endings",
         "title": "모든 결말",
-        "desc": "5종 엔딩을 모두 해금했다.",
+        "desc": "11종 엔딩을 모두 해금했다.",
     },
     # ── 캠페인 (Campaign) ─────────────────────────────────────────────────────
     {
@@ -896,7 +901,9 @@ def evaluate_achievements(
                 _unlock("endings_1")
             if endings_count >= 3:
                 _unlock("endings_3")
-            if endings_count >= 5:
+            if endings_count >= 8:
+                _unlock("endings_8")
+            if endings_count >= 11:
                 _unlock("all_endings")
 
     # ASC 해금 마일스톤

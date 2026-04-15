@@ -214,14 +214,14 @@
   - `node_id`, `theme`, `difficulty`, `text_log`, `target_keyword`, `penalty_rate`
 
 ## 13. 현재 데이터셋 통계 (scenarios.json)
-- 총 시나리오: 208
-- 일반 시나리오: 184 (Easy 92 + Hard 92)
-- 보스 시나리오: 24 (NIGHTMARE 전용)
+- 총 시나리오: 216
+- 일반 시나리오: 190 (Easy 95 + Hard 95)
+- 보스 시나리오: 26 (NIGHTMARE 전용)
 - 난이도 분포
-  - Easy: 92 (일반)
-  - Hard: 92 (일반)
-  - NIGHTMARE: 24 (보스 전용)
-- 테마 수: 114
+  - Easy: 95 (일반)
+  - Hard: 95 (일반)
+  - NIGHTMARE: 26 (보스 전용)
+- 테마 수: 118
 - Pack 01~02: node_id 1~118 (기존)
 - Pack 03: node_id 119~128 (ANTARCTIC, RENAISSANCE, FUTURE_COURT, AI_LOG)
 - Pack 04: node_id 129~136 (POW_INTERROGATION, ANCIENT_EGYPT, CYBER_TERROR, COLONY_PLANET)
@@ -234,6 +234,7 @@
 - Pack 11: node_id 185~192 (MING_DYNASTY, COLD_WAR_BERLIN, FRENCH_RESISTANCE, OTTOMAN_EXPANSION)
 - Pack 12: node_id 193~200 (SPANISH_INQUISITION, MONGOL_EMPIRE, BRITISH_COLONIAL, SOVIET_ERA)
 - Pack 13: node_id 201~208 (ROMAN_EMPIRE, VIKING_AGE, MEDIEVAL_PLAGUE, RENAISSANCE_ITALY)
+- Pack 14: node_id 209~216 (ANCIENT_GREECE, PERSIAN_EMPIRE, BYZANTINE_EMPIRE, MUGHAL_EMPIRE)
 
 ## 14. 구현-설명 차이 메모 (현 시점)
 기준일 업데이트: 2026-04-15

@@ -73,9 +73,9 @@ def _run(
 
 # ── 기본 구조 검증 ─────────────────────────────────────────────────────────────
 
-def test_achievements_tuple_has_105_entries() -> None:
-    # 100종 + MYSTERY 노드 관련 5종 = 105종
-    assert len(ACHIEVEMENTS) == 105
+def test_achievements_tuple_has_106_entries() -> None:
+    # 100종 + MYSTERY 5종 + endings_8 1종 = 106종
+    assert len(ACHIEVEMENTS) == 106
 
 
 def test_achievement_index_matches_tuple() -> None:
@@ -123,7 +123,7 @@ def test_snapshot_counts_match() -> None:
     save = _clean_save(achievements_unlocked=["first_shutdown", "first_breach"])
     snap = get_achievement_snapshot(save["achievements"])
     assert snap["unlocked_count"] == 2
-    assert snap["total_count"] == 105
+    assert snap["total_count"] == 106
     assert snap["unlocked_ids"] == ["first_shutdown", "first_breach"]
 
 
@@ -412,18 +412,28 @@ def test_class_trinity_requires_at_least_1_each() -> None:
 
 
 def test_endings_milestones() -> None:
-    save = _clean_save(endings_unlocked=["ending_a", "ending_b", "ending_c"])
+    # 3종: endings_3 해금, endings_8/all_endings 미해금
+    save = _clean_save(endings_unlocked=["e1", "e2", "e3"])
     newly = evaluate_achievements(save)
-    assert "endings_3" in [a["id"] for a in newly]
-    assert "all_endings" not in [a["id"] for a in newly]
+    ids = [a["id"] for a in newly]
+    assert "endings_3" in ids
+    assert "endings_8" not in ids
+    assert "all_endings" not in ids
 
-    save2 = _clean_save(
-        endings_unlocked=["ending_a", "ending_b", "ending_c", "ending_d", "ending_e"]
-    )
+    # 8종: endings_3 + endings_8 해금, all_endings 미해금
+    save2 = _clean_save(endings_unlocked=[f"e{i}" for i in range(1, 9)])
     newly2 = evaluate_achievements(save2)
     ids2 = [a["id"] for a in newly2]
     assert "endings_3" in ids2
-    assert "all_endings" in ids2
+    assert "endings_8" in ids2
+    assert "all_endings" not in ids2
+
+    # 11종: 전체 해금
+    save3 = _clean_save(endings_unlocked=[f"e{i}" for i in range(1, 12)])
+    newly3 = evaluate_achievements(save3)
+    ids3 = [a["id"] for a in newly3]
+    assert "endings_8" in ids3
+    assert "all_endings" in ids3
 
 
 def test_campaign_clear_unlocks_achievement() -> None:
@@ -448,8 +458,8 @@ def test_save_data_achievements_updated_in_place() -> None:
 
 # ── 신규 업적 (105종 확장) ────────────────────────────────────────────────────
 
-def test_achievements_tuple_has_105_entries_v2() -> None:
-    assert len(ACHIEVEMENTS) == 105
+def test_achievements_tuple_has_106_entries_v2() -> None:
+    assert len(ACHIEVEMENTS) == 106
 
 
 def test_victories_10_milestone() -> None:
@@ -588,6 +598,31 @@ def test_endings_1_on_first_ending() -> None:
     newly = evaluate_achievements(save)
     assert "endings_1" in [a["id"] for a in newly]
     assert "endings_3" not in [a["id"] for a in newly]
+
+
+def test_endings_8_requires_8_distinct_endings() -> None:
+    # 7종은 미해금
+    save7 = _clean_save(endings_unlocked=[f"e{i}" for i in range(1, 8)])
+    ids7 = [a["id"] for a in evaluate_achievements(save7)]
+    assert "endings_8" not in ids7
+
+    # 8종이면 해금
+    save8 = _clean_save(endings_unlocked=[f"e{i}" for i in range(1, 9)])
+    ids8 = [a["id"] for a in evaluate_achievements(save8)]
+    assert "endings_8" in ids8
+    assert "all_endings" not in ids8  # 11종 미달
+
+
+def test_all_endings_requires_11_distinct_endings() -> None:
+    # 10종은 미해금
+    save10 = _clean_save(endings_unlocked=[f"e{i}" for i in range(1, 11)])
+    ids10 = [a["id"] for a in evaluate_achievements(save10)]
+    assert "all_endings" not in ids10
+
+    # 11종이면 해금
+    save11 = _clean_save(endings_unlocked=[f"e{i}" for i in range(1, 12)])
+    ids11 = [a["id"] for a in evaluate_achievements(save11)]
+    assert "all_endings" in ids11
 
 
 def test_perk_first_on_any_perk_unlocked() -> None:
