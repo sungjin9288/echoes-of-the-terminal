@@ -33,7 +33,7 @@ Echoes of the Terminal/
 ├── progression_system.py    # 세이브/퍼크/캠페인/어센션 (564줄)
 ├── combat_commands.py       # 전투 커맨드 핸들러 + 페널티 계산 (279줄)
 ├── artifact_system.py       # 20종 아티팩트 시스템 (314줄)
-├── mystery_system.py        # MYSTERY 노드 이벤트 시스템 10종 (272줄)
+├── mystery_system.py        # MYSTERY 노드 이벤트 시스템 15종 (352줄)
 ├── data_loader.py           # JSON 데이터 로딩 & 검증 (231줄)
 ├── daily_challenge.py       # 일일 도전 시스템 (341줄)
 ├── ending_system.py         # 11종 엔딩 판정 (322줄)
@@ -45,7 +45,7 @@ Echoes of the Terminal/
 ├── combat_timer.py          # 전투 타이머 캡슐화 (70줄)
 ├── constants.py             # 전역 상수 단일 출처 (37줄)
 │
-├── scenarios.json           # 216개 시나리오 데이터 (Pack 01-14)
+├── scenarios.json           # 224개 시나리오 데이터 (Pack 01-15)
 ├── boss_phase_pack.json     # ASC20 보스 페이즈 오버라이드
 ├── argos_taunts.json        # ARGOS AI 다이얼로그
 ├── save_data.json           # 플레이어 세이브 데이터 (런타임 생성)

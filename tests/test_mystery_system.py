@@ -17,8 +17,8 @@ from mystery_system import (
 
 # ── 구조 검증 ─────────────────────────────────────────────────────────────────
 
-def test_mystery_pool_has_ten_events() -> None:
-    assert len(MYSTERY_POOL) == 10
+def test_mystery_pool_has_fifteen_events() -> None:
+    assert len(MYSTERY_POOL) == 15
 
 
 def test_mystery_index_matches_pool() -> None:
@@ -77,7 +77,7 @@ def test_pick_mystery_deterministic() -> None:
 def test_pick_mystery_different_seeds_vary() -> None:
     """다른 시드는 (같은 포지션이더라도) 다른 이벤트를 선택할 수 있다."""
     results = {pick_mystery(seed, 0).event_id for seed in range(1, 50)}
-    # 10종 중 최소 2종 이상 선택되어야 결정론적 분포가 작동함
+    # 15종 중 최소 2종 이상 선택되어야 결정론적 분포가 작동함
     assert len(results) >= 2
 
 
@@ -231,13 +231,13 @@ def test_apply_outcome_no_fragment_change() -> None:
 
 def test_get_mystery_snapshot_total() -> None:
     snap = get_mystery_snapshot()
-    assert snap["total_events"] == 10
+    assert snap["total_events"] == 15
 
 
 def test_get_mystery_snapshot_event_ids() -> None:
     snap = get_mystery_snapshot()
-    assert len(snap["event_ids"]) == 10
-    assert len(set(snap["event_ids"])) == 10  # 모두 고유
+    assert len(snap["event_ids"]) == 15
+    assert len(set(snap["event_ids"])) == 15  # 모두 고유
 
 
 # ── 통합: pick + resolve + apply 파이프라인 ──────────────────────────────────

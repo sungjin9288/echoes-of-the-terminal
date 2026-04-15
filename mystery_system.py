@@ -24,7 +24,7 @@ class MysteryEvent:
     bad_fragments_delta: int
 
 
-# ── 10종 미스터리 이벤트 풀 ───────────────────────────────────────────────────
+# ── 15종 미스터리 이벤트 풀 ───────────────────────────────────────────────────
 
 MYSTERY_POOL: tuple[MysteryEvent, ...] = (
     MysteryEvent(
@@ -176,6 +176,81 @@ MYSTERY_POOL: tuple[MysteryEvent, ...] = (
         bad_trace_delta=35,
         good_fragments_delta=100,
         bad_fragments_delta=0,
+    ),
+    MysteryEvent(
+        event_id="ghost_partition",
+        title="유령 파티션",
+        description=(
+            "ARGOS 파일시스템에 존재하지 않는 파티션이 발견되었다.\n"
+            "저항군이 숨겨둔 것인지, ARGOS가 설치한 킬스위치인지 알 수 없다."
+        ),
+        engage_prompt="파티션을 마운트해 내용을 확인한다. (성공: 추적도 -15 + 데이터 조각 +350 / 실패: 추적도 +50)",
+        good_desc="[성공] 저항군의 비밀 캐시였다. 추적도 -15, 데이터 조각 +350.",
+        bad_desc="[실패] ARGOS 킬스위치였다. 강력한 역추적 발동. 추적도 +50.",
+        good_trace_delta=-15,
+        bad_trace_delta=50,
+        good_fragments_delta=350,
+        bad_fragments_delta=0,
+    ),
+    MysteryEvent(
+        event_id="decoy_signal",
+        title="분산 신호 프로토콜",
+        description=(
+            "다중 출처에서 동시에 신호가 발신되고 있다.\n"
+            "ARGOS의 추적 리소스를 분산시킬 수 있는 기회다."
+        ),
+        engage_prompt="신호를 증폭해 ARGOS 추적을 교란한다. (성공: 추적도 -30 / 실패: 추적도 +20)",
+        good_desc="[성공] ARGOS 추적 모듈이 교란되었다. 추적도 -30.",
+        bad_desc="[실패] 교란 시도가 역으로 위치를 특정당했다. 추적도 +20.",
+        good_trace_delta=-30,
+        bad_trace_delta=20,
+        good_fragments_delta=0,
+        bad_fragments_delta=0,
+    ),
+    MysteryEvent(
+        event_id="encrypted_manifest",
+        title="암호화된 매니페스트",
+        description=(
+            "ARGOS 핵심 데이터베이스의 인덱스 파일이 노출되어 있다.\n"
+            "내용을 복호화할 수 있다면 막대한 데이터 조각을 얻을 수 있다."
+        ),
+        engage_prompt="매니페스트를 복호화한다. (성공: 데이터 조각 +500 / 실패: 데이터 조각 -200 & 추적도 +30)",
+        good_desc="[성공] 매니페스트 완전 복호화. 데이터 조각 +500.",
+        bad_desc="[실패] 복호화 키가 틀렸다. 접근 거부 및 추적 강화. 데이터 조각 -200, 추적도 +30.",
+        good_trace_delta=0,
+        bad_trace_delta=30,
+        good_fragments_delta=500,
+        bad_fragments_delta=-200,
+    ),
+    MysteryEvent(
+        event_id="rogue_process",
+        title="이탈 프로세스",
+        description=(
+            "ARGOS 감시망 밖에서 동작 중인 정체불명의 프로세스가 발견되었다.\n"
+            "이 프로세스를 장악하면 단기간 추적 감지를 무력화할 수 있다."
+        ),
+        engage_prompt="이탈 프로세스를 장악한다. (성공: 추적도 -25 + 데이터 조각 +200 / 실패: 추적도 +40)",
+        good_desc="[성공] 프로세스 장악 완료. 추적 감지가 일시 무력화되었다. 추적도 -25, 데이터 조각 +200.",
+        bad_desc="[실패] 프로세스가 경보 루틴을 실행했다. 추적도 +40.",
+        good_trace_delta=-25,
+        bad_trace_delta=40,
+        good_fragments_delta=200,
+        bad_fragments_delta=0,
+    ),
+    MysteryEvent(
+        event_id="temporal_anomaly",
+        title="시간 이상 구간",
+        description=(
+            "ARGOS 로그 타임스탬프에 수초간의 공백이 존재한다.\n"
+            "이 감시 공백 구간을 이용해 흔적을 지울 수 있다."
+        ),
+        engage_prompt="감시 공백 구간을 활용한다. (성공: 추적도 -45 / 실패: 추적도 +20 & 데이터 조각 -100)",
+        good_desc="[성공] 공백 구간 활용 성공. 대량의 추적 기록이 삭제되었다. 추적도 -45.",
+        bad_desc="[실패] 공백이 이미 감지 중이었다. 추적도 +20, 데이터 조각 -100.",
+        good_trace_delta=-45,
+        bad_trace_delta=20,
+        good_fragments_delta=0,
+        bad_fragments_delta=-100,
     ),
 )
 
