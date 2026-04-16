@@ -54,6 +54,9 @@ def _run(
     mystery_good: int = 0,
     mystery_skipped: int = 0,
     artifacts_held: int = 0,
+    cascade_triggered: bool = False,
+    void_scanner_used: bool = False,
+    mystery_frags_gained: int = 0,
 ) -> dict:
     return {
         "result": result,
@@ -70,14 +73,17 @@ def _run(
         "mystery_good": mystery_good,
         "mystery_skipped": mystery_skipped,
         "artifacts_held": artifacts_held,
+        "cascade_triggered": cascade_triggered,
+        "void_scanner_used": void_scanner_used,
+        "mystery_frags_gained": mystery_frags_gained,
     }
 
 
 # ── 기본 구조 검증 ─────────────────────────────────────────────────────────────
 
 def test_achievements_tuple_has_109_entries() -> None:
-    # 100종 + MYSTERY 5종 + endings_8 1종 + artifact 3종 + perk 3종 = 112종
-    assert len(ACHIEVEMENTS) == 112
+    # 100종 + MYSTERY 5종 + endings_8 1종 + artifact 3종 + perk 3종 + v9.4 3종 = 115종
+    assert len(ACHIEVEMENTS) == 115
 
 
 def test_achievement_index_matches_tuple() -> None:
@@ -125,7 +131,7 @@ def test_snapshot_counts_match() -> None:
     save = _clean_save(achievements_unlocked=["first_shutdown", "first_breach"])
     snap = get_achievement_snapshot(save["achievements"])
     assert snap["unlocked_count"] == 2
-    assert snap["total_count"] == 112
+    assert snap["total_count"] == 115
     assert snap["unlocked_ids"] == ["first_shutdown", "first_breach"]
 
 
@@ -461,7 +467,7 @@ def test_save_data_achievements_updated_in_place() -> None:
 # ── 신규 업적 (105종 확장) ────────────────────────────────────────────────────
 
 def test_achievements_tuple_has_109_entries_v2() -> None:
-    assert len(ACHIEVEMENTS) == 112
+    assert len(ACHIEVEMENTS) == 115
 
 
 def test_victories_10_milestone() -> None:
@@ -1155,3 +1161,49 @@ def test_swift_first_win_requires_perk_and_victory() -> None:
     save_win = _clean_save(perks={"swift_analysis": True})
     ids_win = [a["id"] for a in evaluate_achievements(save_win, _run(is_victory=True))]
     assert "swift_first_win" in ids_win
+
+
+# ── v9.4 특수 아티팩트 업적 ──────────────────────────────────────────────────
+
+def test_v94_achievements_present() -> None:
+    """v9.4 신규 업적 3종이 ACHIEVEMENTS 튜플에 존재하는지 검증."""
+    ids = {a["id"] for a in ACHIEVEMENTS}
+    assert "cascade_master" in ids
+    assert "void_hunter" in ids
+    assert "mystery_rich" in ids
+
+
+def test_cascade_master_requires_cascade_triggered_and_victory() -> None:
+    # 발동 없이 승리 → 미해금
+    save = _clean_save()
+    ids = [a["id"] for a in evaluate_achievements(save, _run(is_victory=True, cascade_triggered=False))]
+    assert "cascade_master" not in ids
+
+    # 발동 + 승리 → 해금
+    save2 = _clean_save()
+    ids2 = [a["id"] for a in evaluate_achievements(save2, _run(is_victory=True, cascade_triggered=True))]
+    assert "cascade_master" in ids2
+
+
+def test_void_hunter_requires_void_scanner_used_and_victory() -> None:
+    # 미사용 → 미해금
+    save = _clean_save()
+    ids = [a["id"] for a in evaluate_achievements(save, _run(is_victory=True, void_scanner_used=False))]
+    assert "void_hunter" not in ids
+
+    # 사용 + 승리 → 해금
+    save2 = _clean_save()
+    ids2 = [a["id"] for a in evaluate_achievements(save2, _run(is_victory=True, void_scanner_used=True))]
+    assert "void_hunter" in ids2
+
+
+def test_mystery_rich_requires_300_frags_and_victory() -> None:
+    # 299 → 미해금
+    save = _clean_save()
+    ids = [a["id"] for a in evaluate_achievements(save, _run(is_victory=True, mystery_frags_gained=299))]
+    assert "mystery_rich" not in ids
+
+    # 300 + 승리 → 해금
+    save2 = _clean_save()
+    ids2 = [a["id"] for a in evaluate_achievements(save2, _run(is_victory=True, mystery_frags_gained=300))]
+    assert "mystery_rich" in ids2

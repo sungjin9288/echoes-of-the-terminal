@@ -2718,5 +2718,85 @@
     "target_keyword": "WATCH",
     "logical_flaw_explanation": "Apple Watch는 2015년 Apple이 출시한 스마트워치이다. 1815년 워털루 전투 현장에서 APPLE WATCH로 심박수를 측정했다는 진술은 200년 이상 시대착오적이다. 당시 병사들은 기계식 회중시계조차 드물게 소지하였으며, 디지털 스마트워치는 존재하지 않았다.",
     "penalty_rate": 65
+  },
+  {
+    "node_id": 273,
+    "theme": "DUTCH_GOLDEN_AGE",
+    "difficulty": "Easy",
+    "is_boss": false,
+    "text_log": "【암스테르담 동인도회사(VOC) 내부 감사 기록 #1637-04】\n감사관: Pieter van Houten / 날짜: 1637년 4월 8일\n\n튤립 광풍(Tulip Mania) 붕괴 직후 경제 혼란 속에, VOC 소속 주식 중개인 Jan de Vries가 내부 기밀 정보를 이용한 주식 거래로 부당 이익을 취하였다는 혐의를 받게 되었다. de Vries는 1637년 2월 거래 급락 직전, 자신의 SMARTPHONE으로 암스테르담 거래소의 실시간 가격 변동을 확인하며 전량 매도 주문을 넣었다고 진술하였다. 거래소 장부 기록원 Hendrik Smit는 그 시기 de Vries가 거래소에 직접 방문하여 주문을 넣은 것을 확인하였다.",
+    "target_keyword": "SMARTPHONE",
+    "logical_flaw_explanation": "SMARTPHONE은 2007년 이후에 등장한 현대 기기이다. 1637년 암스테르담에서 SMARTPHONE으로 실시간 주가를 확인했다는 진술은 370년 이상 시대착오적이다.",
+    "penalty_rate": 20
+  },
+  {
+    "node_id": 274,
+    "theme": "DUTCH_GOLDEN_AGE",
+    "difficulty": "Hard",
+    "is_boss": false,
+    "text_log": "【헤이그 고등법원 심문 기록 #1672-0823】\n재판관: Cornelis van Buren / 날짜: 1672년 8월 23일\n\n재앙의 해(Rampjaar) 혼란 속에 형제 정치가 요한 데 비트가 암살된 직후, 공화파 지지자 Adriaan Visser가 암살 배후 공모 혐의로 법원에 소환되었다. Visser는 1672년 8월 20일 오후, 자신은 레이던 자택에서 동료들과 ZOOM 화상회의로 정치 전략을 논의하고 있었으며 헤이그에는 없었다고 주장하였다. 인근 주민 두 명이 그날 Visser의 마차가 집 앞에 없었다고 증언하였다.",
+    "target_keyword": "ZOOM",
+    "logical_flaw_explanation": "ZOOM은 2011년 설립된 화상회의 소프트웨어이다. 1672년 네덜란드 공화국에서 ZOOM으로 회의를 하였다는 알리바이는 350년 이상 시대착오적이다.",
+    "penalty_rate": 45
+  },
+  {
+    "node_id": 275,
+    "theme": "BRITISH_EMPIRE_INDIA",
+    "difficulty": "Easy",
+    "is_boss": false,
+    "text_log": "【캘커타 동인도회사 행정국 조사 기록 #1773-11】\n조사관: Collector William Browne / 날짜: 1773년 11월 12일\n\n워런 헤이스팅스 총독 부임 초기, 캘커타 세무국 관리 Thomas Harrington이 지역 세금 장부를 위조하여 횡령한 혐의로 조사를 받게 되었다. Harrington은 사건 기간 동안 자신은 세무국 내 사무실에서 EXCEL 스프레드시트로 세금 징수 현황을 관리하고 있었으며, 해당 기록은 언제든 제출할 수 있다고 주장하였다. 동료 관리 James Patel은 Harrington이 장부를 직접 손으로 기록하는 것을 목격하였다고 증언하였다.",
+    "target_keyword": "EXCEL",
+    "logical_flaw_explanation": "Microsoft EXCEL은 1985년에 처음 출시된 스프레드시트 소프트웨어이다. 1773년 캘커타에서 EXCEL로 세금 장부를 관리했다는 진술은 200년 이상 시대착오적이다.",
+    "penalty_rate": 20
+  },
+  {
+    "node_id": 276,
+    "theme": "BRITISH_EMPIRE_INDIA",
+    "difficulty": "NIGHTMARE",
+    "is_boss": false,
+    "text_log": "【델리 총독부 비밀 조사 기록 #1885-0614】\n조사관: Commissioner Arthur Lynton / 날짜: 1885년 6월 14일\n\n인도 국민회의 창설(1885년 12월) 직전, 봄베이 소속 변호사 Gopal Krishnan이 반영 독립 운동 자금을 해외로 밀반출하였다는 혐의로 비밀 조사를 받았다. 조사 기록에 따르면 Krishnan은 1885년 5월 말, 런던의 동조 세력에게 자금 이동 계획을 INSTAGRAM 계정을 통해 암호화된 메시지로 전달하였다고 기재되어 있었다. Krishnan의 변호인은 해당 기록 자체가 조작된 것이라고 주장하였다.",
+    "target_keyword": "INSTAGRAM",
+    "logical_flaw_explanation": "INSTAGRAM은 2010년에 출시된 소셜 미디어 플랫폼이다. 1885년 인도에서 INSTAGRAM으로 메시지를 전달했다는 조사 기록은 125년 이상 시대착오적이며, 기록 자체가 조작되었다는 변호인의 주장을 뒷받침하는 핵심 근거이다.",
+    "penalty_rate": 65
+  },
+  {
+    "node_id": 277,
+    "theme": "AMERICAN_REVOLUTION2",
+    "difficulty": "Easy",
+    "is_boss": false,
+    "text_log": "【필라델피아 대륙회의 비밀 조사 기록 #1776-0712】\n조사관: Benjamin Thompson / 날짜: 1776년 7월 12일\n\n독립선언서 서명(1776년 7월 4일) 직후, 대륙회의 서기관 Nathan Hale Jr.가 영국 왕당파와 내통하였다는 혐의로 조사를 받게 되었다. Hale은 7월 3일 밤, 자신은 필라델피아 자택에서 YOUTUBE를 통해 영국 의회 토론 실황을 시청하고 있었으며, 회의 서류에는 접근하지 않았다고 주장하였다. 이웃 주민 Martha Collins는 그날 밤 Hale의 집에서 불이 켜져 있었다고만 증언하였다.",
+    "target_keyword": "YOUTUBE",
+    "logical_flaw_explanation": "YOUTUBE는 2005년에 설립된 동영상 스트리밍 서비스이다. 1776년 필라델피아에서 YOUTUBE로 영국 의회 토론을 시청했다는 알리바이는 230년 이상 시대착오적이다.",
+    "penalty_rate": 20
+  },
+  {
+    "node_id": 278,
+    "theme": "AMERICAN_REVOLUTION2",
+    "difficulty": "Hard",
+    "is_boss": false,
+    "text_log": "【보스턴 군사 재판소 심문 기록 #1775-0421】\n재판관: Colonel James Hartwell / 날짜: 1775년 4월 21일\n\n렉싱턴·콩코드 전투(1775년 4월 19일) 직후, 민병대 소속 Elias Fitch이 영국군에 민병대 집결 정보를 미리 유출하였다는 혐의로 조사를 받았다. Fitch는 4월 18일 저녁, 자신은 콩코드 자택에서 GPS로 영국군의 진격 경로를 추적하면서 민병대 지휘관들에게 경보를 전달하고 있었다고 주장하였다. 폴 리비어의 야간 질주 경로와 Fitch의 주장하는 위치는 일치하지 않았다.",
+    "target_keyword": "GPS",
+    "logical_flaw_explanation": "GPS(위성 위치확인 시스템)는 1973년 개발이 시작되어 1995년에 완전 가동되었다. 1775년 미국 독립 전쟁 시기에 GPS로 영국군 진격 경로를 추적했다는 진술은 200년 이상 시대착오적이다.",
+    "penalty_rate": 45
+  },
+  {
+    "node_id": 279,
+    "theme": "SPANISH_INQUISITION",
+    "difficulty": "Hard",
+    "is_boss": false,
+    "text_log": "【톨레도 종교재판소 심문 기록 #1492-0319】\n종교재판관: Fray Diego de Medina / 날짜: 1492년 3월 19일\n\n그라나다 함락(1492년 1월) 직후 종교적 박해가 절정에 달한 시기, 개종 유대인(콘베르소) 상인 Abraham Levy가 유대교 의식을 몰래 행하였다는 혐의로 종교재판소에 소환되었다. Levy는 1492년 3월 초, 자신은 톨레도 자택에서 Skype로 세비야의 가족들과 통화를 나누고 있었으며 종교 의식은 없었다고 주장하였다. 이웃 주민 두 명이 Levy의 집에서 히브리어 소리가 들렸다고 증언하였다.",
+    "target_keyword": "SKYPE",
+    "logical_flaw_explanation": "Skype는 2003년에 출시된 인터넷 전화 서비스이다. 1492년 스페인 종교재판 당시 Skype로 가족과 통화를 나누었다는 알리바이는 500년 이상 시대착오적이다.",
+    "penalty_rate": 45
+  },
+  {
+    "node_id": 280,
+    "theme": "SPANISH_INQUISITION",
+    "difficulty": "NIGHTMARE",
+    "is_boss": false,
+    "text_log": "【세비야 대심문관 비밀 기록 #1478-1112】\n대심문관: Tomás de Torquemada / 날짜: 1478년 11월 12일\n\n스페인 종교재판소(1478년 설립) 창설 초기, 발렌시아 출신 성직자 Juan de Aranda가 이단 사상을 전파하였다는 혐의로 비밀 조사를 받았다. Aranda는 심문에서 1478년 10월 말, 자신은 바르셀로나 수도원에서 동료 수도사들과 함께 WIFI를 통해 이교 문서를 다운로드하였다고 자백서에 기재되어 있었으나, 자백이 고문에 의한 것이라고 주장하였다. 수도원장은 해당 시기 Aranda가 수도원 내에 머물렀다고 확인하였다.",
+    "target_keyword": "WIFI",
+    "logical_flaw_explanation": "WiFi 무선 인터넷 기술은 1997년에 표준화된 기술이다. 1478년 스페인 수도원에서 WIFI로 문서를 다운로드했다는 자백 내용은 500년 이상 시대착오적이며, 고문에 의한 허위 자백임을 시사하는 핵심 단서이다.",
+    "penalty_rate": 65
   }
 ]

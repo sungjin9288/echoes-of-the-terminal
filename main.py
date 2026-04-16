@@ -1159,6 +1159,11 @@ def _run_mystery_node(
             f"[bold yellow]데이터 조각: {frag_before} → {frag_after} "
             f"({sign}{delta})[/bold yellow]"
         )
+        # mystery_frags_gained: MYSTERY 이벤트로 획득한 파편 누적 추적
+        if run_state is not None and delta > 0:
+            run_state["mystery_frags_gained"] = (
+                int(run_state.get("mystery_frags_gained", 0)) + delta
+            )
 
     _wait_for_enter()
     return new_trace, new_save_data
@@ -1180,6 +1185,7 @@ def _initialize_run_state(
         "cleared_themes": set(),
         "wrong_analyzes": 0,
         "timeout_events": 0,
+        "mystery_frags_gained": 0,
     }
     runtime = _build_runtime_modifiers(perks)
     trace_level = _apply_ascension_modifiers(ascension_level, runtime)
@@ -1422,7 +1428,7 @@ def run_game_session(
                     )
 
                     if combat_result == "death":
-                        return correct_answers, False, "shutdown", node_difficulties_cleared, {"wrong_analyzes": run_state.get("wrong_analyzes", 0), "timeout_events": run_state.get("timeout_events", 0), "trace_final": trace_level, "skill_used": bool(run_state.get("active_skill_used", False)), "mystery_engaged": run_state.get("mystery_engaged", 0), "mystery_good": run_state.get("mystery_good", 0), "mystery_skipped": run_state.get("mystery_skipped", 0), "artifacts_held": len(acquired_artifacts), "max_trace_reached": max_trace_reached}
+                        return correct_answers, False, "shutdown", node_difficulties_cleared, {"wrong_analyzes": run_state.get("wrong_analyzes", 0), "timeout_events": run_state.get("timeout_events", 0), "trace_final": trace_level, "skill_used": bool(run_state.get("active_skill_used", False)), "mystery_engaged": run_state.get("mystery_engaged", 0), "mystery_good": run_state.get("mystery_good", 0), "mystery_skipped": run_state.get("mystery_skipped", 0), "artifacts_held": len(acquired_artifacts), "max_trace_reached": max_trace_reached, "cascade_triggered": bool(run_state.get("cascade_used", False)), "void_scanner_used": bool(run_state.get("void_scanner_used", False)), "mystery_frags_gained": int(run_state.get("mystery_frags_gained", 0))}
 
                     if phase_index < total_boss_phases:
                         console.print(
@@ -1444,7 +1450,7 @@ def run_game_session(
                 )
 
             if combat_result == "death":
-                return correct_answers, False, "shutdown", node_difficulties_cleared, {"wrong_analyzes": run_state.get("wrong_analyzes", 0), "timeout_events": run_state.get("timeout_events", 0), "trace_final": trace_level, "skill_used": bool(run_state.get("active_skill_used", False)), "mystery_engaged": run_state.get("mystery_engaged", 0), "mystery_good": run_state.get("mystery_good", 0), "mystery_skipped": run_state.get("mystery_skipped", 0), "artifacts_held": len(acquired_artifacts), "max_trace_reached": max_trace_reached}
+                return correct_answers, False, "shutdown", node_difficulties_cleared, {"wrong_analyzes": run_state.get("wrong_analyzes", 0), "timeout_events": run_state.get("timeout_events", 0), "trace_final": trace_level, "skill_used": bool(run_state.get("active_skill_used", False)), "mystery_engaged": run_state.get("mystery_engaged", 0), "mystery_good": run_state.get("mystery_good", 0), "mystery_skipped": run_state.get("mystery_skipped", 0), "artifacts_held": len(acquired_artifacts), "max_trace_reached": max_trace_reached, "cascade_triggered": bool(run_state.get("cascade_used", False)), "void_scanner_used": bool(run_state.get("void_scanner_used", False)), "mystery_frags_gained": int(run_state.get("mystery_frags_gained", 0))}
 
             # 전투 클리어 후 처리
             correct_answers += 1
@@ -1522,7 +1528,7 @@ def run_game_session(
             current_node_type = left if path_choice.upper() == "A" else right
 
     console.print("[bold green]CORE BREACHED - 승리[/bold green]")
-    return correct_answers, True, "victory", node_difficulties_cleared, {"wrong_analyzes": run_state.get("wrong_analyzes", 0), "timeout_events": run_state.get("timeout_events", 0), "trace_final": trace_level, "skill_used": bool(run_state.get("active_skill_used", False)), "mystery_engaged": run_state.get("mystery_engaged", 0), "mystery_good": run_state.get("mystery_good", 0), "mystery_skipped": run_state.get("mystery_skipped", 0), "artifacts_held": len(acquired_artifacts), "max_trace_reached": max_trace_reached}
+    return correct_answers, True, "victory", node_difficulties_cleared, {"wrong_analyzes": run_state.get("wrong_analyzes", 0), "timeout_events": run_state.get("timeout_events", 0), "trace_final": trace_level, "skill_used": bool(run_state.get("active_skill_used", False)), "mystery_engaged": run_state.get("mystery_engaged", 0), "mystery_good": run_state.get("mystery_good", 0), "mystery_skipped": run_state.get("mystery_skipped", 0), "artifacts_held": len(acquired_artifacts), "max_trace_reached": max_trace_reached, "cascade_triggered": bool(run_state.get("cascade_used", False)), "void_scanner_used": bool(run_state.get("void_scanner_used", False)), "mystery_frags_gained": int(run_state.get("mystery_frags_gained", 0))}
 
 
 def run_shop(save_data: dict[str, Any]) -> None:
@@ -1975,6 +1981,9 @@ def run_lobby_loop() -> None:
                     "artifacts_held": run_stats.get("artifacts_held", 0),
                     "max_trace_reached": run_stats.get("max_trace_reached", 0),
                     "perks_count": sum(1 for v in save_data.get("perks", {}).values() if bool(v)),
+                    "cascade_triggered": run_stats.get("cascade_triggered", False),
+                    "void_scanner_used": run_stats.get("void_scanner_used", False),
+                    "mystery_frags_gained": run_stats.get("mystery_frags_gained", 0),
                 }
                 # 엔딩 판정
                 triggered_ending = evaluate_ending(run_summary, save_data)

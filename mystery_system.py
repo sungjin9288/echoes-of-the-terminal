@@ -24,7 +24,7 @@ class MysteryEvent:
     bad_fragments_delta: int
 
 
-# ── 15종 미스터리 이벤트 풀 ───────────────────────────────────────────────────
+# ── 18종 미스터리 이벤트 풀 ───────────────────────────────────────────────────
 
 MYSTERY_POOL: tuple[MysteryEvent, ...] = (
     MysteryEvent(
@@ -251,6 +251,52 @@ MYSTERY_POOL: tuple[MysteryEvent, ...] = (
         bad_trace_delta=20,
         good_fragments_delta=0,
         bad_fragments_delta=-100,
+    ),
+    # v9.4 추가 (3종) ─────────────────────────────────────────────────────────
+    MysteryEvent(
+        event_id="mirror_protocol",
+        title="미러 프로토콜",
+        description=(
+            "ARGOS가 자신의 로그를 자동 복사하는 미러 시스템을 발견했다.\n"
+            "미러를 역이용하면 ARGOS의 추적 기록 자체를 덮어쓸 수 있다."
+        ),
+        engage_prompt="미러 프로토콜을 역이용한다. (성공: 추적도 -20 & 데이터 조각 +150 / 실패: 추적도 +35)",
+        good_desc="[성공] 미러 역이용 성공. 추적 기록 일부가 덮어씌워졌다. 추적도 -20, 데이터 조각 +150.",
+        bad_desc="[실패] 미러가 역침투를 감지했다. 역추적 시작. 추적도 +35.",
+        good_trace_delta=-20,
+        bad_trace_delta=35,
+        good_fragments_delta=150,
+        bad_fragments_delta=0,
+    ),
+    MysteryEvent(
+        event_id="silent_node",
+        title="무음 노드",
+        description=(
+            "ARGOS 네트워크에서 완전히 단절된 '죽은' 노드가 발견되었다.\n"
+            "이 노드에 접근하면 감시망 바깥에서 잠시 숨을 돌릴 수 있다."
+        ),
+        engage_prompt="무음 노드에 숨어든다. (성공: 추적도 -30 / 실패: 추적도 +15 & 데이터 조각 -80)",
+        good_desc="[성공] 감시망 사각지대 확보. 잠시 동안 추적이 끊겼다. 추적도 -30.",
+        bad_desc="[실패] 노드가 이미 ARGOS의 덫이었다. 추적도 +15, 데이터 조각 -80.",
+        good_trace_delta=-30,
+        bad_trace_delta=15,
+        good_fragments_delta=0,
+        bad_fragments_delta=-80,
+    ),
+    MysteryEvent(
+        event_id="data_auction",
+        title="암시장 데이터 경매",
+        description=(
+            "다크 네트워크 채널에서 미확인 데이터 꾸러미 경매가 진행 중이다.\n"
+            "낙찰받으면 큰 이득을 볼 수 있지만, ARGOS의 함정일 가능성도 있다."
+        ),
+        engage_prompt="경매에 참여한다. (성공: 데이터 조각 +400 / 실패: 추적도 +30 & 데이터 조각 -150)",
+        good_desc="[성공] 진품 데이터 확보. 암시장 네트워크에서 대량의 정보를 획득했다. 데이터 조각 +400.",
+        bad_desc="[실패] ARGOS가 뿌린 미끼였다. 추적도 +30, 데이터 조각 -150.",
+        good_trace_delta=0,
+        bad_trace_delta=30,
+        good_fragments_delta=400,
+        bad_fragments_delta=-150,
     ),
 )
 

@@ -594,6 +594,22 @@ ACHIEVEMENTS: tuple[dict[str, str], ...] = (
         "title": "신속한 직감",
         "desc": "swift_analysis 퍼크를 보유한 채 처음으로 승리했다.",
     },
+    # ── 특수 아티팩트 (v9.4) ─────────────────────────────────────────────────
+    {
+        "id": "cascade_master",
+        "title": "연쇄 해커",
+        "desc": "cascade_core 아티팩트를 보유하고 승리했다.",
+    },
+    {
+        "id": "void_hunter",
+        "title": "공허 사냥꾼",
+        "desc": "void_scanner 보너스를 획득한 채 승리했다.",
+    },
+    {
+        "id": "mystery_rich",
+        "title": "운 좋은 침투자",
+        "desc": "단일 런 MYSTERY 이벤트로 데이터 조각 300 이상 획득 후 승리했다.",
+    },
 )
 
 ACHIEVEMENT_INDEX: dict[str, dict[str, str]] = {
@@ -1019,6 +1035,17 @@ def evaluate_achievements(
         is_vic = bool(run_summary.get("is_victory", False))
         if is_vic and bool(perks.get("swift_analysis", False)):
             _unlock("swift_first_win")
+
+    # ── 특수 아티팩트 업적 v9.4 ──────────────────────────────────────────────
+    if run_summary:
+        is_vic = bool(run_summary.get("is_victory", False))
+        if is_vic and bool(run_summary.get("cascade_triggered", False)):
+            _unlock("cascade_master")
+        if is_vic and bool(run_summary.get("void_scanner_used", False)):
+            _unlock("void_hunter")
+        mystery_frags = int(run_summary.get("mystery_frags_gained", 0))
+        if is_vic and mystery_frags >= 300:
+            _unlock("mystery_rich")
 
     save_data["achievements"] = achievement_state
     return newly_unlocked
