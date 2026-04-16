@@ -206,6 +206,7 @@ def handle_analyze(
     last_prompt_time: float,
     cancel_timer_fn: "Any",
     handle_death_fn: "Any",
+    extend_timeout_fn: "Any | None" = None,
 ) -> CommandResult:
     """
     analyze [키워드] 명령어: 정답/오답 판정 및 페널티 처리.
@@ -330,5 +331,13 @@ def handle_analyze(
         trace_level, backtrack_used, survived = handle_death_fn(trace_level, backtrack_used)
         if not survived:
             return _DEATH, trace_level, backtrack_used, None
+
+    # chrono_anchor: 오답 후 생존 시 제한시간 즉시 복구
+    restore_secs = int(run_state.get("on_wrong_time_restore", 0))
+    if restore_secs > 0 and extend_timeout_fn is not None:
+        extend_timeout_fn(restore_secs)
+        console.print(
+            f"[bold #00FFFF][CHRONO ANCHOR] 제한시간 +{restore_secs}초 복구[/bold #00FFFF]"
+        )
 
     return _CONTINUE, trace_level, backtrack_used, None

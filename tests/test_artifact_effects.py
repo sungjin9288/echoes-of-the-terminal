@@ -229,3 +229,78 @@ def test_cascade_core_sets_active_flag_and_streak() -> None:
 
     assert run_state.get("cascade_core_active") is True
     assert run_state.get("cascade_streak") == 0
+
+
+# ── 아티팩트 런타임 소비 통합 테스트 ──────────────────────────────────────────
+
+def test_chrono_anchor_extend_called_on_wrong_answer() -> None:
+    """chrono_anchor: 오답 후 생존 시 extend_timeout_fn이 on_wrong_time_restore 초로 호출된다."""
+    from combat_commands import handle_analyze
+    from route_map import NodeType
+
+    scenario = {
+        "target_keyword": "GPS",
+        "penalty_rate": 20,
+        "difficulty": "Easy",
+        "theme": "A",
+        "text_log": "테스트 로그",
+    }
+    run_state: dict[str, object] = {
+        "on_wrong_time_restore": 3,
+        "wrong_analyzes": 0,
+    }
+    runtime: dict[str, object] = {"ascension_penalty_flat": 0, "penalty_multiplier": 1.0}
+    extended: list[int] = []
+
+    def _extend(secs: int) -> None:
+        extended.append(secs)
+
+    def _cancel() -> None:
+        pass
+
+    def _death(t: int, bu: bool) -> tuple[int, bool, bool]:
+        return t, bu, True  # 항상 생존
+
+    action, trace_level, _, _ = handle_analyze(
+        command_raw="analyze WRONG",
+        scenario=scenario,
+        trace_level=30,
+        backtrack_used=False,
+        node_type=NodeType.NORMAL,
+        diver_class=None,
+        runtime=runtime,
+        run_state=run_state,
+        perks={},
+        last_prompt_time=0.0,
+        cancel_timer_fn=_cancel,
+        handle_death_fn=_death,
+        extend_timeout_fn=_extend,
+    )
+
+    assert action == "continue"
+    assert extended == [3], "extend_timeout_fn이 3초로 호출되어야 함"
+
+
+def test_system_purge_zeroes_trace_final_on_victory() -> None:
+    """system_purge: 승리 시 _build_run_stats의 trace_final이 0이 된다."""
+    from main import _build_run_stats
+
+    run_state: dict[str, object] = {"clear_trace_to_zero": True}
+
+    stats_victory = _build_run_stats(
+        run_state=run_state,
+        trace_level=75,
+        max_trace_reached=80,
+        acquired_artifacts=[],
+        is_victory=True,
+    )
+    assert stats_victory["trace_final"] == 0, "승리+system_purge 시 trace_final=0"
+
+    stats_defeat = _build_run_stats(
+        run_state=run_state,
+        trace_level=100,
+        max_trace_reached=100,
+        acquired_artifacts=[],
+        is_victory=False,
+    )
+    assert stats_defeat["trace_final"] == 100, "패배 시 system_purge 미적용"
