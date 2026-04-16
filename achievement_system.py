@@ -578,6 +578,22 @@ ACHIEVEMENTS: tuple[dict[str, str], ...] = (
         "title": "완전 무장 전술가",
         "desc": "한 런에서 아티팩트 5종 이상을 보유한 채 승리했다.",
     },
+    # ── 퍼크 (Perk) v9.1 ─────────────────────────────────────────────────────
+    {
+        "id": "perk_hoarder_5",
+        "title": "특성 수집가",
+        "desc": "5종 이상의 영구 특성을 보유했다.",
+    },
+    {
+        "id": "perk_hoarder_10",
+        "title": "특성 마스터",
+        "desc": "10종 이상의 영구 특성을 보유했다.",
+    },
+    {
+        "id": "swift_first_win",
+        "title": "신속한 직감",
+        "desc": "swift_analysis 퍼크를 보유한 채 처음으로 승리했다.",
+    },
 )
 
 ACHIEVEMENT_INDEX: dict[str, dict[str, str]] = {
@@ -991,6 +1007,18 @@ def evaluate_achievements(
             _unlock("artifact_hoarder")
         if is_vic and artifacts_held >= 5:
             _unlock("artifact_zealot")
+
+    # ── 퍼크 업적 v9.1 ────────────────────────────────────────────────────────
+    owned_perks = sum(1 for v in perks.values() if bool(v))
+    if owned_perks >= 5:
+        _unlock("perk_hoarder_5")
+    if owned_perks >= 10:
+        _unlock("perk_hoarder_10")
+
+    if run_summary:
+        is_vic = bool(run_summary.get("is_victory", False))
+        if is_vic and bool(perks.get("swift_analysis", False)):
+            _unlock("swift_first_win")
 
     save_data["achievements"] = achievement_state
     return newly_unlocked

@@ -76,8 +76,8 @@ def _run(
 # ── 기본 구조 검증 ─────────────────────────────────────────────────────────────
 
 def test_achievements_tuple_has_109_entries() -> None:
-    # 100종 + MYSTERY 5종 + endings_8 1종 + artifact 3종 = 109종
-    assert len(ACHIEVEMENTS) == 109
+    # 100종 + MYSTERY 5종 + endings_8 1종 + artifact 3종 + perk 3종 = 112종
+    assert len(ACHIEVEMENTS) == 112
 
 
 def test_achievement_index_matches_tuple() -> None:
@@ -125,7 +125,7 @@ def test_snapshot_counts_match() -> None:
     save = _clean_save(achievements_unlocked=["first_shutdown", "first_breach"])
     snap = get_achievement_snapshot(save["achievements"])
     assert snap["unlocked_count"] == 2
-    assert snap["total_count"] == 109
+    assert snap["total_count"] == 112
     assert snap["unlocked_ids"] == ["first_shutdown", "first_breach"]
 
 
@@ -461,7 +461,7 @@ def test_save_data_achievements_updated_in_place() -> None:
 # ── 신규 업적 (105종 확장) ────────────────────────────────────────────────────
 
 def test_achievements_tuple_has_109_entries_v2() -> None:
-    assert len(ACHIEVEMENTS) == 109
+    assert len(ACHIEVEMENTS) == 112
 
 
 def test_victories_10_milestone() -> None:
@@ -1102,3 +1102,56 @@ def test_artifact_zealot_requires_5_or_more() -> None:
     assert "artifact_zealot" in ids5
     assert "artifact_hoarder" in ids5  # 5종이면 3종 조건도 충족
     assert "artifact_first_win" in ids5  # 5종이면 1종 조건도 충족
+
+
+# ── v9.1 퍼크 업적 ────────────────────────────────────────────────────────────
+
+def test_perk_v91_achievements_present() -> None:
+    """v9.1 신규 퍼크 업적 3종이 ACHIEVEMENTS 튜플에 존재하는지 검증."""
+    ids = {a["id"] for a in ACHIEVEMENTS}
+    assert "perk_hoarder_5" in ids
+    assert "perk_hoarder_10" in ids
+    assert "swift_first_win" in ids
+
+
+def test_perk_hoarder_5_requires_5_perks() -> None:
+    save4 = _clean_save(perks={"penalty_reduction": True, "time_extension": True,
+                                "glitch_filter": True, "backtrack_protocol": True})
+    ids4 = [a["id"] for a in evaluate_achievements(save4)]
+    assert "perk_hoarder_5" not in ids4
+
+    save5 = _clean_save(perks={"penalty_reduction": True, "time_extension": True,
+                                "glitch_filter": True, "backtrack_protocol": True,
+                                "lexical_assist": True})
+    ids5 = [a["id"] for a in evaluate_achievements(save5)]
+    assert "perk_hoarder_5" in ids5
+
+
+def test_perk_hoarder_10_requires_10_perks() -> None:
+    perks9 = {f"perk_{i}": True for i in range(9)}
+    save9 = _clean_save(perks=perks9)
+    ids9 = [a["id"] for a in evaluate_achievements(save9)]
+    assert "perk_hoarder_10" not in ids9
+
+    perks10 = {f"perk_{i}": True for i in range(10)}
+    save10 = _clean_save(perks=perks10)
+    ids10 = [a["id"] for a in evaluate_achievements(save10)]
+    assert "perk_hoarder_10" in ids10
+    assert "perk_hoarder_5" in ids10  # 10종이면 5종 조건도 충족
+
+
+def test_swift_first_win_requires_perk_and_victory() -> None:
+    # 퍼크 없이 승리 → 미해금
+    save_no_perk = _clean_save(perks={"swift_analysis": False})
+    ids_no = [a["id"] for a in evaluate_achievements(save_no_perk, _run(is_victory=True))]
+    assert "swift_first_win" not in ids_no
+
+    # 퍼크 있어도 패배 → 미해금
+    save_perk = _clean_save(perks={"swift_analysis": True})
+    ids_defeat = [a["id"] for a in evaluate_achievements(save_perk, _run(is_victory=False))]
+    assert "swift_first_win" not in ids_defeat
+
+    # 퍼크 + 승리 → 해금
+    save_win = _clean_save(perks={"swift_analysis": True})
+    ids_win = [a["id"] for a in evaluate_achievements(save_win, _run(is_victory=True))]
+    assert "swift_first_win" in ids_win

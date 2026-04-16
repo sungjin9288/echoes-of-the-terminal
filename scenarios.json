@@ -2478,5 +2478,85 @@
     "target_keyword": "GOOGLE",
     "logical_flaw_explanation": "GOOGLE은 1998년에 설립된 기업으로, 1963년에는 존재하지 않았다. 당시 NSA의 위성 이미지 분석은 U-2 정찰기와 코로나(CORONA) 위성을 통해 촬영된 사진을 수작업으로 분석하는 방식이었다. 1963년에 GOOGLE 위성 이미지를 분석했다는 자백은 시대착오적 허위 진술이다.",
     "penalty_rate": 65
+  },
+  {
+    "node_id": 249,
+    "theme": "FRENCH_REVOLUTION",
+    "difficulty": "Easy",
+    "is_boss": false,
+    "text_log": "【파리 혁명 재판소 심문 기록 #93-0717】\n기록관: Citizen Leclerc / 날짜: 1793년 7월 17일\n\n귀족 출신 용의자 Armand de Villeneuve(42세)는 왕당파 비밀 서신 전달 혐의로 심문을 받았다. Villeneuve는 사건 당일인 1793년 7월 15일 오전, 파리 자택에서 TELEGRAM을 통해 왕당파 동조자들에게 연락을 취하고 이후 바스티유 광장을 거쳐 마레 지구로 이동하였다고 진술하였다. 혁명 경비대 소속 Henri Dupont은 해당 시각 Villeneuve가 광장 인근 카페에서 수상한 인물과 접촉하는 것을 목격하였다고 증언하였다. 압수된 서류에서 암호화된 메시지 여러 건이 발견되었으나 해독에 실패하였다.",
+    "target_keyword": "TELEGRAM",
+    "logical_flaw_explanation": "전기 TELEGRAM은 1837년 모스 부호와 함께 실용화되었으며, 1793년에는 존재하지 않았다. 당시 통신 수단은 전령(courier) 또는 광학식 신호기(Semaphore)였다. 1793년에 TELEGRAM으로 연락을 취했다는 진술은 시대착오적이다.",
+    "penalty_rate": 20
+  },
+  {
+    "node_id": 250,
+    "theme": "FRENCH_REVOLUTION",
+    "difficulty": "Hard",
+    "is_boss": false,
+    "text_log": "【자코뱅 감시위원회 조사 기록 #93-1112】\n담당관: Citoyen Moreau / 날짜: 1793년 11월 12일\n\n공포정치 시기, 민병대 소속 조사관 Pierre Rouget이 반혁명 인사 보호 혐의로 고발당하였다. Rouget은 심문에서 자신이 11월 10일 밤 파리 외곽 창고에서 용의자를 잠시 숨겨주었으나, 이튿날 아침 자진하여 해당 사실을 SMARTPHONE으로 감시위원회에 보고하였다고 주장하였다. 증인 두 명이 Rouget이 그날 아침 위원회 청사에 직접 나타나 진술서를 제출하는 것을 목격하였다고 진술하였다. 심문관은 Rouget 진술의 특정 부분에 논리적 결함이 있다고 판단하였다.",
+    "target_keyword": "SMARTPHONE",
+    "logical_flaw_explanation": "SMARTPHONE은 2007년 이후에야 등장한 현대 기술이다. 1793년 공포정치 시대에 SMARTPHONE으로 감시위원회에 보고한다는 진술은 기술적으로 불가능한 시대착오적 허위 진술이다.",
+    "penalty_rate": 45
+  },
+  {
+    "node_id": 251,
+    "theme": "INDUSTRIAL_BRITAIN",
+    "difficulty": "Easy",
+    "is_boss": false,
+    "text_log": "【맨체스터 공장 감찰관 보고서 #1842-09】\n감찰관: Edmund Hargreaves / 날짜: 1842년 9월 3일\n\n면직물 공장주 George Ashworth가 아동 노동자 착취 및 임금 횡령 혐의로 조사를 받게 되었다. Ashworth는 사건 기간 동안 공장 내 모든 노동자 기록을 COMPUTER 데이터베이스에 저장하여 관리하고 있었으며, 해당 기록에는 각 노동자의 근무 시간과 임금 지급 내역이 상세히 기재되어 있다고 주장하였다. 공장 인근 주민 Margaret Ellis는 공장에서 어린아이들이 새벽부터 밤늦게까지 일하는 것을 자주 목격하였다고 증언하였다. 감찰관은 Ashworth의 기록 보관 방식에 즉각적인 의혹을 품었다.",
+    "target_keyword": "COMPUTER",
+    "logical_flaw_explanation": "전자식 COMPUTER는 1940년대에 처음 개발되었으며, 데이터베이스로 활용되기 시작한 것은 1960-70년대이다. 1842년 영국 공장주가 노동자 기록을 COMPUTER 데이터베이스로 관리한다는 주장은 100년 이상 시대착오적이다.",
+    "penalty_rate": 20
+  },
+  {
+    "node_id": 252,
+    "theme": "INDUSTRIAL_BRITAIN",
+    "difficulty": "NIGHTMARE",
+    "is_boss": false,
+    "text_log": "【런던 경시청 수사 기록 #1888-1109】\n담당 형사: Inspector Frederick Abberline / 날짜: 1888년 11월 9일\n\n화이트채플 연쇄 살인 사건 수사 과정에서, 용의자 Aaron Kosminski의 지인 Samuel Cohen이 목격자로 소환되었다. Cohen은 1888년 11월 8일 저녁, Kosminski가 범행 현장 인근 골목에서 CCTV 카메라를 의식한 듯 얼굴을 가리고 이동하는 것을 직접 목격하였다고 진술하였다. 경시청 측 자료에 따르면 Cohen의 주거지는 현장에서 400미터 거리에 있었다. Abberline 형사는 Cohen의 진술을 신중하게 검토하였다.",
+    "target_keyword": "CCTV",
+    "logical_flaw_explanation": "CCTV(폐쇄회로 텔레비전)는 1942년 독일에서 처음 개발되었으며, 영국 공공장소에 널리 설치된 것은 1980-90년대 이후다. 1888년 런던 골목에 CCTV 카메라가 설치되어 있었다는 진술은 시대적으로 완전히 불가능하다.",
+    "penalty_rate": 65
+  },
+  {
+    "node_id": 253,
+    "theme": "AMERICAN_FRONTIER",
+    "difficulty": "Easy",
+    "is_boss": false,
+    "text_log": "【와이오밍 준주 법원 기록 #1875-0614】\n법정 서기: T. Gallagher / 날짜: 1875년 6월 14일\n\n목장주 Bill Harker가 이웃 목장의 소떼 절도 혐의로 법원에 소환되었다. Harker는 사건 당일인 6월 12일 오전, 자신은 하루 종일 목장 내 창고에서 가축 사료 재고를 정리하며, RADIO 방송으로 날씨 예보를 들으면서 작업하였다고 증언하였다. 법원 측 조사에서 창고 주변에서 소 발자국과 로프 흔적이 다수 발견되었으며, 이웃 목장 쪽 방향으로 이어지는 흔적도 확인되었다. Harker의 일꾼 두 명은 그날 Harker를 창고에서 보지 못하였다고 진술하였다.",
+    "target_keyword": "RADIO",
+    "logical_flaw_explanation": "라디오 방송은 1906년에 처음 시작되었으며, 상업용 라디오 방송은 1920년대에 본격화되었다. 1875년 와이오밍 목장에서 RADIO 방송을 들었다는 진술은 기술적으로 50년 이상 앞선 시대착오적 허위 진술이다.",
+    "penalty_rate": 20
+  },
+  {
+    "node_id": 254,
+    "theme": "AMERICAN_FRONTIER",
+    "difficulty": "Hard",
+    "is_boss": false,
+    "text_log": "【캔자스시티 연방 법원 기록 #1881-0403】\n판사: Honorable J. Morrison / 날짜: 1881년 4월 3일\n\n은행 강도 혐의로 기소된 Frank Connelly(29세)는 재판에서 무죄를 주장하였다. Connelly는 1881년 3월 31일 오후, 강도 사건 당시 자신은 캔자스시티에서 200마일 떨어진 세인트루이스 호텔에 투숙하고 있었으며, 호텔 직원에게 자신의 위치를 SELFIE 사진으로 증명할 수 있다고 법정에서 주장하였다. 검사 측은 강도 현장 인근에서 Connelly의 말 발자국과 일치하는 흔적을 확인하였다고 주장하였다. 배심원단은 알리바이의 주요 근거에 즉각적인 의문을 품었다.",
+    "target_keyword": "SELFIE",
+    "logical_flaw_explanation": "SELFIE는 디지털 카메라와 스마트폰 시대의 개념으로, 2000년대 이후에 등장한 용어이다. 1881년에는 사진 촬영 자체가 전문 장비와 현상 과정이 필요한 복잡한 작업이었으며, 개인이 즉석에서 SELFIE를 찍어 알리바이를 증명한다는 것은 불가능하다.",
+    "penalty_rate": 45
+  },
+  {
+    "node_id": 255,
+    "theme": "WEIMAR_GERMANY",
+    "difficulty": "Hard",
+    "is_boss": false,
+    "text_log": "【베를린 경찰청 수사 기록 #1929-1104】\n담당 형사: Kommissar Wilhelm Braun / 날짜: 1929년 11월 4일\n\n바이마르 공화국 시기, 베를린 금융계 인사 Klaus Weissberg가 주가 조작 혐의로 수사를 받게 되었다. Weissberg는 1929년 10월 24일 뉴욕 증시 대폭락(검은 목요일) 직전, 자신의 주식 중개인에게 WHATSAPP 메시지로 전량 매도 지시를 내렸다고 진술하였다. 중개인 Ernst Hoffmann은 해당 지시를 전달받은 사실은 인정하였으나, 연락 수단에 대해서는 답변을 회피하였다. 수사관은 Weissberg의 진술에서 즉각적인 모순을 발견하였다.",
+    "target_keyword": "WHATSAPP",
+    "logical_flaw_explanation": "WhatsApp은 2009년에 출시된 모바일 메시지 서비스이다. 1929년 바이마르 독일에서 WHATSAPP 메시지로 주식 매도 지시를 내렸다는 진술은 80년 이상 앞선 시대착오적 허위 진술이다.",
+    "penalty_rate": 45
+  },
+  {
+    "node_id": 256,
+    "theme": "WEIMAR_GERMANY",
+    "difficulty": "NIGHTMARE",
+    "is_boss": false,
+    "text_log": "【바이에른 사법부 조사 기록 #1923-1112】\n조사관: Staatsanwalt Karl Huber / 날짜: 1923년 11월 12일\n\n뮌헨 봉기(Beer Hall Putsch, 1923년 11월 8-9일) 직후, 극우 단체 소속 Otto Riedel이 정부 청사 방화 공모 혐의로 체포되었다. Riedel은 11월 8일 저녁 봉기 시작 무렵, 자신은 뮌헨 외곽 농가에서 동료들과 함께 NETFLIX로 영화를 보며 저녁 시간을 보냈다고 주장하였다. 농가 주인 Maria Schreiber는 그날 저녁 해당 장소에 낯선 남성 여럿이 있었다고 확인하였으나, 이들의 구체적인 행동에 대해서는 알지 못한다고 밝혔다. 조사관은 Riedel의 알리바이에서 핵심적인 허점을 즉시 파악하였다.",
+    "target_keyword": "NETFLIX",
+    "logical_flaw_explanation": "NETFLIX는 1997년 설립된 스트리밍 서비스 기업으로, 스트리밍 서비스는 2000년대 후반에야 본격화되었다. 1923년 뮌헨에서 NETFLIX로 영화를 봤다는 알리바이는 70년 이상 시대를 앞선 완전히 불가능한 진술이다.",
+    "penalty_rate": 65
   }
 ]
