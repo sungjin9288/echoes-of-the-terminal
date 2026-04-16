@@ -137,7 +137,7 @@ print("어떤 메시지")
 | 필드 | 타입 | 값 |
 |---|---|---|
 | `node_id` | int | 고유 식별자 (1~) |
-| `theme` | str | `"A"~"E"`, `"BOSS_THEME"` |
+| `theme` | str | Pack 단위 자유 문자열. 초기 팩은 `"A"~"Z"`·`"AA"~"VV"` 단일/이중 알파벳, 후기 팩(03~)은 `"ANTARCTIC"`·`"FUTURE_COURT"`·`"BOSS-1"`…`"BOSS-22"` 등 명명형 코드. 업적의 `cleared_themes` 집계 키로 사용 |
 | `difficulty` | str | `"Easy"` / `"Hard"` / `"NIGHTMARE"` |
 | `text_log` | str | 멀티라인 수사 조서 (한국어) |
 | `target_keyword` | str | 정답 키워드 |
