@@ -1,4 +1,4 @@
-"""Ending system unit tests — 8종 엔딩 조건 및 기록 검증."""
+"""Ending system unit tests — 엔딩 조건 및 기록 검증."""
 
 from ending_system import (
     ENDINGS,
@@ -30,6 +30,7 @@ def _run(
     mystery_good: int = 0,
     artifacts_held: int = 0,
     max_trace_reached: int = 50,
+    perks_count: int = 0,
 ) -> dict:
     return {
         "is_victory": is_victory,
@@ -44,6 +45,7 @@ def _run(
         "mystery_good": mystery_good,
         "artifacts_held": artifacts_held,
         "max_trace_reached": max_trace_reached,
+        "perks_count": perks_count,
     }
 
 
@@ -77,7 +79,7 @@ def _save_empty() -> dict:
 # ── 구조 검증 ─────────────────────────────────────────────────────────────────
 
 def test_endings_dict_has_11_entries() -> None:
-    assert len(ENDINGS) == 11
+    assert len(ENDINGS) == 13
 
 
 def test_all_endings_have_required_fields() -> None:
@@ -353,7 +355,7 @@ def test_record_ending_unlock_returns_false_on_duplicate() -> None:
 def test_get_endings_snapshot_total_is_11() -> None:
     save = _save_empty()
     snap = get_endings_snapshot(save)
-    assert snap["total_count"] == 11
+    assert snap["total_count"] == 13
     assert snap["unlocked_count"] == 0
 
 
@@ -364,3 +366,63 @@ def test_get_endings_snapshot_counts_unlocked_correctly() -> None:
     snap = get_endings_snapshot(save)
     assert snap["unlocked_count"] == 2
     assert set(snap["unlocked_ids"]) == {"GHOST_END", "ANALYST_END"}
+
+
+# ── v9.2 신규 엔딩 테스트 ────────────────────────────────────────────────────
+
+def test_pacifist_end_requires_zero_perks_and_artifacts() -> None:
+    """퍼크 0 + 아티팩트 0으로 승리 시 PACIFIST_END 해금."""
+    result = evaluate_ending(
+        _run(perks_count=0, artifacts_held=0, wrong_analyzes=1),
+        _save_empty(),
+    )
+    assert result is not None
+    assert result.ending_id == "PACIFIST_END"
+
+
+def test_pacifist_end_not_triggered_with_perks() -> None:
+    """퍼크 보유 시 PACIFIST_END 미해금."""
+    result = evaluate_ending(
+        _run(perks_count=1, artifacts_held=0, wrong_analyzes=1),
+        _save_empty(),
+    )
+    # 다른 조건도 충족하지 않으면 None
+    assert result is None or result.ending_id != "PACIFIST_END"
+
+
+def test_pacifist_end_not_triggered_with_artifacts() -> None:
+    """아티팩트 보유 시 PACIFIST_END 미해금."""
+    result = evaluate_ending(
+        _run(perks_count=0, artifacts_held=1, wrong_analyzes=1),
+        _save_empty(),
+    )
+    assert result is None or result.ending_id != "PACIFIST_END"
+
+
+def test_perk_end_requires_10_or_more_perks() -> None:
+    """퍼크 10종 이상으로 승리 시 PERK_END 해금."""
+    result = evaluate_ending(
+        _run(perks_count=10, wrong_analyzes=2),
+        _save_empty(),
+    )
+    assert result is not None
+    assert result.ending_id == "PERK_END"
+
+
+def test_perk_end_not_triggered_with_9_perks() -> None:
+    """퍼크 9종으로는 PERK_END 미해금."""
+    result = evaluate_ending(
+        _run(perks_count=9, wrong_analyzes=2),
+        _save_empty(),
+    )
+    assert result is None or result.ending_id != "PERK_END"
+
+
+def test_pacifist_end_loses_to_ghost_end_priority() -> None:
+    """GHOST_END 조건도 충족하면 priority 낮은 GHOST_END가 우선."""
+    result = evaluate_ending(
+        _run(trace_final=5, perks_count=0, artifacts_held=0, wrong_analyzes=1),
+        _save_empty(),
+    )
+    assert result is not None
+    assert result.ending_id == "GHOST_END"

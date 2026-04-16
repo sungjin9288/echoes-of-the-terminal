@@ -1951,6 +1951,7 @@ def run_lobby_loop() -> None:
                     "mystery_skipped": run_stats.get("mystery_skipped", 0),
                     "artifacts_held": run_stats.get("artifacts_held", 0),
                     "max_trace_reached": run_stats.get("max_trace_reached", 0),
+                    "perks_count": sum(1 for v in save_data.get("perks", {}).values() if bool(v)),
                 }
                 # 엔딩 판정
                 triggered_ending = evaluate_ending(run_summary, save_data)

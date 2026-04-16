@@ -2558,5 +2558,85 @@
     "target_keyword": "NETFLIX",
     "logical_flaw_explanation": "NETFLIX는 1997년 설립된 스트리밍 서비스 기업으로, 스트리밍 서비스는 2000년대 후반에야 본격화되었다. 1923년 뮌헨에서 NETFLIX로 영화를 봤다는 알리바이는 70년 이상 시대를 앞선 완전히 불가능한 진술이다.",
     "penalty_rate": 65
+  },
+  {
+    "node_id": 257,
+    "theme": "OTTOMAN_EMPIRE",
+    "difficulty": "Easy",
+    "is_boss": false,
+    "text_log": "【오스만 제국 재무부 조사 기록 #1876-04】\n기록관: Mehmed Efendi / 날짜: 1876년 4월 12일\n\n술탄 압뒬하미트 2세의 즉위 초기, 이스탄불 재무부 서기관 Ibrahim Bey가 국고 횡령 혐의로 조사를 받게 되었다. Ibrahim Bey는 1876년 3월 말, 재무부 내 서기실에서 동료들과 함께 국고 장부를 EXCEL 파일로 작성하고 있었으며, 해당 기간 중 자신은 단 한 번도 자리를 비운 적이 없다고 진술하였다. 동료 서기관 Ali Efendi는 그 기간 Ibrahim Bey를 매일 서기실에서 목격하였다고 증언하였으나, 재무부 출납 기록에서 이상 내역이 발견되었다.",
+    "target_keyword": "EXCEL",
+    "logical_flaw_explanation": "Microsoft EXCEL은 1985년에 처음 출시된 스프레드시트 소프트웨어이다. 1876년 오스만 제국 재무부에서 EXCEL 파일로 장부를 작성한다는 진술은 100년 이상 시대착오적이다. 당시 장부는 모두 수기로 작성하였다.",
+    "penalty_rate": 20
+  },
+  {
+    "node_id": 258,
+    "theme": "OTTOMAN_EMPIRE",
+    "difficulty": "Hard",
+    "is_boss": false,
+    "text_log": "【오스만 군사재판소 심문 기록 #1915-08】\n재판관: Yarbay Kemal Bey / 날짜: 1915년 8월 21일\n\n다르다넬스 해협 방어전(갈리폴리 전투) 진행 중, 제5군 소속 포병 장교 Mustafa Tekin 중위가 진지 이탈 혐의로 군사재판에 회부되었다. Tekin은 1915년 8월 19일 새벽 포격 개시 직전, 자신은 참호 내에서 동료 병사들과 함께 INTERNET으로 적의 함대 위치 정보를 검색하고 있었다고 주장하였다. 같은 참호의 병사 두 명이 그 시각 Tekin이 참호에 없었다고 진술하였다.",
+    "target_keyword": "INTERNET",
+    "logical_flaw_explanation": "인터넷은 1969년 ARPANET으로 시작되었으며, 일반인이 사용 가능한 형태는 1990년대에야 등장하였다. 1915년 갈리폴리 전투 중 참호에서 INTERNET으로 정보를 검색했다는 진술은 50년 이상 시대착오적이다.",
+    "penalty_rate": 45
+  },
+  {
+    "node_id": 259,
+    "theme": "GOLD_RUSH",
+    "difficulty": "Easy",
+    "is_boss": false,
+    "text_log": "【캘리포니아 준주 광산국 조사 기록 #1850-0603】\n감독관: Thomas Whitmore / 날짜: 1850년 6월 3일\n\n새크라멘토 인근 금광에서 일하던 광부 Patrick Mulligan이 동료의 금 채굴량을 몰래 빼돌린 혐의로 조사를 받게 되었다. Mulligan은 사건 당일인 5월 31일 오후, 자신은 광산 입구 근처에서 CAMERA로 채굴 현장을 촬영하며 증거를 기록하고 있었다고 주장하였다. 동료 광부 James O'Brien은 Mulligan이 그날 오후 광산 깊숙한 곳에서 혼자 작업하는 것을 보았다고 증언하였다.",
+    "target_keyword": "CAMERA",
+    "logical_flaw_explanation": "1850년대 초 캘리포니아 골드러시 시기에 휴대 가능한 CAMERA는 존재하지 않았다. 당시 사진 촬영은 다게레오타입(Daguerreotype) 방식으로, 거대한 장비와 전문 사진사가 필요하였으며 광부가 현장에서 간편히 촬영할 수 있는 기술이 아니었다.",
+    "penalty_rate": 20
+  },
+  {
+    "node_id": 260,
+    "theme": "GOLD_RUSH",
+    "difficulty": "Hard",
+    "is_boss": false,
+    "text_log": "【샌프란시스코 연방 법원 기록 #1853-1109】\n판사: Honorable R. Thompson / 날짜: 1853년 11월 9일\n\n금광 소유권 분쟁으로 피소된 Henry Barker(44세)는 자신이 광구를 먼저 등록하였다고 주장하였다. Barker는 1853년 10월 초, 광산 위치를 정확히 표시하기 위해 GPS 장비로 좌표를 측정한 뒤 광산국에 등록 신청서를 제출하였다고 법정에서 진술하였다. 광산국 직원 Samuel Reed는 Barker가 서류를 제출한 것은 맞지만 제출 날짜가 경쟁자보다 하루 늦었다고 증언하였다.",
+    "target_keyword": "GPS",
+    "logical_flaw_explanation": "GPS(위성 위치확인 시스템)는 1973년 미국 국방부가 개발을 시작하여 1995년에 완전 가동되었다. 1853년 캘리포니아에서 GPS 장비로 광산 좌표를 측정하였다는 진술은 100년 이상 시대착오적이다.",
+    "penalty_rate": 45
+  },
+  {
+    "node_id": 261,
+    "theme": "BRITISH_INDIA",
+    "difficulty": "Easy",
+    "is_boss": false,
+    "text_log": "【봄베이 총독부 행정 조사 기록 #1857-06】\n담당 조사관: Lt. Col. Edward Smyth / 날짜: 1857년 6월 14일\n\n세포이 항쟁 발발 직후, 봄베이 행정부 소속 서기관 Vikram Rao가 반란 세력과 내통하였다는 혐의로 심문을 받았다. Rao는 1857년 5월 중순, 알라하바드의 반란 지도부에 총독부 군사 배치 정보를 BLUETOOTH로 전송하였다고 자백서에 기재되어 있었으나, 자신은 그러한 자백을 한 적이 없다고 주장하였다. 자백서에 서명한 증인 두 명은 Rao가 자필로 서명하였다고 확인하였다.",
+    "target_keyword": "BLUETOOTH",
+    "logical_flaw_explanation": "BLUETOOTH 무선 통신 기술은 1994년 에릭슨이 개발하고 1999년에 상용화된 기술이다. 1857년 인도 세포이 항쟁 당시 BLUETOOTH로 정보를 전송했다는 자백 내용은 140년 이상 시대착오적인 허위 진술이다.",
+    "penalty_rate": 20
+  },
+  {
+    "node_id": 262,
+    "theme": "BRITISH_INDIA",
+    "difficulty": "NIGHTMARE",
+    "is_boss": false,
+    "text_log": "【캘커타 고등법원 형사부 기록 #1905-1202】\n재판장: Justice H. Mackintosh / 날짜: 1905년 12월 2일\n\n벵골 분할령(Partition of Bengal, 1905년 10월) 직후, 민족주의 운동 조직의 연락책으로 지목된 Suresh Chandra Bose가 내란 선동 혐의로 기소되었다. Bose는 10월 말, 캘커타 전역의 동조자들에게 집회 소집 메시지를 WHATSAPP으로 일괄 전송하였다고 검찰 측 증거 문서에 기재되어 있었다. Bose는 해당 문서가 조작되었다고 주장하였으며, 변호인은 증거 문서 자체의 신빙성에 이의를 제기하였다.",
+    "target_keyword": "WHATSAPP",
+    "logical_flaw_explanation": "WhatsApp은 2009년에 출시된 모바일 메시지 서비스이다. 1905년 인도에서 WHATSAPP으로 메시지를 전송했다는 검찰 측 증거 문서는 100년 이상 앞선 기술을 언급하고 있어, 문서 자체가 조작되었다는 Bose의 주장을 뒷받침하는 핵심 단서이다.",
+    "penalty_rate": 65
+  },
+  {
+    "node_id": 263,
+    "theme": "PROHIBITION_ERA",
+    "difficulty": "Hard",
+    "is_boss": false,
+    "text_log": "【시카고 연방 수사국 조사 기록 #1927-0315】\n담당 요원: Special Agent Harold Burke / 날짜: 1927년 3월 15일\n\n금주령 시대 시카고에서 밀주 운반 조직을 이끌던 Angelo Maranzano가 연방 수사국에 의해 체포되었다. Maranzano는 심문에서 1927년 3월 10일 밤, 자신은 시카고 외곽 창고에서 부하들과 포커를 치고 있었으며, YOUTUBE에서 재즈 음악을 틀어놓고 있었다고 주장하였다. 창고 인근을 순찰하던 경관 두 명은 그날 밤 창고에서 트럭이 드나드는 것을 목격하였다고 진술하였다.",
+    "target_keyword": "YOUTUBE",
+    "logical_flaw_explanation": "YouTube는 2005년에 설립된 동영상 스트리밍 서비스이다. 1927년 시카고 금주령 시대에 YOUTUBE로 재즈 음악을 틀었다는 알리바이는 80년 이상 시대착오적인 완전히 불가능한 진술이다.",
+    "penalty_rate": 45
+  },
+  {
+    "node_id": 264,
+    "theme": "PROHIBITION_ERA",
+    "difficulty": "NIGHTMARE",
+    "is_boss": false,
+    "text_log": "【뉴욕 연방 검사실 기소장 #1930-0827】\n담당 검사: U.S. Attorney Charles Whitfield / 날짜: 1930년 8월 27일\n\n금주령 시대 뉴욕을 무대로 활동한 조직범죄 조직의 회계 담당자 Bernard Klein이 탈세 및 자금 세탁 혐의로 기소되었다. 기소장에 따르면 Klein은 1929-1930년 사이 불법 수익 약 45만 달러를 CRYPTOCURRENCY로 세탁하여 추적을 피하였으며, 관련 거래 기록을 완전히 삭제하였다고 기재되어 있었다. 하지만 내부 고발자인 조직 내 회계 보조원은 Klein이 현금 다발을 여러 비밀 창고에 보관하는 것을 직접 목격하였다고 진술하였다.",
+    "target_keyword": "CRYPTOCURRENCY",
+    "logical_flaw_explanation": "CRYPTOCURRENCY(암호화폐)는 2009년 비트코인의 등장으로 처음 실용화된 개념이다. 1929-1930년 금주령 시대에 CRYPTOCURRENCY로 자금을 세탁했다는 기소장 내용은 80년 이상 시대착오적이며, 기소장 자체가 조작되었거나 오류가 있음을 시사하는 핵심 단서이다.",
+    "penalty_rate": 65
   }
 ]

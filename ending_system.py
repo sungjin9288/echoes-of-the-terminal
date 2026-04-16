@@ -1,4 +1,4 @@
-"""멀티 엔딩 시스템 — 런 결과 조건에 따른 8종 엔딩 판정."""
+"""멀티 엔딩 시스템 — 런 결과 조건에 따른 엔딩 판정."""
 
 from __future__ import annotations
 
@@ -21,7 +21,7 @@ class Ending:
     priority: int        # 낮을수록 먼저 표시 (복수 조건 충족 시)
 
 
-# ── 엔딩 정의 (8종) ──────────────────────────────────────────────────────────
+# ── 엔딩 정의 (13종) ─────────────────────────────────────────────────────────
 
 ENDINGS: dict[str, Ending] = {
     "TRUE_END": Ending(
@@ -177,6 +177,34 @@ ENDINGS: dict[str, Ending] = {
         border_style="#B22222",
         priority=11,
     ),
+    "PACIFIST_END": Ending(
+        ending_id="PACIFIST_END",
+        title="BARE HANDS",
+        subtitle="순수 침투",
+        flavor_text=(
+            "특성도 없고, 유물도 없었다.\n"
+            "오직 당신의 논리와 직관만으로 CORE를 열었다.\n\n"
+            "ARGOS는 당신이 존재한다는 것조차 몰랐다.\n"
+            "맨손의 진실이 가장 날카롭다."
+        ),
+        color="bold #C0C0C0",
+        border_style="#A9A9A9",
+        priority=12,
+    ),
+    "PERK_END": Ending(
+        ending_id="PERK_END",
+        title="FULL TOOLKIT",
+        subtitle="완전 장비 해커",
+        flavor_text=(
+            "10종의 특성이 당신의 등을 받쳐주었다.\n"
+            "각각의 도구가 ARGOS의 방벽을 한 겹씩 벗겨냈다.\n\n"
+            "준비된 자만이 끝까지 살아남는다.\n"
+            "당신은 완전히 무장한 채로 승리했다."
+        ),
+        color="bold #DAA520",
+        border_style="#B8860B",
+        priority=13,
+    ),
 }
 
 # 잠금 해제 기록용 세이브 키
@@ -221,6 +249,7 @@ def evaluate_ending(
     mystery_good = int(run_result.get("mystery_good", 0))
     artifacts_held = int(run_result.get("artifacts_held", 0))
     max_trace_reached = int(run_result.get("max_trace_reached", 0))
+    perks_count = int(run_result.get("perks_count", 0))
 
     candidates: list[Ending] = []
 
@@ -268,6 +297,14 @@ def evaluate_ending(
     # COMEBACK_END: 런 중 최대 추적도 95% 이상 + 최종 추적도 60% 이하로 역전 승리
     if max_trace_reached >= 95 and trace <= 60:
         candidates.append(ENDINGS["COMEBACK_END"])
+
+    # PACIFIST_END: 퍼크 0개 + 아티팩트 0개로 승리
+    if perks_count == 0 and artifacts_held == 0:
+        candidates.append(ENDINGS["PACIFIST_END"])
+
+    # PERK_END: 퍼크 10종 이상 보유하고 승리
+    if perks_count >= 10:
+        candidates.append(ENDINGS["PERK_END"])
 
     if not candidates:
         return None
