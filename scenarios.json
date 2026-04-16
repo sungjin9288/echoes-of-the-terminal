@@ -2398,5 +2398,85 @@
     "penalty_rate": 55,
     "logical_flaw_explanation": "위성(SATELLITE)은 1975년 사이공 함락 작전과는 직접적인 관련이 없다. 미국 대사관 철수 작전(프리퀀트 윈드)의 핵심 수단은 헬기(HELICOPTER)였으며, 최종 함락된 도시는 사이공(SAIGON)이었다. 군사 위성이 당시 존재했지만, 이 작전의 결정적 요소가 아니었고, 위성 통신으로 작전을 조율했다는 기록은 없다.",
     "is_boss": true
+  },
+  {
+    "node_id": 241,
+    "theme": "SPACE_RACE",
+    "difficulty": "Hard",
+    "is_boss": false,
+    "text_log": "【NASA 내부 조사 보고서 #65-0714】\n작성자: James H. Parker / 날짜: 1965년 7월 14일\n\n매리너 4호의 화성 근접 비행 성공 직후, 제트 추진 연구소(JPL) 내부에서 데이터 분석 업무를 담당하던 연구원 David Collins가 기밀 데이터 무단 반출 혐의로 조사를 받게 되었다. Collins는 사건 당일 오전 10시부터 저녁 8시까지 제어실에서 LAPTOP을 사용해 궤도 계산 시뮬레이션을 수행했다고 진술하였다. 동료 연구원 Michael Rhodes는 Collins가 개인 전자 기기를 들고 자리를 비운 것을 확인했다고 증언하였다. 보안 담당관은 제어실 출입 기록에서 Collins의 야간 퇴근 시각이 공식 기록보다 2시간 앞당겨진 것을 발견하였다.",
+    "target_keyword": "LAPTOP",
+    "logical_flaw_explanation": "1965년에는 노트북 컴퓨터(LAPTOP)가 존재하지 않았다. 최초의 휴대용 컴퓨터는 1981년에 등장했으며, 1965년의 컴퓨터는 방 전체를 차지하는 메인프레임이었다. JPL 연구원이 개인 LAPTOP을 사용한다는 진술은 시대착오적이다.",
+    "penalty_rate": 40
+  },
+  {
+    "node_id": 242,
+    "theme": "SPACE_RACE",
+    "difficulty": "NIGHTMARE",
+    "is_boss": false,
+    "text_log": "【소련 과학아카데미 내부 조사 기록 #57-1004】\n작성자: Pavel Korsakov / 날짜: 1957년 10월 4일\n\n스푸트니크 1호 발사 성공 직후, 기술부 소속 연구원 Alexei Volkov가 발사 전 48시간 내 기밀 기술 데이터를 외부로 유출했다는 의혹이 제기되었다. Volkov는 발사 전날인 10월 3일 오후, 모스크바 연구소에서 미국 측 접촉자에게 위성 궤도 계산 데이터를 EMAIL로 전송했다고 자백하였다. 이후 조사 결과, Volkov의 컴퓨터 로그에서 이상 접속 기록이 확인되었으나, 구체적인 데이터 전송 경로는 끝내 특정되지 않았다. 사건은 국가 기밀 위반으로 처리되었다.",
+    "target_keyword": "EMAIL",
+    "logical_flaw_explanation": "1957년에는 이메일(EMAIL)이 존재하지 않았다. 이메일은 1971년 ARPANET을 통해 처음 구현되었으며, 당시에는 인터넷 자체가 존재하지 않았다. 소련 연구원이 EMAIL로 기밀을 전송했다는 자백은 기술적으로 불가능하다.",
+    "penalty_rate": 65
+  },
+  {
+    "node_id": 243,
+    "theme": "KOREAN_WAR",
+    "difficulty": "Easy",
+    "is_boss": false,
+    "text_log": "【유엔군 정보부 조사 기록 #50-0720】\n작성자: Lt. Thomas Bradley / 날짜: 1950년 7월 20일\n\n한국전쟁 발발 초기, 서울 외곽에 주둔한 미군 제24보병사단의 보급물자 관리 담당 하사관 Robert Summers가 군 물자 횡령 혐의로 조사를 받게 되었다. Summers는 1950년 7월 18일 오후, 전방 기지 내 막사에서 다른 병사들과 함께 TELEVISION으로 맥아더 장군의 성명 발표를 시청하였다고 진술하였다. 인근 막사에 있던 병사 두 명이 같은 시각 Summers를 목격하였다고 증언하였으나, 군 물자 창고의 재고 기록에는 그 시각 Summers의 서명이 포함된 반출 내역이 확인되었다.",
+    "target_keyword": "TELEVISION",
+    "logical_flaw_explanation": "1950년 한국에는 텔레비전(TELEVISION) 방송이 존재하지 않았다. 한국 최초의 텔레비전 방송은 1956년 HLKZ-TV가 개국하면서 시작되었다. 한국전쟁 초기 전방 군부대에서 TELEVISION을 시청하는 것은 기술적으로 불가능했다.",
+    "penalty_rate": 20
+  },
+  {
+    "node_id": 244,
+    "theme": "KOREAN_WAR",
+    "difficulty": "Hard",
+    "is_boss": false,
+    "text_log": "【유엔군 병참부 조사 보고서 #52-1103】\n작성자: Maj. Albert Morrison / 날짜: 1952년 11월 3일\n\n한국전쟁 중반기, 미군 제7보병연대 소속 병사 James Calloway가 전투 중 발생한 동료 사망 사건과 관련하여 조사를 받았다. Calloway는 사건 당일 새벽, 자신은 KEVLAR 방탄조끼를 착용한 채 참호 내에서 대기하고 있었으며, 피해자가 적의 저격에 맞는 것을 직접 목격하였다고 진술하였다. 부대 내 다른 병사 세 명은 Calloway가 당시 참호에 없었다고 반박하였다. 탄도 분석 결과, 피해자의 부상 각도가 아군 진지 방향과 일치한다는 소견이 제출되었다.",
+    "target_keyword": "KEVLAR",
+    "logical_flaw_explanation": "KEVLAR는 1965년에 발명된 합성 소재로, 1952년 한국전쟁 당시에는 존재하지 않았다. 당시 미군은 나일론 기반의 M-1952 방탄조끼를 사용하였으며, KEVLAR 방탄조끼는 1970년대 이후에야 도입되었다.",
+    "penalty_rate": 45
+  },
+  {
+    "node_id": 245,
+    "theme": "DECOLONIZATION",
+    "difficulty": "Easy",
+    "is_boss": false,
+    "text_log": "【아시아아프리카회의 사무국 기록 #55-0423】\n작성자: Dr. Kwame Amoah / 날짜: 1955년 4월 23일\n\n인도네시아 반둥에서 개최된 아시아아프리카회의 폐막 이틀 후, 회의 사무국에서 가나 대표단의 내부 문서 유출 의혹이 제기되었다. 가나 대표 Dr. Emmanuel Korankye는 회의 최종일 오전 세션에서 POWERPOINT 슬라이드를 활용하여 식민지 독립 지원 결의안 초안을 발표하였다고 기록되어 있다. 회의 참관인 Ahmed Hassan은 해당 발표가 있었음을 확인하였으나, 발표 내용의 일부가 비공개 협의 내용과 일치한다는 점이 문제가 되었다.",
+    "target_keyword": "POWERPOINT",
+    "logical_flaw_explanation": "POWERPOINT는 1987년에 마이크로소프트가 출시한 소프트웨어로, 1955년 반둥회의 당시에는 존재하지 않았다. 당시 발표 자료는 직접 손으로 작성한 도표나 종이 자료를 활용하였다.",
+    "penalty_rate": 20
+  },
+  {
+    "node_id": 246,
+    "theme": "DECOLONIZATION",
+    "difficulty": "Hard",
+    "is_boss": false,
+    "text_log": "【가나 독립위원회 조사 기록 #57-0311】\n작성자: Samuel Mensah / 날짜: 1957년 3월 11일\n\n가나 독립 선언(1957년 3월 6일) 직후, 독립 준비 과정에서 행정 기밀 문서가 영국 식민 당국에 유출된 것으로 의심되는 사건이 발생하였다. 조사 결과, 독립위원회 소속 관리 James Appiah가 INTERNET을 통해 런던 행정부와 비밀리에 연락을 취하였다는 정황이 포착되었다. Appiah는 모든 혐의를 부인하였으나, 그의 사무실에서 암호화된 통신 기록이 발견되었다는 증인 진술이 확보되었다. 독립위원회는 추가 조사를 명령하였다.",
+    "target_keyword": "INTERNET",
+    "logical_flaw_explanation": "INTERNET은 1957년에 존재하지 않았다. 인터넷의 전신인 ARPANET은 1969년에 처음 구축되었으며, 오늘날과 같은 형태의 인터넷은 1990년대에 상용화되었다. 1957년 관리가 INTERNET으로 비밀 연락을 취했다는 진술은 기술적으로 불가능하다.",
+    "penalty_rate": 45
+  },
+  {
+    "node_id": 247,
+    "theme": "COLD_WAR_ESPIONAGE",
+    "difficulty": "Hard",
+    "is_boss": false,
+    "text_log": "【CIA 내부 감사 기록 #61-0820】\n작성자: Director of Counterintelligence / 날짜: 1961년 8월 20일\n\n베를린 장벽 구축(1961년 8월 13일) 직후, CIA 베를린 지부에서 근무하던 요원 Mark Hennessey가 내부 기밀 문서를 동독 정보부에 넘겼다는 혐의를 받게 되었다. Hennessey는 8월 18일 저녁, 서베를린 소재 사무소에서 기밀 작전 계획서를 USB 드라이브에 복사한 뒤 비밀 접선 장소에서 동독 요원에게 전달하였다는 정황이 포착되었다. 사무소 내 동료 요원 두 명은 해당 시간대에 Hennessey가 컴퓨터 앞에 오래 앉아 있었다고 진술하였다.",
+    "target_keyword": "USB",
+    "logical_flaw_explanation": "USB 드라이브는 1998년에 처음 개발된 저장 장치로, 1961년에는 존재하지 않았다. 당시 기밀 문서 복사는 마이크로필름이나 직접 필사 방식으로 이루어졌으며, USB와 같은 디지털 저장 매체는 수십 년 후에 등장하였다.",
+    "penalty_rate": 45
+  },
+  {
+    "node_id": 248,
+    "theme": "COLD_WAR_ESPIONAGE",
+    "difficulty": "NIGHTMARE",
+    "is_boss": false,
+    "text_log": "【NSA 기술정보국 조사 보고서 #63-1105】\n작성자: Deputy Director R. Montgomery / 날짜: 1963년 11월 5일\n\n쿠바 미사일 위기(1962) 종료 이후, NSA 기술정보국 소속 분석관 Howard Clarke가 소련 핵시설 관련 기밀 위성사진 분석 결과를 무단으로 외부에 유출하였다는 의혹이 제기되었다. Clarke는 1963년 10월 말, GOOGLE 위성 이미지를 분석하여 소련 미사일 기지의 현황을 파악한 뒤 이 정보를 외신 기자에게 넘겼다고 자백서에 기재하였다. 다수의 동료 분석관들이 Clarke가 해당 기간 분석실에 단독으로 야근하는 것을 목격하였다고 증언하였다. FBI는 Clarke의 자백서에 기재된 구체적 경위에 기술적 의문을 제기하였다.",
+    "target_keyword": "GOOGLE",
+    "logical_flaw_explanation": "GOOGLE은 1998년에 설립된 기업으로, 1963년에는 존재하지 않았다. 당시 NSA의 위성 이미지 분석은 U-2 정찰기와 코로나(CORONA) 위성을 통해 촬영된 사진을 수작업으로 분석하는 방식이었다. 1963년에 GOOGLE 위성 이미지를 분석했다는 자백은 시대착오적 허위 진술이다.",
+    "penalty_rate": 65
   }
 ]

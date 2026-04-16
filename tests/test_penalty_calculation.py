@@ -122,3 +122,32 @@ def test_trace_shield_reduces_penalty_above_70_percent() -> None:
     )
     assert applied_low == 20
     assert raw_low == 20
+
+
+def test_adaptive_shield_reduces_penalty_above_50_percent() -> None:
+    """adaptive_shield_active: 추적도 50% 이상 구간에서 패널티 10% 감소."""
+    run_state_high = {"current_trace": 55}
+    applied_high, raw_high, _, _ = _calculate_analyze_penalty(
+        base_penalty=20,
+        runtime=_runtime(adaptive_shield_active=True),
+        node_type=NodeType.NORMAL,
+        diver_class=None,
+        run_state=run_state_high,
+        scenario_theme="General",
+    )
+    # 20 * 0.9 = 18
+    assert applied_high == 18
+    assert raw_high == 18
+
+    # 추적도 49% — 효과 없음
+    run_state_low = {"current_trace": 49}
+    applied_low, raw_low, _, _ = _calculate_analyze_penalty(
+        base_penalty=20,
+        runtime=_runtime(adaptive_shield_active=True),
+        node_type=NodeType.NORMAL,
+        diver_class=None,
+        run_state=run_state_low,
+        scenario_theme="General",
+    )
+    assert applied_low == 20
+    assert raw_low == 20

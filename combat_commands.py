@@ -88,6 +88,13 @@ def calculate_analyze_penalty(
         if current_trace >= 70:
             trace_shield_mult = 0.8
 
+    # adaptive_shield 퍼크: 추적도 50% 이상 구간에서 패널티 10% 추가 감소
+    adaptive_shield_mult = 1.0
+    if runtime.get("adaptive_shield_active"):
+        current_trace = int(run_state.get("current_trace", 0))
+        if current_trace >= 50:
+            adaptive_shield_mult = 0.9
+
     raw_penalty = max(
         1,
         int(
@@ -98,6 +105,7 @@ def calculate_analyze_penalty(
             * analyst_mult
             * memory_echo_mult
             * trace_shield_mult
+            * adaptive_shield_mult
         ),
     )
 
@@ -253,6 +261,12 @@ def handle_analyze(
         hint_category = random.choice(["날짜", "이름", "사건/행동"])
         console.print(f"[bold cyan][ANALYST] 키워드 카테고리 힌트: '{hint_category}'[/bold cyan]")
 
+    # swift_analysis 퍼크: 런당 첫 오답에 한해 패널티 50% 감소
+    swift_half = False
+    if run_state.get("swift_analysis_ready"):
+        run_state["swift_analysis_ready"] = False
+        swift_half = True
+
     scenario_difficulty = str(scenario.get("difficulty", ""))
     base_penalty = int(scenario["penalty_rate"])
     display_base = base_penalty + int(runtime.get("ascension_penalty_flat", 0))
@@ -267,6 +281,9 @@ def handle_analyze(
         scenario_difficulty=scenario_difficulty,
     )
 
+    if swift_half:
+        applied_penalty = max(1, applied_penalty // 2)
+        console.print("[bold #00FFFF][SWIFT ANALYSIS] 첫 오답 패널티 50% 감소.[/bold #00FFFF]")
     if memory_echo_applied:
         console.print("[bold magenta][MEMORY ECHO] 반복 테마 감쇠: 페널티 20% 감소.[/bold magenta]")
     if boss_cap_applied:

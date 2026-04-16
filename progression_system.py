@@ -81,6 +81,9 @@ PERK_MENU_MAP: dict[str, str] = {
     "8": "fragment_amplifier",
     "9": "elite_shield",
     "0": "keyword_echo",
+    "a": "adaptive_shield",
+    "b": "data_recovery",
+    "c": "swift_analysis",
 }
 
 PERK_LABEL_MAP: dict[str, str] = {
@@ -94,6 +97,9 @@ PERK_LABEL_MAP: dict[str, str] = {
     "fragment_amplifier": "파편 증폭기",
     "elite_shield": "엘리트 실드",
     "keyword_echo": "키워드 에코",
+    "adaptive_shield": "적응형 실드",
+    "data_recovery": "데이터 복구",
+    "swift_analysis": "신속 분석",
 }
 
 PERK_DESC_MAP: dict[str, str] = {
@@ -107,6 +113,9 @@ PERK_DESC_MAP: dict[str, str] = {
     "fragment_amplifier": "런 완료 시 파편 보상 +20% 추가 지급",
     "elite_shield": "ELITE 노드 페널티 배율 상한 1.5× → 1.35×",
     "keyword_echo": "노드 정답 후 다음 노드 제한시간 +3초 보정",
+    "adaptive_shield": "추적도 50% 이상 구간에서 오답 패널티 10% 추가 감소",
+    "data_recovery": "런 시작 시 데이터 조각 +50 즉시 획득",
+    "swift_analysis": "런당 첫 오답에 한해 패널티 50% 감소",
 }
 
 PERK_PRICES: dict[str, int] = {
@@ -120,6 +129,9 @@ PERK_PRICES: dict[str, int] = {
     "fragment_amplifier": 35,
     "elite_shield": 70,
     "keyword_echo": 65,
+    "adaptive_shield": 55,
+    "data_recovery": 25,
+    "swift_analysis": 75,
 }
 
 # ── 장기 캠페인(100시간 목표) 메타 진행도 ───────────────────────────────────────

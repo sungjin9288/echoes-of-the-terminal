@@ -140,6 +140,10 @@ def _build_runtime_modifiers(perks: dict[str, bool]) -> dict[str, Any]:
         "node_scanner_active": bool(perks.get("node_scanner", False)),
         "frag_reward_multiplier": 1.2 if perks.get("fragment_amplifier", False) else 1.0,
         "on_correct_time_bonus": 3 if perks.get("keyword_echo", False) else 0,
+        # v9.0 신규 퍼크
+        "adaptive_shield_active": bool(perks.get("adaptive_shield", False)),
+        "start_frag_bonus": 50 if perks.get("data_recovery", False) else 0,
+        "swift_analysis_active": bool(perks.get("swift_analysis", False)),
     }
 
 
@@ -1180,6 +1184,10 @@ def _initialize_run_state(
     runtime = _build_runtime_modifiers(perks)
     trace_level = _apply_ascension_modifiers(ascension_level, runtime)
 
+    # swift_analysis: 런 시작 시 첫 오답 패널티 감소 슬롯 초기화
+    if runtime.get("swift_analysis_active"):
+        run_state["swift_analysis_ready"] = True
+
     if ascension_level > 0:
         console.print(
             f"[bold yellow][ASCENSION {ascension_level}] 난이도 보정 적용 "
@@ -1293,6 +1301,14 @@ def run_game_session(
             f"강제 보정 {route_mutation_stats['forced_elite']}, "
             f"휴식/상점 약화 {route_mutation_stats['relief_decay']})[/bold yellow]"
         )
+    # data_recovery: 런 시작 시 데이터 조각 +50 즉시 지급
+    start_frag = int(runtime.get("start_frag_bonus", 0))
+    if start_frag > 0:
+        save_data["data_fragments"] += start_frag
+        console.print(
+            f"[bold green][DATA RECOVERY] 런 시작 보너스: 데이터 조각 +{start_frag} 획득[/bold green]"
+        )
+
     total_positions = MAX_NODES_PER_RUN + 1  # 8 (regular 7 + boss 1)
     correct_answers = 0
     node_difficulties_cleared: list[str] = []

@@ -116,10 +116,10 @@ def test_campaign_snapshot_contains_ascension_unlocked() -> None:
     assert snapshot["ascension_unlocked"] == 7
 
 
-# ── 퍼크 시스템 구조 검증 (10종) ──────────────────────────────────────────────
+# ── 퍼크 시스템 구조 검증 (13종) ──────────────────────────────────────────────
 
 def test_perk_menu_map_has_10_entries() -> None:
-    assert len(PERK_MENU_MAP) == 10
+    assert len(PERK_MENU_MAP) == 13
 
 
 def test_all_perk_maps_cover_same_keys() -> None:
@@ -151,3 +151,20 @@ def test_new_perks_exist_in_all_maps() -> None:
 def test_perk_menu_keys_are_single_chars() -> None:
     for key in PERK_MENU_MAP:
         assert len(key) == 1, f"메뉴 키가 단일 문자가 아님: '{key}'"
+
+
+def test_v90_perks_exist_in_all_maps() -> None:
+    """v9.0 신규 퍼크 3종이 모든 맵에 등록되어 있는지 검증."""
+    new_perks = ["adaptive_shield", "data_recovery", "swift_analysis"]
+    for perk_id in new_perks:
+        assert perk_id in PERK_LABEL_MAP, f"{perk_id} LABEL_MAP 누락"
+        assert perk_id in PERK_DESC_MAP, f"{perk_id} DESC_MAP 누락"
+        assert perk_id in PERK_PRICES, f"{perk_id} PRICES 누락"
+        assert perk_id in set(PERK_MENU_MAP.values()), f"{perk_id} MENU_MAP 누락"
+
+
+def test_v90_perk_prices_are_valid() -> None:
+    """v9.0 신규 퍼크 가격이 양의 정수인지 검증."""
+    assert PERK_PRICES["adaptive_shield"] == 55
+    assert PERK_PRICES["data_recovery"] == 25
+    assert PERK_PRICES["swift_analysis"] == 75
