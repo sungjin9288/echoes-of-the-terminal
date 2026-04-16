@@ -1,4 +1,7 @@
-"""아티팩트 시스템 — 런 내 랜덤 패시브 아이템 관리."""
+"""아티팩트 시스템 — 런 내 랜덤 패시브 아이템 관리.
+
+v9.3: 28종으로 확장 (pulse_barrier, void_scanner, echo_amplifier, cascade_core 추가)
+"""
 
 import random
 from dataclasses import dataclass
@@ -19,7 +22,7 @@ class Artifact:
     rarity: str  # "COMMON" | "RARE" | "EPIC"
 
 
-# ── 아티팩트 풀 정의 (24종) ────────────────────────────────────────────────────
+# ── 아티팩트 풀 정의 (28종) ────────────────────────────────────────────────────
 # 효과는 main.py의 _apply_artifact_effects()에서 런타임 설정에 반영된다.
 ARTIFACT_POOL: list[Artifact] = [
     # COMMON (7종)
@@ -173,6 +176,31 @@ ARTIFACT_POOL: list[Artifact] = [
         "추적도 90% 도달 시 즉시 -10% 자동 차감 (런 1회)",
         "EPIC",
     ),
+    # v9.3 추가 (4종) ────────────────────────────────────────────────────────────
+    Artifact(
+        "pulse_barrier",
+        "펄스 배리어",
+        "오답 직후 다음 노드 진입 시 제한시간 +5초 보정",
+        "RARE",
+    ),
+    Artifact(
+        "void_scanner",
+        "공허 스캐너",
+        "런 내 첫 NIGHTMARE 노드 클리어 시 데이터 조각 +20 즉시 획득",
+        "COMMON",
+    ),
+    Artifact(
+        "echo_amplifier",
+        "에코 증폭기",
+        "memory_echo 효과 강화: 반복 테마 패널티 감쇠 80% → 65%",
+        "RARE",
+    ),
+    Artifact(
+        "cascade_core",
+        "캐스케이드 코어",
+        "정답 3연속 후 다음 오답 페널티 완전 면제 (런 1회)",
+        "EPIC",
+    ),
 ]
 
 # ID → Artifact 빠른 조회용 맵
@@ -311,6 +339,25 @@ def apply_artifact_effect(
     elif art_id == "neural_override":
         # 추적도 90% 도달 시 자동 -10% 차감 (1회)
         run_state.setdefault("neural_override_active", True)
+
+    elif art_id == "pulse_barrier":
+        # 오답 직후 다음 노드 타이머 +5초
+        run_state["pulse_barrier_active"] = True
+
+    elif art_id == "void_scanner":
+        # 첫 NIGHTMARE 클리어 시 +20 파편 (플래그만 세팅, main.py에서 처리)
+        run_state.setdefault("void_scanner_active", True)
+
+    elif art_id == "echo_amplifier":
+        # memory_echo 감쇠율 강화 (0.8 → 0.65)
+        runtime["memory_echo_mult_override"] = min(
+            runtime.get("memory_echo_mult_override", 0.8), 0.65
+        )
+
+    elif art_id == "cascade_core":
+        # 3연속 정답 후 다음 오답 면제 트래커
+        run_state.setdefault("cascade_core_active", True)
+        run_state.setdefault("cascade_streak", 0)
 
 
 def draw_artifacts(

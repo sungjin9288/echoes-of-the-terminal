@@ -1325,6 +1325,17 @@ def run_game_session(
         # trace_shield 아티팩트용 현재 추적도 동기화
         run_state["current_trace"] = trace_level
 
+        # ── 포지션 시작: pulse_barrier 오답 후 타임 보너스 적용 ──────────────
+        pending_bonus = int(run_state.get("pending_time_bonus", 0))
+        if pending_bonus > 0:
+            run_state["pending_time_bonus"] = 0
+            runtime["time_limit_seconds"] = (
+                int(runtime.get("time_limit_seconds", 30)) + pending_bonus
+            )
+            console.print(
+                f"[bold #00FFFF][PULSE BARRIER] 이번 노드 제한시간 +{pending_bonus}초 보정[/bold #00FFFF]"
+            )
+
         # ── 포지션 시작: argos_fragment 자동 추적도 감소 ─────────────────────
         per_node_reduce = run_state.get("per_node_trace_reduction", 0)
         if per_node_reduce > 0 and trace_level > 0:
@@ -1464,6 +1475,18 @@ def run_game_session(
                 save_data["data_fragments"] += frag_bonus
                 console.print(
                     f"[bold green][DATA SHARD X] 데이터 조각 +{frag_bonus} 즉시 획득[/bold green]"
+                )
+
+            # void_scanner: 첫 NIGHTMARE 클리어 시 +20 파편
+            if (
+                run_state.get("void_scanner_active")
+                and str(scenario.get("difficulty", "")).upper() == "NIGHTMARE"
+                and not run_state.get("void_scanner_used")
+            ):
+                run_state["void_scanner_used"] = True
+                save_data["data_fragments"] += 20
+                console.print(
+                    "[bold green][VOID SCANNER] 첫 NIGHTMARE 클리어 보너스: 데이터 조각 +20[/bold green]"
                 )
 
             # ELITE 클리어 시 아티팩트 선택 제공 (CRACKER는 +1 추가)

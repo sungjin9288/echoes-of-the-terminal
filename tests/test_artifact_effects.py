@@ -185,3 +185,47 @@ def test_neural_override_sets_active_flag() -> None:
     apply_artifact_effect(_artifact("neural_override"), runtime, run_state)
 
     assert run_state.get("neural_override_active") is True
+
+
+# ── v9.3 신규 아티팩트 4종 ────────────────────────────────────────────────────
+
+def test_pulse_barrier_sets_active_flag() -> None:
+    runtime: dict[str, object] = {}
+    run_state: dict[str, object] = {}
+
+    apply_artifact_effect(_artifact("pulse_barrier"), runtime, run_state)
+
+    assert run_state.get("pulse_barrier_active") is True
+
+
+def test_void_scanner_sets_active_flag() -> None:
+    runtime: dict[str, object] = {}
+    run_state: dict[str, object] = {}
+
+    apply_artifact_effect(_artifact("void_scanner"), runtime, run_state)
+
+    assert run_state.get("void_scanner_active") is True
+
+
+def test_echo_amplifier_sets_memory_echo_mult_override() -> None:
+    runtime: dict[str, float] = {}
+    run_state: dict[str, object] = {}
+
+    apply_artifact_effect(_artifact("echo_amplifier"), runtime, run_state)
+
+    assert abs(runtime["memory_echo_mult_override"] - 0.65) < 1e-9
+
+    # 이미 더 낮은 값이 있으면 그 값을 유지
+    runtime2: dict[str, float] = {"memory_echo_mult_override": 0.5}
+    apply_artifact_effect(_artifact("echo_amplifier"), runtime2, run_state)
+    assert abs(runtime2["memory_echo_mult_override"] - 0.5) < 1e-9
+
+
+def test_cascade_core_sets_active_flag_and_streak() -> None:
+    runtime: dict[str, object] = {}
+    run_state: dict[str, object] = {}
+
+    apply_artifact_effect(_artifact("cascade_core"), runtime, run_state)
+
+    assert run_state.get("cascade_core_active") is True
+    assert run_state.get("cascade_streak") == 0

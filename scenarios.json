@@ -2638,5 +2638,85 @@
     "target_keyword": "CRYPTOCURRENCY",
     "logical_flaw_explanation": "CRYPTOCURRENCY(암호화폐)는 2009년 비트코인의 등장으로 처음 실용화된 개념이다. 1929-1930년 금주령 시대에 CRYPTOCURRENCY로 자금을 세탁했다는 기소장 내용은 80년 이상 시대착오적이며, 기소장 자체가 조작되었거나 오류가 있음을 시사하는 핵심 단서이다.",
     "penalty_rate": 65
+  },
+  {
+    "node_id": 265,
+    "theme": "RENAISSANCE_FLORENCE",
+    "difficulty": "Easy",
+    "is_boss": false,
+    "text_log": "【피렌체 상인 길드 조사 기록 #1492-07】\n기록관: Ser Giovanni Albizzi / 날짜: 1492년 7월 9일\n\n메디치 가문의 은행 소속 회계 담당자 Marco Tornabuoni이 고객 자산 횡령 혐의로 조사를 받게 되었다. Tornabuoni은 1492년 7월 초, 자신은 피렌체 시내 서재에서 MICROSOFT WORD로 거래 계약서 초안을 작성하고 있었으며, 해당 문서는 공증인의 서명을 받아 보관 중이라고 진술하였다. 공증인 Ser Bernardo Bardi는 문서에 자신의 서명이 있는 것은 사실이나, 작성 과정에 대해서는 확인하지 못한다고 밝혔다. 조사관은 Tornabuoni의 진술에서 즉각적인 모순을 발견하였다.",
+    "target_keyword": "WORD",
+    "logical_flaw_explanation": "Microsoft WORD는 1983년에 처음 출시된 워드프로세서 소프트웨어이다. 1492년 피렌체에서 WORD로 계약서를 작성한다는 진술은 500년 이상 시대착오적이다. 당시 문서는 필사가(copyist)가 깃털 펜으로 양피지나 종이에 직접 작성하였다.",
+    "penalty_rate": 20
+  },
+  {
+    "node_id": 266,
+    "theme": "RENAISSANCE_FLORENCE",
+    "difficulty": "Hard",
+    "is_boss": false,
+    "text_log": "【피렌체 사법부 조사 기록 #1498-0523】\n조사관: Ser Luca Pitti / 날짜: 1498년 5월 23일\n\n사보나롤라 처형 직후 혼란기에, 피렌체 귀족 출신 상인 Francesco Strozzi가 반정부 문서를 도시 전역에 배포한 혐의로 심문을 받았다. Strozzi는 5월 20일 밤, 자신은 개인 서재에서 3D PRINTER로 선동 문구가 새겨진 소형 상아 패를 제작하여 배포하였다고 자백서에 기재하였으나, 법정에서는 해당 자백이 강요에 의한 것이라고 주장하였다. 심문관은 자백서의 기술적 세부 사항에서 즉각적인 허점을 발견하였다.",
+    "target_keyword": "PRINTER",
+    "logical_flaw_explanation": "3D 프린터는 1984년에 처음 개발된 기술이다. 1498년 피렌체에서 3D PRINTER로 상아 패를 제작했다는 자백 내용은 500년 이상 시대착오적이며, 강요된 자백서에 의도적으로 삽입된 허위 사실이라는 증거이다.",
+    "penalty_rate": 45
+  },
+  {
+    "node_id": 267,
+    "theme": "MING_DYNASTY",
+    "difficulty": "Easy",
+    "is_boss": false,
+    "text_log": "【명나라 형부 조사 기록 #洪武35年-08】\n담당 관리: 형부시랑 王廷弼 / 날짜: 1402년 8월 11일\n\n정난의 변(靖難之役) 직후, 남경 호부(戶部) 소속 관리 陳仁傑이 국고 장부 위조 혐의로 형부에 소환되었다. 陳仁傑은 사건 당일인 8월 초, 자신은 관아 서실에서 동료들과 함께 CHATGPT를 사용하여 황실 재정 보고서 초안을 작성하고 있었다고 주장하였다. 동료 관리 두 명은 陳仁傑이 그날 서실에서 붓을 들고 있는 것을 보았다고만 진술하였다. 형부 조사관은 陳仁傑의 진술에서 즉각적인 모순을 파악하였다.",
+    "target_keyword": "CHATGPT",
+    "logical_flaw_explanation": "ChatGPT는 2022년 OpenAI가 출시한 인공지능 언어 모델이다. 1402년 명나라 관아에서 CHATGPT로 보고서를 작성했다는 진술은 600년 이상 시대착오적이다.",
+    "penalty_rate": 20
+  },
+  {
+    "node_id": 268,
+    "theme": "MING_DYNASTY",
+    "difficulty": "NIGHTMARE",
+    "is_boss": false,
+    "text_log": "【명나라 동창(東廠) 비밀 조사 기록 #宣德7年-11】\n총관: 태감 馮保 / 날짜: 1432년 11월 20일\n\n선덕제 치세 중반, 북경 내성에서 활동하던 환관 출신 정보 수집책 劉文炳이 황실 기밀을 외부에 유출하였다는 의혹으로 동창에 소환되었다. 劉文炳은 심문에서 1432년 10월 말 밤, 자신은 황성 내 거처에서 황실 궁녀들의 동태를 파악하기 위해 CCTV 카메라 영상을 원격으로 모니터링하고 있었다고 주장하였다. 동창 요원들은 해당 진술의 기술적 측면에서 즉각적인 허점을 발견하였다.",
+    "target_keyword": "CCTV",
+    "logical_flaw_explanation": "CCTV(폐쇄회로 텔레비전)는 1942년 독일에서 처음 개발된 기술이다. 1432년 명나라 황성에서 CCTV로 원격 모니터링을 했다는 진술은 500년 이상 시대착오적이다.",
+    "penalty_rate": 65
+  },
+  {
+    "node_id": 269,
+    "theme": "COLONIAL_AMERICA",
+    "difficulty": "Easy",
+    "is_boss": false,
+    "text_log": "【매사추세츠 식민지 법원 기록 #1692-0718】\n서기: Ezekiel Booth / 날짜: 1692년 7월 18일\n\n세일럼 마녀재판이 한창이던 때, 목사 보조 Samuel Perkins가 이웃 주민 Rebecca Turner를 마녀라고 고발하면서 자신의 고발이 사실임을 입증할 증거를 제출하였다. Perkins는 1692년 7월 14일 밤, 자신은 자택 지하실에서 Rebecca가 주술 의식을 거행하는 장면을 DRONE으로 공중 촬영하여 영상 증거를 확보하였다고 법원에 제출하였다. 재판관은 제출된 증거물의 기술적 세부 사항에 즉각적인 의문을 품었다.",
+    "target_keyword": "DRONE",
+    "logical_flaw_explanation": "DRONE(무인 항공기)은 20세기 중반 이후에 발전한 기술로, 상업용 드론은 2000년대 이후에 등장하였다. 1692년 세일럼에서 DRONE으로 공중 촬영을 했다는 주장은 300년 이상 시대착오적이다.",
+    "penalty_rate": 20
+  },
+  {
+    "node_id": 270,
+    "theme": "COLONIAL_AMERICA",
+    "difficulty": "Hard",
+    "is_boss": false,
+    "text_log": "【보스턴 식민지 상인 조합 조사 기록 #1770-0307】\n조사관: Thomas Bancroft / 날짜: 1770년 3월 7일\n\n보스턴 학살 사건(1770년 3월 5일) 다음 날, 상인 조합 소속 John Prescott이 사건 당시 영국군의 총격을 유도하였다는 혐의로 조사를 받게 되었다. Prescott은 3월 5일 저녁, 자신은 조합 사무소에서 동료들과 함께 NETFLIX로 연극 영상을 감상하고 있었으며, 킹 스트리트 방향으로는 전혀 이동하지 않았다고 주장하였다. 증인 두 명이 그날 저녁 조합 사무소에 있었다고 확인하였으나, Prescott이 구체적으로 무엇을 하고 있었는지에 대해서는 답변하지 않았다.",
+    "target_keyword": "NETFLIX",
+    "logical_flaw_explanation": "NETFLIX는 1997년 설립된 미국의 스트리밍 서비스 기업이다. 1770년 식민지 시대 보스턴에서 NETFLIX로 영상을 감상했다는 알리바이는 200년 이상 시대착오적이다.",
+    "penalty_rate": 45
+  },
+  {
+    "node_id": 271,
+    "theme": "NAPOLEONIC_WARS",
+    "difficulty": "Hard",
+    "is_boss": false,
+    "text_log": "【파리 제국 군사재판소 심문 기록 #1812-1103】\n재판관: Général de brigade Armand Lebrun / 날짜: 1812년 11월 3일\n\n나폴레옹의 러시아 원정 퇴각 중, 제4군단 소속 보급 장교 Capitaine Henri Voisin이 군수물자 횡령 혐의로 군사재판에 회부되었다. Voisin은 심문에서 1812년 10월 말 스몰렌스크 철수 작전 당시, 자신은 이동식 야전 본부에서 GOOGLE MAPS로 철수 경로를 계획하고 있었으며, 물자 창고 접근은 불가능하였다고 주장하였다. 야전 본부에 있었던 부관 Sous-lieutenant Renard는 Voisin이 그날 본부에서 지도를 펼치고 있었다고만 진술하였다.",
+    "target_keyword": "GOOGLE",
+    "logical_flaw_explanation": "Google Maps는 2005년 Google이 출시한 지도 서비스이다. 1812년 나폴레옹 러시아 원정 당시 야전 본부에서 GOOGLE MAPS로 경로를 계획했다는 진술은 200년 이상 시대착오적이다. 당시 작전은 종이 지도와 정찰병의 보고를 기반으로 수행하였다.",
+    "penalty_rate": 45
+  },
+  {
+    "node_id": 272,
+    "theme": "NAPOLEONIC_WARS",
+    "difficulty": "NIGHTMARE",
+    "is_boss": false,
+    "text_log": "【워털루 전투 사후 조사 기록 #1815-0625】\n조사관: Duke of Wellington 특별위원회 / 날짜: 1815년 6월 25일\n\n워털루 전투(1815년 6월 18일) 직후, 영국군 제1보병사단 소속 연락 장교 Major Edward Hartley가 전투 중 아군 배치 정보를 프랑스군에 유출하였다는 혐의로 조사를 받게 되었다. Hartley는 전투 당일 오후, 자신은 벨리앙스 농장 인근에서 APPLE WATCH로 심박수를 측정하며 부대 전력을 관리하고 있었고, 의심스러운 접촉은 전혀 없었다고 주장하였다. 소속 여단장은 Hartley가 전투 중 여러 차례 대열을 이탈하였다고 진술하였다.",
+    "target_keyword": "WATCH",
+    "logical_flaw_explanation": "Apple Watch는 2015년 Apple이 출시한 스마트워치이다. 1815년 워털루 전투 현장에서 APPLE WATCH로 심박수를 측정했다는 진술은 200년 이상 시대착오적이다. 당시 병사들은 기계식 회중시계조차 드물게 소지하였으며, 디지털 스마트워치는 존재하지 않았다.",
+    "penalty_rate": 65
   }
 ]

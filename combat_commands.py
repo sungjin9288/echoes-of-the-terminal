@@ -78,7 +78,8 @@ def calculate_analyze_penalty(
         theme = scenario_theme.strip()
         cleared_themes = run_state.get("cleared_themes")
         if isinstance(cleared_themes, set) and theme and theme in cleared_themes:
-            memory_echo_mult = 0.8
+            # echo_amplifier 아티팩트: 감쇠율 강화 (기본 0.8 → override 가능)
+            memory_echo_mult = float(runtime.get("memory_echo_mult_override", 0.8))
             memory_echo_applied = True
 
     # trace_shield 아티팩트: 현재 추적도 70% 이상 구간에서 패널티 20% 감소
@@ -233,6 +234,18 @@ def handle_analyze(
         if quantum_activated:
             console.print("[bold magenta][QUANTUM KEY] 양자 해킹 성공. 추적도 유지.[/bold magenta]")
 
+        # cascade_core: 정답 스트릭 카운트 증가, 3연속 시 다음 오답 면제 활성
+        if run_state.get("cascade_core_active"):
+            streak = int(run_state.get("cascade_streak", 0)) + 1
+            run_state["cascade_streak"] = streak
+            if streak >= 3 and not run_state.get("cascade_used"):
+                run_state["skip_next_penalty"] = True
+                run_state["cascade_used"] = True
+                run_state["cascade_streak"] = 0
+                console.print(
+                    "[bold #00FFFF][CASCADE CORE] 3연속 정답 달성! 다음 오답 페널티 면제.[/bold #00FFFF]"
+                )
+
         if (
             diver_class == DiverClass.CRACKER
             and trace_level >= CRACKER_SPEED_BONUS_THRESHOLD
@@ -251,6 +264,16 @@ def handle_analyze(
 
     # 오답 처리
     run_state["wrong_analyzes"] = int(run_state.get("wrong_analyzes", 0)) + 1
+
+    # cascade_core: 3연속 정답 스트릭 초기화
+    if run_state.get("cascade_core_active"):
+        run_state["cascade_streak"] = 0
+
+    # pulse_barrier: 오답 직후 다음 노드 +5초 대기
+    if run_state.get("pulse_barrier_active"):
+        run_state["pending_time_bonus"] = (
+            run_state.get("pending_time_bonus", 0) + 5
+        )
 
     if run_state.get("skip_next_penalty"):
         run_state["skip_next_penalty"] = False
