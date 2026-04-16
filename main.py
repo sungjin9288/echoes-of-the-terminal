@@ -1657,18 +1657,12 @@ def run_daily_challenge(save_data: dict[str, Any]) -> None:
     )
 
     # 데일리는 ascension 0 고정 (공정성), 보유 perks는 적용
-    run_state: dict[str, Any] = {
-        "skip_next_penalty": False,
-        "cleared_themes": set(),
-        "wrong_analyzes": 0,
-        "timeout_events": 0,
-    }
-    runtime = _build_runtime_modifiers(save_data["perks"])
-    trace_level = _apply_ascension_modifiers(0, runtime)
-
+    runtime, run_state, trace_level = _initialize_run_state(
+        perks=save_data["perks"],
+        diver_class=selected_class,
+        ascension_level=0,
+    )
     acquired_artifacts: list[Artifact] = []
-    if selected_class is not None:
-        apply_class_modifiers(selected_class, runtime, run_state)
 
     backtrack_used = False
     correct_answers = 0
@@ -1783,7 +1777,8 @@ def run_daily_challenge(save_data: dict[str, Any]) -> None:
                 console.print(f"[bold green][DATA SHARD X] 데이터 조각 +{frag_bonus} 즉시 획득[/bold green]")
 
             if ntype == NodeType.ELITE:
-                _offer_artifact(acquired_artifacts, runtime, run_state, source="ELITE", num_choices=3)
+                elite_art_count = 3 + runtime.get("elite_artifact_bonus", 0)
+                _offer_artifact(acquired_artifacts, runtime, run_state, source="ELITE", num_choices=elite_art_count)
 
             if ntype == NodeType.BOSS:
                 _offer_artifact(acquired_artifacts, runtime, run_state, source="BOSS", num_choices=2)
