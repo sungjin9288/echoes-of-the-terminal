@@ -5,6 +5,21 @@
 
 ---
 
+## [1.2.0] — 2026-04-18
+
+### 추가 (Added)
+- **색각 이상 대응 테마 시스템 (3종)**: `default` / `colorblind` (청색/황색/주황) / `high_contrast` (굵기·반전만 사용).
+- `theme_system.py`: `THEMES`, `THEME_LABEL_MAP`, `VALID_THEMES`, `get_theme_styles` 공개 API.
+- `ui_renderer.py`: `_THEME` 모듈 전역 상태, `set_theme()`, `get_current_theme_name()`, `_difficulty_style()`, `_result_style()` — trace·난이도·결과 강조색이 선택된 테마를 따름.
+- 로비 메뉴 `[8] 테마 변경` — 게임 중 테마 전환 + 슬롯 자동 저장.
+- 세이브 스키마에 `theme` 필드 추가 (없거나 잘못된 값이면 `"default"` 자동 보완).
+
+### 테스트
+- `tests/test_theme_system.py` 신규 (17케이스): 테마 구조·스타일 품질·세이브 정규화·UI 연동 검증.
+- 393 → **410 케이스**.
+
+---
+
 ## [1.1.0] — 2026-04-18
 
 ### 추가 (Added)

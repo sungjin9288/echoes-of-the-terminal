@@ -323,6 +323,7 @@ DEFAULT_SAVE_DATA: dict[str, Any] = {
         "best_ascension_cleared": 0,
         "most_seen_ending": "",
     },
+    "theme": "default",
 }
 
 
@@ -450,6 +451,12 @@ def _normalize_save_data(raw_data: Any) -> dict[str, Any]:
             raw_val = raw_stats.get(key, default_stats[key])
             if isinstance(raw_val, type(default_stats[key])):
                 default_stats[key] = raw_val
+
+    # theme: 알 수 없는 값은 기본 테마로 복원
+    from theme_system import VALID_THEMES
+    raw_theme = raw_data.get("theme", "default")
+    data["theme"] = raw_theme if raw_theme in VALID_THEMES else "default"
+
     return data
 
 

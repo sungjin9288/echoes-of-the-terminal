@@ -5,6 +5,7 @@ import time
 from typing import Any
 
 from constants import BUILD_DATE, VERSION
+from theme_system import THEMES, get_theme_styles
 
 from rich.columns import Columns
 from rich.console import Console
@@ -14,13 +15,28 @@ from rich.text import Text
 
 
 # 게임 전역에서 동일한 콘솔 인스턴스를 재사용한다.
-# 이렇게 하면 출력 스타일/동작이 일관되고, 테스트 시에도 접근 지점이 명확해진다.
 console = Console()
 
 # 아르고스 대사 저장소.
-# 메인 루프에서 data_loader.load_argos_taunts() 결과를 주입받아 사용한다.
 _ARGOS_TAUNTS: dict[str, list[str]] = {}
 _FALLBACK_ARGOS_MESSAGE = "모든 저항 신호는 분석 완료. 다음 명령을 입력해라."
+
+# 현재 활성 테마 스타일.  set_theme()으로 교체한다.
+_THEME: dict[str, str] = THEMES["default"]
+
+
+def set_theme(theme_name: str) -> None:
+    """현재 세션의 색상 테마를 변경한다."""
+    global _THEME
+    _THEME = get_theme_styles(theme_name)
+
+
+def get_current_theme_name() -> str:
+    """현재 적용된 테마의 이름을 반환한다."""
+    for name, styles in THEMES.items():
+        if styles is _THEME:
+            return name
+    return "default"
 
 
 def set_argos_taunts(taunts: dict[str, list[str]]) -> None:
@@ -113,14 +129,29 @@ def render_save_slot_selection(slots_info: list[dict[str, Any]]) -> None:
 
 
 def _trace_style(trace_level: int) -> str:
-    """추적도 수치에 따른 Rich 스타일을 반환한다."""
+    """현재 테마 기준으로 추적도 수치에 맞는 Rich 스타일을 반환한다."""
     if trace_level >= 80:
-        return "bold red"
+        return _THEME["trace_critical"]
     if trace_level >= 50:
-        return "bold yellow"
+        return _THEME["trace_danger"]
     if trace_level >= 30:
-        return "bold white"
-    return "bold green"
+        return _THEME["trace_warn"]
+    return _THEME["trace_safe"]
+
+
+def _difficulty_style(difficulty: str) -> str:
+    """현재 테마 기준으로 난이도 문자열에 맞는 Rich 스타일을 반환한다."""
+    upper = difficulty.upper()
+    if upper == "NIGHTMARE":
+        return _THEME["difficulty_nightmare"]
+    if upper == "HARD":
+        return _THEME["difficulty_hard"]
+    return _THEME["difficulty_easy"]
+
+
+def _result_style(is_victory: bool) -> str:
+    """현재 테마 기준으로 런 결과에 맞는 Rich 스타일을 반환한다."""
+    return _THEME["result_victory"] if is_victory else _THEME["result_defeat"]
 
 
 def render_info_panel(
@@ -258,7 +289,8 @@ def render_lobby(
     menu_text.append(f"[4] DAILY CHALLENGE{daily_tag}\n", style="bold cyan")
     menu_text.append("[5] 기록 보기\n", style="dim white")
     menu_text.append("[6] 튜토리얼\n", style="dim white")
-    menu_text.append("[7] 슬롯 변경", style="dim white")
+    menu_text.append("[7] 슬롯 변경\n", style="dim white")
+    menu_text.append("[8] 테마 변경", style="dim white")
     console.print(
         Panel(
             menu_text,
@@ -376,13 +408,16 @@ def render_settlement_log(
         console.print(
             f"[{trace_style}][SYSTEM LOG] 최종 추적도: {trace_final}%[/{trace_style}]"
         )
+    result_style = _result_style(is_victory)
     if not is_victory:
         console.print(
-            "[bold #00FFFF][WARNING] 비정상 종료(사망) 감지... "
-            "보상 40% 데이터 유실 페널티 적용됨.[/bold #00FFFF]"
+            f"[{result_style}][WARNING] 비정상 종료(사망) 감지... "
+            f"보상 40% 데이터 유실 페널티 적용됨.[/{result_style}]"
         )
+    result_label = "CORE BREACHED" if is_victory else "SYSTEM SHUTDOWN"
     console.print(
-        f"[bold #00FFFF][RESULT] 최종 획득 데이터 조각: {final_reward} 조각[/bold #00FFFF]"
+        f"[{result_style}][RESULT] {result_label} — "
+        f"최종 획득 데이터 조각: {final_reward} 조각[/{result_style}]"
     )
 
 

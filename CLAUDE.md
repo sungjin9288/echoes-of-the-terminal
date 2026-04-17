@@ -30,9 +30,10 @@ pip install -r requirements-dev.txt      # 테스트 포함
 Echoes of the Terminal/
 ├── main.py                  # 진입점 — 모듈 조립 + re-export (32줄)
 ├── run_loops.py             # 런 루프 엔진 (run_game_session, run_daily_challenge) (883줄)
-├── lobby.py                 # 로비 루프, 상점, 클래스/어센션 선택 (361줄)
+├── lobby.py                 # 로비 루프, 상점, 클래스/어센션/테마 선택 (400줄)
 ├── combat_orchestration.py  # 전투/미스터리/상점 노드 실행 오케스트라 (490줄)
-├── ui_renderer.py           # Rich 터미널 UI 렌더링 (713줄)
+├── ui_renderer.py           # Rich 터미널 UI 렌더링 (720줄)
+├── theme_system.py          # 색각 이상 대응 테마 시스템 3종 (92줄)
 ├── progression_system.py    # 세이브/퍼크/캠페인/어센션 (587줄)
 ├── combat_commands.py       # 전투 커맨드 핸들러 + 페널티 계산 (279줄)
 ├── artifact_system.py       # 28종 아티팩트 시스템 (400줄)
@@ -54,7 +55,7 @@ Echoes of the Terminal/
 ├── argos_taunts.json        # ARGOS AI 다이얼로그
 ├── save_data.json           # 플레이어 세이브 데이터 (런타임 생성)
 │
-├── tests/                   # pytest 테스트 (16파일, 377케이스, 커버리지 81%)
+├── tests/                   # pytest 테스트 (17파일, 410케이스, 커버리지 81%+)
 │   ├── test_achievement_system.py
 │   ├── test_artifact_effects.py
 │   ├── test_ascension_runtime.py
@@ -70,7 +71,9 @@ Echoes of the Terminal/
 │   ├── test_mystery_system.py
 │   ├── test_penalty_calculation.py
 │   ├── test_run_game_session.py
-│   └── test_e2e_run.py
+│   ├── test_e2e_run.py
+│   ├── test_save_slots.py
+│   └── test_theme_system.py
 │
 ├── scripts/                 # 유틸리티 스크립트
 ├── requirements.txt
@@ -286,6 +289,8 @@ def test_penalty_with_elite_modifier(monkeypatch) -> None:
 | `test_penalty_calculation.py` | 8 | 멀티플라이어 스태킹 + trace_shield + adaptive_shield |
 | `test_run_game_session.py` | 6 | 게임 루프 통합 테스트 |
 | `test_e2e_run.py` | 5 | 로비 정산 파이프라인 E2E 스모크 (승리·패배·lobby 1턴·퍼크 불변·통계 누적) |
+| `test_save_slots.py` | 16 | 슬롯 경로·독립성·마이그레이션·왕복 저장 검증 |
+| `test_theme_system.py` | 17 | 테마 구조·스타일 품질·세이브 정규화·UI 연동 검증 |
 
 ---
 

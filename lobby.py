@@ -38,8 +38,10 @@ from progression_system import (
     update_campaign_progress,
     update_run_stats,
 )
+from theme_system import THEME_LABEL_MAP, VALID_THEMES
 from ui_renderer import (
     console,
+    get_current_theme_name,
     render_achievement_unlocks,
     render_alert,
     render_class_selection,
@@ -51,6 +53,7 @@ from ui_renderer import (
     render_settlement_log,
     render_shop,
     set_argos_taunts,
+    set_theme,
     wait_for_enter,
 )
 
@@ -310,6 +313,48 @@ def select_save_slot() -> int:
     return int(choice)
 
 
+# ── 테마 선택 ────────────────────────────────────────────────────────────────────
+
+def select_theme(save_data: dict[str, Any], slot: int = 0) -> None:
+    """테마 선택 화면을 표시하고 선택된 테마를 세이브에 반영한다.
+
+    Args:
+        save_data: 현재 세이브 데이터 (직접 수정됨)
+        slot: 저장할 슬롯 번호 (0이면 기본 경로 save_game 사용)
+    """
+    from rich.panel import Panel
+
+    console.clear()
+    render_logo()
+    current = get_current_theme_name()
+    current_label = THEME_LABEL_MAP.get(current, current)
+    console.print(f"[bold cyan]현재 테마: {current_label}[/bold cyan]\n")
+    theme_lines = "\n".join(
+        f"  [bold white]{key}[/bold white] — {label}"
+        for key, label in THEME_LABEL_MAP.items()
+    )
+    console.print(Panel(theme_lines, title="THEME SELECTION", title_align="left", border_style="cyan"))
+    console.print()
+    choices = list(THEME_LABEL_MAP.keys())
+    choice = Prompt.ask(
+        "[bold green]테마를 선택하세요[/bold green]",
+        choices=choices,
+        default=current,
+    )
+    save_data["theme"] = choice
+    set_theme(choice)
+    chosen_label = THEME_LABEL_MAP.get(choice, choice)
+    console.print(f"[bold green]테마 변경 완료: {chosen_label}[/bold green]")
+    try:
+        if slot > 0:
+            save_game_slot(save_data, slot)
+        else:
+            save_game(save_data)
+    except OSError:
+        pass
+    wait_for_enter()
+
+
 # ── 로비 루프 ────────────────────────────────────────────────────────────────────
 
 def run_lobby_loop(
@@ -337,6 +382,9 @@ def run_lobby_loop(
     while True:
         save_data = load_save_slot(current_slot)
 
+        # 세이브에 저장된 테마를 로드해 UI에 반영한다
+        set_theme(save_data.get("theme", "default"))
+
         # 첫 실행(tutorial_completed=False) 시 자동으로 튜토리얼 진입
         if not save_data.get("tutorial_completed", False):
             run_tutorial(save_data, slot=current_slot)
@@ -356,7 +404,7 @@ def run_lobby_loop(
 
         menu_choice = Prompt.ask(
             "[bold green]메뉴를 선택하세요[/bold green]",
-            choices=["1", "2", "3", "4", "5", "6", "7"],
+            choices=["1", "2", "3", "4", "5", "6", "7", "8"],
             default="1",
         )
 
@@ -526,4 +574,8 @@ def run_lobby_loop(
         if menu_choice == "7":
             # 슬롯 변경 — 슬롯 선택 화면으로 돌아감
             current_slot = select_save_slot()
+            continue
+
+        if menu_choice == "8":
+            select_theme(save_data, slot=current_slot)
             continue
