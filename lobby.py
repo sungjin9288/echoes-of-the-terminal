@@ -27,9 +27,11 @@ from progression_system import (
     calculate_campaign_gain,
     calculate_reward,
     get_campaign_progress_snapshot,
+    get_run_stats_snapshot,
     load_save,
     save_game,
     update_campaign_progress,
+    update_run_stats,
 )
 from ui_renderer import (
     console,
@@ -247,6 +249,15 @@ def run_lobby_loop(
                     ascension_level=selected_ascension,
                 )
 
+            # 누적 통계 업데이트 (result != "aborted"인 경우만)
+            if result != "aborted":
+                update_run_stats(
+                    save_data=save_data,
+                    is_victory=is_victory,
+                    final_trace=run_stats.get("trace_final", 100),
+                    ascension_level=selected_ascension,
+                )
+
             try:
                 save_game(save_data)
             except OSError as exc:
@@ -323,6 +334,14 @@ def run_lobby_loop(
                 if triggered_ending:
                     is_new_ending = record_ending_unlock(save_data, triggered_ending.ending_id)
                     render_ending(triggered_ending, is_new=is_new_ending)
+                    # 엔딩 해금 후 most_seen_ending 갱신
+                    update_run_stats(
+                        save_data=save_data,
+                        is_victory=is_victory,
+                        final_trace=run_stats.get("trace_final", 100),
+                        ascension_level=selected_ascension,
+                        ending_id=triggered_ending.ending_id,
+                    )
                     try:
                         save_game(save_data)
                     except OSError as exc:
@@ -356,6 +375,7 @@ def run_lobby_loop(
             end_snap = get_endings_snapshot(save_data)
             camp_snap = get_campaign_progress_snapshot(save_data.get("campaign", {}))
             daily_snap = get_daily_state(save_data)
-            render_records_screen(ach_snap, end_snap, camp_snap, daily_snap)
+            stats_snap = get_run_stats_snapshot(save_data.get("stats", {}))
+            render_records_screen(ach_snap, end_snap, camp_snap, daily_snap, stats_snap)
             wait_for_enter("로비로 복귀하려면 Enter를 누르세요")
             continue

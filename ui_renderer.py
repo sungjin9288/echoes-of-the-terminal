@@ -661,6 +661,7 @@ def render_records_screen(
     endings_snapshot: dict[str, Any],
     campaign_snapshot: dict[str, Any],
     daily_state: dict[str, Any],
+    stats_snapshot: dict[str, Any] | None = None,
 ) -> None:
     """
     로비 '기록 보기' 통합 화면 — 캠페인·업적·엔딩·데일리 현황을 한 번에 표시한다.
@@ -721,4 +722,22 @@ def render_records_screen(
     daily_content.append(f"총 플레이:     {total_plays}회\n", style="white")
     daily_content.append(f"마지막 플레이: {last_date}\n", style="dim white")
     console.print(Panel(daily_content, title="DAILY CHALLENGE", title_align="left", border_style="cyan"))
+    # ── 누적 통계 ─────────────────────────────────────────────────────────
+    if stats_snapshot:
+        total_runs = stats_snapshot.get("total_runs", 0)
+        total_vic = stats_snapshot.get("total_victories", 0)
+        win_rate = stats_snapshot.get("win_rate", 0.0)
+        avg_trace = stats_snapshot.get("avg_trace", 0.0)
+        best_asc = stats_snapshot.get("best_ascension_cleared", 0)
+        most_ending = stats_snapshot.get("most_seen_ending", "") or "—"
+
+        stat_content = Text()
+        stat_content.append(f"총 런 수:          {total_runs}회\n", style="white")
+        stat_content.append(f"클리어 수:         {total_vic}회\n", style="white")
+        stat_content.append(f"승률:              {win_rate:.1f}%\n", style="bold #00FFFF")
+        stat_content.append(f"평균 최종 Trace:   {avg_trace:.1f}%\n", style="white")
+        stat_content.append(f"최고 어센션 클리어: Asc {best_asc}\n", style="bold yellow")
+        stat_content.append(f"최다 엔딩:         {most_ending}\n", style="dim white")
+        console.print(Panel(stat_content, title="CUMULATIVE STATS", title_align="left", border_style="magenta"))
+
     console.rule()

@@ -10,8 +10,10 @@ from progression_system import (
     PERK_PRICES,
     calculate_campaign_gain,
     get_campaign_progress_snapshot,
+    get_run_stats_snapshot,
     is_campaign_cleared,
     update_campaign_progress,
+    update_run_stats,
     _migrate_save,
     _normalize_save_data,
 )
@@ -200,3 +202,58 @@ def test_normalize_save_data_sets_schema_version_on_fresh_data() -> None:
     """_normalize_save_data는 새 세이브에 schema_version = 1을 포함한다."""
     normalized = _normalize_save_data({})
     assert normalized["schema_version"] == 1
+
+
+# ── update_run_stats / get_run_stats_snapshot 테스트 ─────────────────────────
+
+def test_update_run_stats_increments_total_runs() -> None:
+    save_data: dict = {"stats": {}}
+    update_run_stats(save_data, is_victory=False, final_trace=80, ascension_level=0)
+    assert save_data["stats"]["total_runs"] == 1
+    assert save_data["stats"]["total_victories"] == 0
+
+
+def test_update_run_stats_victory_increments_victories_and_best_ascension() -> None:
+    save_data: dict = {"stats": {}}
+    update_run_stats(save_data, is_victory=True, final_trace=30, ascension_level=5)
+    assert save_data["stats"]["total_victories"] == 1
+    assert save_data["stats"]["best_ascension_cleared"] == 5
+
+
+def test_update_run_stats_accumulates_trace() -> None:
+    save_data: dict = {"stats": {}}
+    update_run_stats(save_data, is_victory=True, final_trace=40, ascension_level=0)
+    update_run_stats(save_data, is_victory=False, final_trace=60, ascension_level=0)
+    assert save_data["stats"]["total_trace_sum"] == 100
+    assert save_data["stats"]["total_trace_counted"] == 2
+
+
+def test_update_run_stats_does_not_mutate_if_victory_false_for_best_ascension() -> None:
+    save_data: dict = {"stats": {"best_ascension_cleared": 10}}
+    update_run_stats(save_data, is_victory=False, final_trace=50, ascension_level=20)
+    # 패배 시에는 best_ascension_cleared 갱신 안 함
+    assert save_data["stats"]["best_ascension_cleared"] == 10
+
+
+def test_get_run_stats_snapshot_calculates_win_rate() -> None:
+    stats = {
+        "total_runs": 10,
+        "total_victories": 4,
+        "total_trace_sum": 300,
+        "total_trace_counted": 10,
+        "best_ascension_cleared": 7,
+        "most_seen_ending": "silent_victory",
+    }
+    snap = get_run_stats_snapshot(stats)
+    assert snap["total_runs"] == 10
+    assert snap["total_victories"] == 4
+    assert snap["win_rate"] == 40.0
+    assert snap["avg_trace"] == 30.0
+    assert snap["best_ascension_cleared"] == 7
+    assert snap["most_seen_ending"] == "silent_victory"
+
+
+def test_get_run_stats_snapshot_handles_zero_runs() -> None:
+    snap = get_run_stats_snapshot({})
+    assert snap["win_rate"] == 0.0
+    assert snap["avg_trace"] == 0.0

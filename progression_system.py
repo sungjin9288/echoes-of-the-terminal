@@ -3,7 +3,6 @@
 import json
 import os
 import sys
-import warnings
 from copy import deepcopy
 from pathlib import Path
 from typing import Any
@@ -23,6 +22,16 @@ APP_DATA_DIRNAME = "Echoes of the Terminal"
 
 # 세이브 파일 최대 허용 크기 (1 MB).
 _MAX_SAVE_FILE_SIZE: int = 1 * 1024 * 1024
+
+
+def _save_warn(message: str) -> None:
+    """세이브 데이터 복구 경고를 터미널에 가시적으로 출력한다.
+
+    warnings.warn()은 기본적으로 터미널 플레이어에게 보이지 않으므로
+    Rich console을 통해 노란색 경고를 직접 출력한다.
+    """
+    from ui_renderer import console
+    console.print(f"[bold yellow][SAVE] {message}[/bold yellow]")
 
 
 def _get_default_save_path() -> Path:
@@ -216,6 +225,14 @@ DEFAULT_SAVE_DATA: dict[str, Any] = {
     "endings": {
         "unlocked": [],
     },
+    "stats": {
+        "total_runs": 0,
+        "total_victories": 0,
+        "total_trace_sum": 0,       # 승리 런 최종 trace 합산 (평균 계산용)
+        "total_trace_counted": 0,   # 평균 계산에 포함된 런 수
+        "best_ascension_cleared": 0,
+        "most_seen_ending": "",
+    },
 }
 
 
@@ -321,6 +338,13 @@ def _normalize_save_data(raw_data: Any) -> dict[str, Any]:
     raw_endings = raw_data.get("endings", {})
     if isinstance(raw_endings, dict):
         data["endings"] = deepcopy(raw_endings)
+    raw_stats = raw_data.get("stats", {})
+    if isinstance(raw_stats, dict):
+        default_stats = data["stats"]
+        for key in default_stats:
+            raw_val = raw_stats.get(key, default_stats[key])
+            if isinstance(raw_val, type(default_stats[key])):
+                default_stats[key] = raw_val
     return data
 
 
@@ -409,6 +433,66 @@ def update_campaign_progress(
     return {
         "just_cleared": bool(campaign["cleared"] and not was_cleared),
         "campaign": campaign,
+    }
+
+
+def update_run_stats(
+    save_data: dict[str, Any],
+    is_victory: bool,
+    final_trace: int,
+    ascension_level: int,
+    ending_id: str = "",
+) -> None:
+    """
+    런 종료 후 누적 통계(stats)를 갱신한다.
+
+    save_data를 직접 수정한다.
+    """
+    # 기존 stats가 비어있거나 누락된 키가 있을 수 있으므로 기본값과 병합한다.
+    defaults = deepcopy(DEFAULT_SAVE_DATA["stats"])
+    raw = save_data.get("stats", {})
+    if not isinstance(raw, dict):
+        raw = {}
+    defaults.update(raw)
+    stats = defaults
+    save_data["stats"] = stats
+
+    stats["total_runs"] = int(stats.get("total_runs", 0)) + 1
+    if is_victory:
+        stats["total_victories"] = int(stats.get("total_victories", 0)) + 1
+
+    # 최종 trace를 평균 계산에 포함
+    safe_trace = max(0, min(100, int(final_trace)))
+    stats["total_trace_sum"] = int(stats.get("total_trace_sum", 0)) + safe_trace
+    stats["total_trace_counted"] = int(stats.get("total_trace_counted", 0)) + 1
+
+    if is_victory:
+        best = int(stats.get("best_ascension_cleared", 0))
+        stats["best_ascension_cleared"] = max(best, max(0, int(ascension_level)))
+
+    if ending_id:
+        # 가장 많이 본 엔딩 업데이트 (endings 히스토리 기반)
+        endings_unlocked: list[str] = save_data.get("endings", {}).get("unlocked", [])
+        if endings_unlocked:
+            from collections import Counter
+            most_common = Counter(endings_unlocked).most_common(1)
+            stats["most_seen_ending"] = most_common[0][0] if most_common else ""
+
+
+def get_run_stats_snapshot(stats: dict[str, Any]) -> dict[str, Any]:
+    """UI 표시용 누적 통계 스냅샷을 반환한다."""
+    total_runs = int(stats.get("total_runs", 0))
+    total_victories = int(stats.get("total_victories", 0))
+    win_rate = (total_victories / total_runs * 100) if total_runs > 0 else 0.0
+    counted = int(stats.get("total_trace_counted", 0))
+    avg_trace = (int(stats.get("total_trace_sum", 0)) / counted) if counted > 0 else 0.0
+    return {
+        "total_runs": total_runs,
+        "total_victories": total_victories,
+        "win_rate": round(win_rate, 1),
+        "avg_trace": round(avg_trace, 1),
+        "best_ascension_cleared": int(stats.get("best_ascension_cleared", 0)),
+        "most_seen_ending": str(stats.get("most_seen_ending", "")),
     }
 
 
@@ -556,16 +640,16 @@ def load_save(file_path: str = SAVE_FILE_PATH) -> dict[str, Any]:
             save_game(default_data, file_path=str(resolved_path))
         except OSError as exc:
             # 저장 실패하더라도 런타임은 기본값으로 계속 진행 가능해야 한다.
-            warnings.warn(f"세이브 파일 초기 생성 실패 (진행은 가능): {exc}", RuntimeWarning, stacklevel=2)
+            _save_warn(f"세이브 파일 초기 생성 실패 (진행은 가능): {exc}")
         return default_data
     except (json.JSONDecodeError, OSError, TypeError, ValueError) as exc:
         # 파일이 깨졌거나 접근 불가능한 경우 기본값으로 복구를 시도한다.
-        warnings.warn(f"세이브 파일 로드 실패, 기본값으로 복구합니다: {exc}", RuntimeWarning, stacklevel=2)
+        _save_warn(f"세이브 파일 손상 — 기본값으로 복구합니다: {exc}")
         default_data = deepcopy(DEFAULT_SAVE_DATA)
         try:
             save_game(default_data, file_path=str(resolved_path))
         except OSError as save_exc:
-            warnings.warn(f"세이브 파일 복구 저장 실패: {save_exc}", RuntimeWarning, stacklevel=2)
+            _save_warn(f"세이브 파일 복구 저장 실패: {save_exc}")
         return default_data
 
 
