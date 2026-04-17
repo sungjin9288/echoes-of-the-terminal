@@ -61,6 +61,97 @@ def initialize_argos_taunts() -> None:
         set_argos_taunts({})
 
 
+# ── 튜토리얼 ────────────────────────────────────────────────────────────────────
+
+_TUTORIAL_STEPS: list[tuple[str, str]] = [
+    (
+        "STEP 1 — 세계관 소개",
+        "[bold white]당신은 [bold #00FFFF]데이터 다이버[/bold #00FFFF]입니다.[/bold white]\n\n"
+        "ARGOS 시스템이 지배하는 디지털 네트워크에 침투해\n"
+        "각 노드의 수사 조서에서 논리적 결함을 찾아내야 합니다.\n\n"
+        "핵심 목표: [bold green]7개 노드 + 보스[/bold green]를 모두 클리어해\n"
+        "[bold red]추적도(Trace)[/bold red]가 100%가 되기 전에 CORE를 뚫어라.",
+    ),
+    (
+        "STEP 2 — cat log: 로그 읽기",
+        "[bold white]cat log[/bold white] 명령으로 현재 노드의 수사 조서를 확인합니다.\n\n"
+        "예시:\n"
+        "[bold green]root@argos:~# cat log[/bold green]\n\n"
+        "조서를 꼼꼼히 읽고 날짜·사실·논리 오류를 찾으세요.\n"
+        "타이머가 작동 중이므로 빠르게 분석하는 것이 중요합니다.",
+    ),
+    (
+        "STEP 3 — analyze: 정답 제출",
+        "[bold white]analyze [키워드][/bold white] 명령으로 논리적 결함의 핵심 단어를 제출합니다.\n\n"
+        "예시:\n"
+        "[bold green]root@argos:~# analyze GPS[/bold green]\n\n"
+        "• 정답: [bold green]추적도 변화 없음[/bold green] + 다음 노드 진입\n"
+        "• 오답: [bold red]추적도 상승[/bold red] (penalty_rate%만큼)\n"
+        "• 추적도 100% 도달 = [bold red]SYSTEM SHUTDOWN (사망)[/bold red]",
+    ),
+    (
+        "STEP 4 — 보조 명령어",
+        "[bold white]ls[/bold white]       현재 노드 테마/난이도 확인\n"
+        "[bold white]help[/bold white]     사용 가능한 명령어 전체 목록\n"
+        "[bold white]clear[/bold white]    화면 정리 (로그 재출력)\n"
+        "[bold white]skill[/bold white]    [bold #00FFFF]액티브 스킬 발동[/bold #00FFFF] — 런당 1회, 클래스별 효과 상이\n\n"
+        "  ANALYST : 첫 두 글자 힌트 공개\n"
+        "  GHOST   : 추적도 즉시 -15%\n"
+        "  CRACKER : 다음 오답 페널티 면제",
+    ),
+    (
+        "STEP 5 — 루트 선택과 특수 노드",
+        "각 노드 클리어 후 다음 경로(A/B)를 선택합니다.\n\n"
+        "[bold yellow]ELITE[/bold yellow]   페널티 ×1.5, 클리어 시 [bold #00FFFF]아티팩트[/bold #00FFFF] 선택권\n"
+        "[bold cyan]REST[/bold cyan]    추적도 20% 회복\n"
+        "[bold white]SHOP[/bold white]    데이터 조각으로 아이템 구매\n"
+        "[bold magenta]MYSTERY[/bold magenta] 선택지 이벤트 — 개입/무시 결정\n\n"
+        "전략적으로 경로를 선택해 추적도를 관리하세요.",
+    ),
+    (
+        "STEP 6 — 성장 시스템",
+        "[bold #FFD700]데이터 조각[/bold #FFD700] — 노드 클리어마다 획득, 로비 상점에서 퍼크 구매\n"
+        "[bold #00FFFF]퍼크[/bold #00FFFF]      — 영구 패시브 강화 (패널티 감소, 시간 연장 등) 13종\n"
+        "[bold magenta]아티팩트[/bold magenta]  — 런 중 일시적 강화 효과 28종\n"
+        "[bold white]어센션[/bold white]  — 클리어할수록 해금되는 고난이도 모드 (최대 20단계)\n\n"
+        "캠페인 클리어 조건을 달성하면 진엔딩이 해금됩니다.",
+    ),
+    (
+        "튜토리얼 완료",
+        "[bold green]준비 완료.[/bold green]\n\n"
+        "메인 메뉴에서 [bold white][1] 게임 시작[/bold white]을 선택하면\n"
+        "클래스 선택 후 바로 첫 런이 시작됩니다.\n\n"
+        "[dim]로비 메뉴 [bold white][6] 튜토리얼[/bold white] 에서 언제든 다시 볼 수 있습니다.[/dim]",
+    ),
+]
+
+
+def run_tutorial(save_data: dict[str, Any]) -> None:
+    """
+    튜토리얼 안내 화면을 순서대로 표시한다.
+
+    각 스텝은 패널 + Enter로 진행하며, 마지막 스텝 완료 후
+    save_data["tutorial_completed"] = True를 설정하고 저장한다.
+    """
+    from rich.panel import Panel
+    from rich.text import Text
+
+    console.clear()
+    render_logo()
+    console.print("[bold cyan]◀ TUTORIAL ▶[/bold cyan]  — 각 화면을 읽고 Enter를 누르세요\n")
+
+    for title, body in _TUTORIAL_STEPS:
+        console.print(Panel(body, title=title, title_align="left", border_style="cyan", padding=(1, 2)))
+        wait_for_enter()
+        console.print()
+
+    save_data["tutorial_completed"] = True
+    try:
+        save_game(save_data)
+    except OSError:
+        pass  # 저장 실패해도 플레이에 영향 없음
+
+
 # ── 선택 UI ─────────────────────────────────────────────────────────────────────
 
 def select_diver_class() -> DiverClass:
@@ -196,6 +287,11 @@ def run_lobby_loop(
     while True:
         save_data = load_save()
 
+        # 첫 실행(tutorial_completed=False) 시 자동으로 튜토리얼 진입
+        if not save_data.get("tutorial_completed", False):
+            run_tutorial(save_data)
+            continue
+
         console.clear()
         daily_state = get_daily_state(save_data)
         today_played = has_played_today(daily_state, get_today_str())
@@ -210,7 +306,7 @@ def run_lobby_loop(
 
         menu_choice = Prompt.ask(
             "[bold green]메뉴를 선택하세요[/bold green]",
-            choices=["1", "2", "3", "4", "5"],
+            choices=["1", "2", "3", "4", "5", "6"],
             default="1",
         )
 
@@ -378,4 +474,10 @@ def run_lobby_loop(
             stats_snap = get_run_stats_snapshot(save_data.get("stats", {}))
             render_records_screen(ach_snap, end_snap, camp_snap, daily_snap, stats_snap)
             wait_for_enter("로비로 복귀하려면 Enter를 누르세요")
+            continue
+
+        if menu_choice == "6":
+            # 튜토리얼 다시 보기 — 플래그 초기화 후 재진입
+            save_data["tutorial_completed"] = False
+            run_tutorial(save_data)
             continue

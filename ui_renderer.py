@@ -220,7 +220,8 @@ def render_lobby(
     menu_text.append("[3] 종료\n", style="bold white")
     daily_tag = " [도전 가능!]" if daily_available else " [완료]"
     menu_text.append(f"[4] DAILY CHALLENGE{daily_tag}\n", style="bold cyan")
-    menu_text.append("[5] 기록 보기", style="dim white")
+    menu_text.append("[5] 기록 보기\n", style="dim white")
+    menu_text.append("[6] 튜토리얼", style="dim white")
     console.print(
         Panel(
             menu_text,

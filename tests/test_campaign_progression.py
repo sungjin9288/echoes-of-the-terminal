@@ -175,20 +175,31 @@ def test_v90_perk_prices_are_valid() -> None:
 
 # ── 세이브 스키마 마이그레이션 테스트 ─────────────────────────────────────────
 
-def test_migrate_save_v0_adds_schema_version() -> None:
-    """schema_version 없는 구버전(v0) 세이브가 v1으로 마이그레이션된다."""
+def test_migrate_save_v0_migrates_to_current() -> None:
+    """schema_version 없는 구버전(v0) 세이브가 현재 버전으로 마이그레이션된다."""
     old_save = {"data_fragments": 42, "perks": {}}
     migrated = _migrate_save(old_save)
-    assert migrated["schema_version"] == 1
+    assert migrated["schema_version"] == 2
     assert migrated["data_fragments"] == 42
+    # 기존 유저 → tutorial_completed=True
+    assert migrated["tutorial_completed"] is True
 
 
-def test_migrate_save_v1_is_idempotent() -> None:
-    """이미 v1인 세이브는 재마이그레이션해도 값이 변하지 않는다."""
+def test_migrate_save_v1_upgrades_to_v2() -> None:
+    """v1 세이브가 v2로 마이그레이션되며 tutorial_completed=True가 추가된다."""
     v1_save = {"schema_version": 1, "data_fragments": 10}
     migrated = _migrate_save(v1_save)
-    assert migrated["schema_version"] == 1
+    assert migrated["schema_version"] == 2
+    assert migrated["tutorial_completed"] is True
     assert migrated["data_fragments"] == 10
+
+
+def test_migrate_save_v2_is_idempotent() -> None:
+    """이미 v2인 세이브는 재마이그레이션해도 값이 변하지 않는다."""
+    v2_save = {"schema_version": 2, "data_fragments": 10, "tutorial_completed": False}
+    migrated = _migrate_save(v2_save)
+    assert migrated["schema_version"] == 2
+    assert migrated["tutorial_completed"] is False
 
 
 def test_migrate_save_does_not_mutate_input() -> None:
@@ -199,9 +210,22 @@ def test_migrate_save_does_not_mutate_input() -> None:
 
 
 def test_normalize_save_data_sets_schema_version_on_fresh_data() -> None:
-    """_normalize_save_data는 새 세이브에 schema_version = 1을 포함한다."""
+    """_normalize_save_data는 v0 빈 세이브를 최신 버전으로 마이그레이션한다.
+
+    실제 첫 실행은 FileNotFoundError → DEFAULT_SAVE_DATA 경로를 사용하며,
+    _normalize_save_data({})는 기존 유저의 빈 v0 세이브 시나리오를 나타낸다.
+    """
     normalized = _normalize_save_data({})
-    assert normalized["schema_version"] == 1
+    assert normalized["schema_version"] == 2
+    # 기존 유저(v0 이상) → tutorial 완료로 표시
+    assert normalized["tutorial_completed"] is True
+
+
+def test_normalize_save_data_existing_player_has_tutorial_completed_true() -> None:
+    """기존 v1 세이브 정규화 시 tutorial_completed=True가 설정된다."""
+    old = {"schema_version": 1, "data_fragments": 100}
+    normalized = _normalize_save_data(old)
+    assert normalized["tutorial_completed"] is True
 
 
 # ── update_run_stats / get_run_stats_snapshot 테스트 ─────────────────────────

@@ -191,7 +191,8 @@ ASCENSION_TABLE: dict[int, dict[str, int | bool | float]] = {
 # 세이브 파일 경로와 기본 구조를 상수로 관리해 전체 코드에서 일관성을 유지한다.
 SAVE_FILE_PATH: str = str(_get_default_save_path())
 DEFAULT_SAVE_DATA: dict[str, Any] = {
-    "schema_version": 1,
+    "schema_version": 2,
+    "tutorial_completed": False,
     "data_fragments": 0,
     "perks": {
         "penalty_reduction": False,
@@ -269,13 +270,25 @@ def _normalize_campaign(raw_campaign: Any) -> dict[str, Any]:
     return defaults
 
 
-_CURRENT_SCHEMA_VERSION: int = 1
+_CURRENT_SCHEMA_VERSION: int = 2
 
 
 def _migrate_v0_to_v1(data: dict[str, Any]) -> dict[str, Any]:
     """schema_version 필드가 없는 구버전(v0) 세이브를 v1으로 마이그레이션한다."""
     migrated = deepcopy(data)
     migrated["schema_version"] = 1
+    return migrated
+
+
+def _migrate_v1_to_v2(data: dict[str, Any]) -> dict[str, Any]:
+    """v1 → v2: tutorial_completed 필드를 추가한다.
+
+    기존 플레이어는 이미 게임에 익숙하므로 tutorial_completed = True로 설정해
+    자동 튜토리얼 진입을 건너뛴다.
+    """
+    migrated = deepcopy(data)
+    migrated["schema_version"] = 2
+    migrated.setdefault("tutorial_completed", True)  # 기존 유저는 스킵
     return migrated
 
 
@@ -293,6 +306,7 @@ def _migrate_save(raw_data: dict[str, Any]) -> dict[str, Any]:
 
     migrations = {
         0: _migrate_v0_to_v1,
+        1: _migrate_v1_to_v2,
     }
 
     while version < _CURRENT_SCHEMA_VERSION:
@@ -318,6 +332,8 @@ def _normalize_save_data(raw_data: Any) -> dict[str, Any]:
     data = deepcopy(DEFAULT_SAVE_DATA)
     if not isinstance(raw_data, dict):
         return data
+
+    data["tutorial_completed"] = bool(raw_data.get("tutorial_completed", False))
 
     fragments = raw_data.get("data_fragments", 0)
     if isinstance(fragments, int) and fragments >= 0:
