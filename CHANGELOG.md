@@ -5,6 +5,22 @@
 
 ---
 
+## [1.0.2] — 2026-04-17
+
+### 추가 (Added)
+- **E2E 스모크 테스트**: `tests/test_e2e_run.py` (5케이스) — 로비 정산 파이프라인 전체 검증 (승리·패배·lobby 1턴·퍼크 불변·통계 누적).
+- **pytest-cov** 도입: `requirements-dev.txt` + CI 70% 커버리지 게이트.
+
+### 변경 (Changed)
+- 설계 문서 `GAME_SETTINGS_BOOK.md` → `docs/GAME_SETTINGS_BOOK.md` 이동.
+- `dist/sw.js`, `dist/workbox-7b98b334.js` 삭제 (타 프로젝트 오염 파일).
+- `CLAUDE.md` 내 문서 참조 경로 `docs/` 기준 갱신.
+
+### 테스트
+- 372 → **377 케이스**, 커버리지 **80.9%** (게이트: 70%).
+
+---
+
 ## [1.0.1] — 2026-04-17
 
 ### 추가 (Added)
@@ -15,12 +31,8 @@
 ### 변경 (Changed)
 - `progression_system.py` 에러 경고를 `warnings.warn` → Rich 노란색 `[SAVE]` 패널로 개선.
 
-### 추가 (Added) — 이어서
-- **E2E 스모크 테스트**: `tests/test_e2e_run.py` (5케이스) — 로비 정산 파이프라인 전체 검증.
-- **pytest-cov** 도입: `requirements-dev.txt` + CI 70% 게이트 추가.
-
 ### 테스트
-- 372 → **377 케이스**, 커버리지 **80.9%** (70% 게이트 통과).
+- 370 → 372 케이스 (튜토리얼 마이그레이션 케이스 추가).
 
 ---
 
