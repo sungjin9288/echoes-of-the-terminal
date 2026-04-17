@@ -4,6 +4,8 @@ import random
 import time
 from typing import Any
 
+from constants import BUILD_DATE, VERSION
+
 from rich.columns import Columns
 from rich.console import Console
 from rich.panel import Panel
@@ -44,6 +46,9 @@ def render_logo() -> None:
 """
     console.print(logo, style="bold green")
     console.print("[bold white]>>> ECHOES OF THE TERMINAL // 침투 세션 시작[/bold white]")
+    console.print(
+        f"[dim]v{VERSION}  ({BUILD_DATE})[/dim]"
+    )
     console.print()
 
 
