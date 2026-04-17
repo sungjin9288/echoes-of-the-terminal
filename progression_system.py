@@ -76,6 +76,95 @@ def _resolve_save_path(file_path: str) -> Path:
     return (Path.cwd() / input_path).resolve()
 
 
+# ── 다중 세이브 슬롯 ───────────────────────────────────────────────────────────
+
+#: 지원하는 세이브 슬롯 수.
+SAVE_SLOT_COUNT: int = 3
+
+
+def _get_slot_save_path(slot: int) -> Path:
+    """슬롯 번호(1~SAVE_SLOT_COUNT)에 해당하는 세이브 파일 절대 경로를 반환한다."""
+    safe_slot = max(1, min(SAVE_SLOT_COUNT, int(slot)))
+    filename = f"save_slot_{safe_slot}.json"
+    appdata = os.getenv("APPDATA")
+    if appdata:
+        return (Path(appdata) / APP_DATA_DIRNAME / filename).resolve()
+    if getattr(sys, "frozen", False):
+        return (Path(sys.executable).resolve().parent / filename).resolve()
+    return (Path.cwd() / filename).resolve()
+
+
+def migrate_legacy_save() -> None:
+    """기존 save_data.json이 있으면 슬롯 1로 자동 마이그레이션한다.
+
+    이미 슬롯 1 파일이 존재하면 아무 작업도 하지 않는다.
+    실패해도 게임 진행에 영향을 주지 않는다.
+    """
+    import shutil
+
+    legacy_path = _get_default_save_path()
+    slot1_path = _get_slot_save_path(1)
+    if legacy_path.exists() and not slot1_path.exists():
+        try:
+            slot1_path.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(legacy_path, slot1_path)
+        except OSError:
+            pass  # 마이그레이션 실패해도 게임 계속 가능
+
+
+def get_slot_info(slot: int) -> dict[str, Any]:
+    """단일 슬롯의 요약 정보를 반환한다.
+
+    Returns:
+        slot: 슬롯 번호 (1~SAVE_SLOT_COUNT)
+        empty: True이면 파일 없음
+        corrupted: True이면 파일이 손상됨
+        data_fragments: 보유 데이터 조각
+        campaign_victories: 캠페인 승리 횟수
+        last_saved: 마지막 저장 날짜 (YYYY-MM-DD)
+    """
+    from datetime import datetime
+
+    path = _get_slot_save_path(slot)
+    if not path.exists():
+        return {"slot": slot, "empty": True}
+    try:
+        file_size = path.stat().st_size
+        if file_size > _MAX_SAVE_FILE_SIZE:
+            return {"slot": slot, "empty": False, "corrupted": True}
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        frags = int(data.get("data_fragments", 0))
+        campaign = data.get("campaign", {})
+        victories = int(campaign.get("victories", 0))
+        mtime = path.stat().st_mtime
+        last_saved = datetime.fromtimestamp(mtime).strftime("%Y-%m-%d")
+        return {
+            "slot": slot,
+            "empty": False,
+            "data_fragments": frags,
+            "campaign_victories": victories,
+            "last_saved": last_saved,
+        }
+    except (OSError, json.JSONDecodeError, TypeError, ValueError):
+        return {"slot": slot, "empty": False, "corrupted": True}
+
+
+def get_all_slots_info() -> list[dict[str, Any]]:
+    """모든 슬롯의 요약 정보 리스트를 반환한다."""
+    return [get_slot_info(s) for s in range(1, SAVE_SLOT_COUNT + 1)]
+
+
+def load_save_slot(slot: int) -> dict[str, Any]:
+    """슬롯 번호로 세이브 데이터를 로드한다."""
+    return load_save(file_path=str(_get_slot_save_path(slot)))
+
+
+def save_game_slot(data: dict[str, Any], slot: int) -> None:
+    """슬롯 번호에 세이브 데이터를 저장한다."""
+    save_game(data, file_path=str(_get_slot_save_path(slot)))
+
+
 # ── 특성 메타데이터 (SSOT: 이 파일에서만 정의) ────────────────────────────────
 # main.py와 ui_renderer.py 양쪽이 이 파일에서 임포트해 사용한다.
 

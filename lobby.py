@@ -22,14 +22,19 @@ from progression_system import (
     PERK_LABEL_MAP,
     PERK_MENU_MAP,
     PERK_PRICES,
+    SAVE_SLOT_COUNT,
     apply_ascension_reward_multiplier,
     calculate_base_reward,
     calculate_campaign_gain,
     calculate_reward,
+    get_all_slots_info,
     get_campaign_progress_snapshot,
     get_run_stats_snapshot,
     load_save,
+    load_save_slot,
+    migrate_legacy_save,
     save_game,
+    save_game_slot,
     update_campaign_progress,
     update_run_stats,
 )
@@ -42,6 +47,7 @@ from ui_renderer import (
     render_lobby,
     render_logo,
     render_records_screen,
+    render_save_slot_selection,
     render_settlement_log,
     render_shop,
     set_argos_taunts,
@@ -126,15 +132,18 @@ _TUTORIAL_STEPS: list[tuple[str, str]] = [
 ]
 
 
-def run_tutorial(save_data: dict[str, Any]) -> None:
+def run_tutorial(save_data: dict[str, Any], slot: int = 0) -> None:
     """
     튜토리얼 안내 화면을 순서대로 표시한다.
 
     각 스텝은 패널 + Enter로 진행하며, 마지막 스텝 완료 후
     save_data["tutorial_completed"] = True를 설정하고 저장한다.
+
+    Args:
+        save_data: 현재 세이브 데이터 (직접 수정됨)
+        slot: 저장할 슬롯 번호 (0이면 기본 경로 save_game 사용)
     """
     from rich.panel import Panel
-    from rich.text import Text
 
     console.clear()
     render_logo()
@@ -147,7 +156,10 @@ def run_tutorial(save_data: dict[str, Any]) -> None:
 
     save_data["tutorial_completed"] = True
     try:
-        save_game(save_data)
+        if slot > 0:
+            save_game_slot(save_data, slot)
+        else:
+            save_game(save_data)
     except OSError:
         pass  # 저장 실패해도 플레이에 영향 없음
 
@@ -214,9 +226,20 @@ def select_ascension_level(save_data: dict[str, Any]) -> int:
 
 # ── 상점 ─────────────────────────────────────────────────────────────────────────
 
-def run_shop(save_data: dict[str, Any]) -> None:
-    """로비 상점 루프를 실행한다."""
+def run_shop(save_data: dict[str, Any], slot: int = 0) -> None:
+    """로비 상점 루프를 실행한다.
+
+    Args:
+        save_data: 현재 세이브 데이터 (직접 수정됨)
+        slot: 저장할 슬롯 번호 (0이면 기본 경로 save_game 사용)
+    """
     valid_choices = list(PERK_MENU_MAP.keys()) + ["0"]
+
+    def _save() -> None:
+        if slot > 0:
+            save_game_slot(save_data, slot)
+        else:
+            save_game(save_data)
 
     while True:
         console.clear()
@@ -260,7 +283,7 @@ def run_shop(save_data: dict[str, Any]) -> None:
         save_data["perks"][perk_key] = True
 
         try:
-            save_game(save_data)
+            _save()
             console.print(f"[bold green]특성 구매 완료: {perk_label}[/bold green]")
         except OSError as exc:
             save_data["data_fragments"] = prev_fragments
@@ -270,26 +293,53 @@ def run_shop(save_data: dict[str, Any]) -> None:
         wait_for_enter()
 
 
+# ── 슬롯 선택 ────────────────────────────────────────────────────────────────────
+
+def select_save_slot() -> int:
+    """세이브 슬롯 선택 화면을 표시하고 선택된 슬롯 번호를 반환한다."""
+    console.clear()
+    render_logo()
+    slots_info = get_all_slots_info()
+    render_save_slot_selection(slots_info)
+    choices = [str(s) for s in range(1, SAVE_SLOT_COUNT + 1)]
+    choice = Prompt.ask(
+        "[bold green]슬롯을 선택하세요[/bold green]",
+        choices=choices,
+        default="1",
+    )
+    return int(choice)
+
+
 # ── 로비 루프 ────────────────────────────────────────────────────────────────────
 
 def run_lobby_loop(
     game_session_fn: Callable[..., tuple[int, bool, str, list[str], dict[str, Any]]],
     daily_challenge_fn: Callable[[dict[str, Any]], None],
 ) -> None:
-    """게임 전체 상태 머신 (로비 → 런/상점 → 로비)을 실행한다.
+    """게임 전체 상태 머신 (슬롯 선택 → 로비 → 런/상점 → 로비)을 실행한다.
 
     Args:
         game_session_fn: run_game_session() 함수 (순환 임포트 방지를 위해 주입)
         daily_challenge_fn: run_daily_challenge() 함수 (동일 이유로 주입)
     """
     initialize_argos_taunts()
+    migrate_legacy_save()
+
+    current_slot = select_save_slot()
+
+    def _save(data: dict[str, Any]) -> None:
+        """현재 슬롯에 저장한다. 실패 시 오류를 콘솔에 출력한다."""
+        try:
+            save_game_slot(data, current_slot)
+        except OSError as exc:
+            console.print(f"[bold red]{exc}[/bold red]")
 
     while True:
-        save_data = load_save()
+        save_data = load_save_slot(current_slot)
 
         # 첫 실행(tutorial_completed=False) 시 자동으로 튜토리얼 진입
         if not save_data.get("tutorial_completed", False):
-            run_tutorial(save_data)
+            run_tutorial(save_data, slot=current_slot)
             continue
 
         console.clear()
@@ -306,7 +356,7 @@ def run_lobby_loop(
 
         menu_choice = Prompt.ask(
             "[bold green]메뉴를 선택하세요[/bold green]",
-            choices=["1", "2", "3", "4", "5", "6"],
+            choices=["1", "2", "3", "4", "5", "6", "7"],
             default="1",
         )
 
@@ -354,10 +404,7 @@ def run_lobby_loop(
                     ascension_level=selected_ascension,
                 )
 
-            try:
-                save_game(save_data)
-            except OSError as exc:
-                console.print(f"[bold red]{exc}[/bold red]")
+            _save(save_data)
 
             if result == "shutdown":
                 console.print("[bold red]세션 종료: SYSTEM SHUTDOWN[/bold red]")
@@ -438,24 +485,18 @@ def run_lobby_loop(
                         ascension_level=selected_ascension,
                         ending_id=triggered_ending.ending_id,
                     )
-                    try:
-                        save_game(save_data)
-                    except OSError as exc:
-                        console.print(f"[bold red]{exc}[/bold red]")
+                    _save(save_data)
 
                 newly_unlocked = evaluate_achievements(save_data, run_summary)
                 if newly_unlocked:
                     render_achievement_unlocks(newly_unlocked)
-                    try:
-                        save_game(save_data)
-                    except OSError as exc:
-                        console.print(f"[bold red]{exc}[/bold red]")
+                    _save(save_data)
 
             wait_for_enter("로비로 복귀하려면 Enter를 누르세요")
             continue
 
         if menu_choice == "2":
-            run_shop(save_data)
+            run_shop(save_data, slot=current_slot)
             continue
 
         if menu_choice == "3":
@@ -479,5 +520,10 @@ def run_lobby_loop(
         if menu_choice == "6":
             # 튜토리얼 다시 보기 — 플래그 초기화 후 재진입
             save_data["tutorial_completed"] = False
-            run_tutorial(save_data)
+            run_tutorial(save_data, slot=current_slot)
+            continue
+
+        if menu_choice == "7":
+            # 슬롯 변경 — 슬롯 선택 화면으로 돌아감
+            current_slot = select_save_slot()
             continue

@@ -216,31 +216,29 @@ def test_e2e_lobby_single_run_then_exit(
     """로비 메뉴 [1] 게임 시작 → 런 승리 → 메뉴 [3] 종료 흐름을 시뮬레이션한다."""
     _stub_run_loops(monkeypatch)
 
-    # 세이브 파일을 tmp 디렉토리에 격리
-    save_file = tmp_path / "save_data.json"
+    # 세이브 파일을 tmp 슬롯 파일로 격리
+    save_file = tmp_path / "save_slot_1.json"
     fresh = _fresh_save()
     save_file.write_text(json.dumps(fresh), encoding="utf-8")
 
-    # load_save / save_game을 tmp 파일로 리다이렉트
-    import progression_system as ps
-
-    def _mock_load_save() -> dict[str, Any]:
+    # load_save_slot / save_game_slot을 tmp 파일로 리다이렉트
+    def _mock_load_save_slot(slot: int) -> dict[str, Any]:
         try:
             raw = json.loads(save_file.read_text(encoding="utf-8"))
         except (FileNotFoundError, json.JSONDecodeError):
             return deepcopy(DEFAULT_SAVE_DATA)
         return _normalize_save_data(raw)
 
-    def _mock_save_game(data: dict[str, Any]) -> None:
+    def _mock_save_game_slot(data: dict[str, Any], slot: int) -> None:
         save_file.write_text(json.dumps(data), encoding="utf-8")
 
-    monkeypatch.setattr(ps, "load_save", _mock_load_save)
-    monkeypatch.setattr(ps, "save_game", _mock_save_game)
-    monkeypatch.setattr(lobby, "load_save", _mock_load_save)
-    monkeypatch.setattr(lobby, "save_game", _mock_save_game)
+    monkeypatch.setattr(lobby, "load_save_slot", _mock_load_save_slot)
+    monkeypatch.setattr(lobby, "save_game_slot", _mock_save_game_slot)
 
     # 로비 I/O 무효화
     monkeypatch.setattr(lobby, "initialize_argos_taunts", lambda: None)
+    monkeypatch.setattr(lobby, "migrate_legacy_save", lambda: None)
+    monkeypatch.setattr(lobby, "select_save_slot", lambda: 1)
     monkeypatch.setattr(lobby, "render_lobby", lambda **_kw: None)
     monkeypatch.setattr(lobby, "render_settlement_log", lambda **_kw: None)
     monkeypatch.setattr(lobby, "render_ending", lambda *_a, **_kw: None)

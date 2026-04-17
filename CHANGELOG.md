@@ -5,6 +5,22 @@
 
 ---
 
+## [1.1.0] — 2026-04-18
+
+### 추가 (Added)
+- **다중 세이브 슬롯 (3슬롯)**: 게임 시작 시 슬롯 선택 화면 표시. 슬롯별 데이터 조각·캠페인 승리 횟수·마지막 저장일 요약.
+- `progression_system.py`: `get_slot_info`, `get_all_slots_info`, `load_save_slot`, `save_game_slot`, `migrate_legacy_save` 공개 API.
+- 레거시 `save_data.json` 자동 마이그레이션 (슬롯 1으로 1회 복사).
+- 로비 메뉴 `[7] 슬롯 변경` — 게임 중 슬롯 전환 가능.
+- `ui_renderer.py`: `render_save_slot_selection` 슬롯 선택 테이블.
+
+### 테스트
+- `tests/test_save_slots.py` 신규 (16케이스): 경로 클램핑·슬롯 독립성·마이그레이션·왕복 저장 검증.
+- `tests/test_e2e_run.py` 업데이트: 새 슬롯 mock 타깃 반영.
+- 377 → **393 케이스**.
+
+---
+
 ## [1.0.2] — 2026-04-17
 
 ### 추가 (Added)

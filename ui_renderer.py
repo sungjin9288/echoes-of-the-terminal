@@ -76,6 +76,42 @@ def type_text(text: str, style: str = "white", delay: float = 0.02) -> None:
     console.print()
 
 
+def render_save_slot_selection(slots_info: list[dict[str, Any]]) -> None:
+    """세이브 슬롯 선택 화면을 표시한다."""
+    table = Table(
+        title="◀ SAVE SLOT ▶",
+        border_style="cyan",
+        title_style="bold cyan",
+        show_lines=True,
+    )
+    table.add_column("슬롯", style="bold white", width=6, justify="center")
+    table.add_column("상태", width=12)
+    table.add_column("데이터 조각", justify="right", width=14)
+    table.add_column("캠페인 승리", justify="right", width=12)
+    table.add_column("마지막 저장", width=14)
+
+    for info in slots_info:
+        slot_num = f"[{info['slot']}]"
+        if info.get("empty"):
+            table.add_row(slot_num, "[dim]비어있음[/dim]", "—", "—", "—")
+        elif info.get("corrupted"):
+            table.add_row(slot_num, "[bold red]손상됨[/bold red]", "—", "—", "—")
+        else:
+            frags = f"{info.get('data_fragments', 0):,}"
+            victories = str(info.get("campaign_victories", 0))
+            last_saved = info.get("last_saved", "—")
+            table.add_row(
+                slot_num,
+                "[bold green]저장됨[/bold green]",
+                frags,
+                victories,
+                last_saved,
+            )
+
+    console.print(table)
+    console.print()
+
+
 def _trace_style(trace_level: int) -> str:
     """추적도 수치에 따른 Rich 스타일을 반환한다."""
     if trace_level >= 80:
@@ -221,7 +257,8 @@ def render_lobby(
     daily_tag = " [도전 가능!]" if daily_available else " [완료]"
     menu_text.append(f"[4] DAILY CHALLENGE{daily_tag}\n", style="bold cyan")
     menu_text.append("[5] 기록 보기\n", style="dim white")
-    menu_text.append("[6] 튜토리얼", style="dim white")
+    menu_text.append("[6] 튜토리얼\n", style="dim white")
+    menu_text.append("[7] 슬롯 변경", style="dim white")
     console.print(
         Panel(
             menu_text,
