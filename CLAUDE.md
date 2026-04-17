@@ -54,15 +54,19 @@ Echoes of the Terminal/
 ├── argos_taunts.json        # ARGOS AI 다이얼로그
 ├── save_data.json           # 플레이어 세이브 데이터 (런타임 생성)
 │
-├── tests/                   # pytest 테스트 (11파일, 266케이스)
+├── tests/                   # pytest 테스트 (15파일, 364케이스)
 │   ├── test_achievement_system.py
 │   ├── test_artifact_effects.py
 │   ├── test_ascension_runtime.py
 │   ├── test_boss_phase_pack.py
 │   ├── test_boss_phase_pack_tools.py
 │   ├── test_campaign_progression.py
+│   ├── test_combat_commands.py
 │   ├── test_daily_challenge.py
+│   ├── test_data_loader.py
+│   ├── test_diver_class.py
 │   ├── test_ending_system.py
+│   ├── test_mutator_system.py
 │   ├── test_mystery_system.py
 │   ├── test_penalty_calculation.py
 │   └── test_run_game_session.py
@@ -270,8 +274,14 @@ def test_penalty_with_elite_modifier(monkeypatch) -> None:
 | `test_ascension_runtime.py` | 15 | 패널티 스케일링, 시간 조정, 보스 페이즈 |
 | `test_boss_phase_pack.py` | 2 | 보스 페이즈 로딩 |
 | `test_boss_phase_pack_tools.py` | 3 | 템플릿 생성 검증 |
-| `test_campaign_progression.py` | 14 | 100시간 캠페인 클리어 조건 + 퍼크 구조 (13종) |
+| `test_campaign_progression.py` | 18 | 100시간 캠페인 + 퍼크 (13종) + 스키마 마이그레이션 |
+| `test_combat_commands.py` | 26 | 커맨드 핸들러 정답/오답/사망 + 페널티 파이프라인 |
+| `test_daily_challenge.py` | — | 일일 도전 시스템 |
+| `test_data_loader.py` | 20 | JSON 로딩·검증·PyInstaller 경로 처리 |
+| `test_diver_class.py` | 24 | 3종 클래스 패시브/액티브/스트릭 효과 |
 | `test_ending_system.py` | 27 | 13종 엔딩 조건 + 해금 기록 검증 |
+| `test_mutator_system.py` | 15 | 글리치 마스킹 + keyword 보호 + 한국어 처리 |
+| `test_mystery_system.py` | — | MYSTERY 노드 이벤트 시스템 |
 | `test_penalty_calculation.py` | 8 | 멀티플라이어 스태킹 + trace_shield + adaptive_shield |
 | `test_run_game_session.py` | 6 | 게임 루프 통합 테스트 |
 
