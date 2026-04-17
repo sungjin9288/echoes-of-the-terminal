@@ -15,8 +15,12 @@
 ### 변경 (Changed)
 - `progression_system.py` 에러 경고를 `warnings.warn` → Rich 노란색 `[SAVE]` 패널로 개선.
 
+### 추가 (Added) — 이어서
+- **E2E 스모크 테스트**: `tests/test_e2e_run.py` (5케이스) — 로비 정산 파이프라인 전체 검증.
+- **pytest-cov** 도입: `requirements-dev.txt` + CI 70% 게이트 추가.
+
 ### 테스트
-- 370 → 372 케이스 (튜토리얼 마이그레이션 케이스 추가).
+- 372 → **377 케이스**, 커버리지 **80.9%** (70% 게이트 통과).
 
 ---
 

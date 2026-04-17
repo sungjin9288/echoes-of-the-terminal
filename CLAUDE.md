@@ -54,7 +54,7 @@ Echoes of the Terminal/
 ├── argos_taunts.json        # ARGOS AI 다이얼로그
 ├── save_data.json           # 플레이어 세이브 데이터 (런타임 생성)
 │
-├── tests/                   # pytest 테스트 (15파일, 372케이스)
+├── tests/                   # pytest 테스트 (16파일, 377케이스, 커버리지 81%)
 │   ├── test_achievement_system.py
 │   ├── test_artifact_effects.py
 │   ├── test_ascension_runtime.py
@@ -69,7 +69,8 @@ Echoes of the Terminal/
 │   ├── test_mutator_system.py
 │   ├── test_mystery_system.py
 │   ├── test_penalty_calculation.py
-│   └── test_run_game_session.py
+│   ├── test_run_game_session.py
+│   └── test_e2e_run.py
 │
 ├── scripts/                 # 유틸리티 스크립트
 ├── requirements.txt
@@ -284,6 +285,7 @@ def test_penalty_with_elite_modifier(monkeypatch) -> None:
 | `test_mystery_system.py` | — | MYSTERY 노드 이벤트 시스템 |
 | `test_penalty_calculation.py` | 8 | 멀티플라이어 스태킹 + trace_shield + adaptive_shield |
 | `test_run_game_session.py` | 6 | 게임 루프 통합 테스트 |
+| `test_e2e_run.py` | 5 | 로비 정산 파이프라인 E2E 스모크 (승리·패배·lobby 1턴·퍼크 불변·통계 누적) |
 
 ---
 
