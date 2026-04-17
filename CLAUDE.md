@@ -295,7 +295,7 @@ def test_penalty_with_elite_modifier(monkeypatch) -> None:
 
 1. `scenarios.json`에 추가할 때 `node_id`가 기존 ID와 중복되지 않도록 확인
 2. `target_keyword`는 `text_log` 내에 등장해야 하며, 공백 없는 단일 단어여야 함
-3. `penalty_rate`는 10~80 범위 권장 (밸런스 기준은 `GAME_SETTINGS_BOOK.md` 참조)
+3. `penalty_rate`는 10~80 범위 권장 (밸런스 기준은 `docs/GAME_SETTINGS_BOOK.md` 참조)
 
 ### 신규 아티팩트/퍼크 추가 시
 
@@ -311,7 +311,7 @@ def test_penalty_with_elite_modifier(monkeypatch) -> None:
 ### `constants.py` 수정 시
 
 - 숫자 하나가 패널티, 보상, 어센션 밸런스 전체에 영향을 줄 수 있음
-- 변경 전 `ASCENSION_BALANCE_TABLE.md`와 `GAME_SETTINGS_BOOK.md` 반드시 확인
+- 변경 전 `docs/ASCENSION_BALANCE_TABLE.md`와 `docs/GAME_SETTINGS_BOOK.md` 반드시 확인
 
 ### 한국어 텍스트 처리
 
