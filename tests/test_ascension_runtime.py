@@ -3,12 +3,14 @@
 from main import (
     _apply_ascension_modifiers,
     _apply_ascension_reward_multiplier,
-    _apply_asc20_boss_phase_override,
-    _build_boss_fake_keywords,
     _calculate_analyze_penalty,
     _get_boss_phase_runtime,
-    _get_mid_shop_costs,
     _mutate_route_choices_for_ascension,
+)
+from combat_orchestration import (
+    _apply_asc20_boss_phase_override,
+    _build_boss_fake_keywords,
+    _get_mid_shop_costs,
 )
 from progression_system import get_ascension_profile
 from route_map import NodeType

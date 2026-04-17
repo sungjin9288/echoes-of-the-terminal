@@ -574,3 +574,14 @@ def calculate_reward(
     if is_victory:
         return base_reward + VICTORY_BONUS
     return int(base_reward * DEATH_MULTIPLIER)
+
+
+def apply_ascension_reward_multiplier(
+    reward: int,
+    ascension_level: int,
+) -> tuple[int, float]:
+    """Ascension 레벨에 따른 런 보상 배율을 적용한다."""
+    safe_reward = max(0, int(reward))
+    profile = get_ascension_profile(ascension_level)
+    multiplier = max(0.0, float(profile.get("reward_mult", 1.0)))
+    return max(0, int(safe_reward * multiplier)), multiplier

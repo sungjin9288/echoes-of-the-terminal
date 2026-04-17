@@ -214,7 +214,7 @@ def handle_analyze(
     Returns:
         CommandResult (action, trace_level, backtrack_used, difficulty)
     """
-    from main import print_argos_message
+    from ui_renderer import print_argos_message
     parts = command_raw.split(maxsplit=1)
     if len(parts) < 2 or not parts[1].strip():
         console.print("[bold yellow]사용법: analyze [키워드][/bold yellow]")

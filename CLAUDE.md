@@ -28,9 +28,11 @@ pip install -r requirements-dev.txt      # 테스트 포함
 
 ```
 Echoes of the Terminal/
-├── main.py                  # 게임 루프 엔진 (1945줄)
+├── main.py                  # 게임 루프 엔진 (1026줄)
+├── lobby.py                 # 로비 루프, 상점, 클래스/어센션 선택 (361줄)
+├── combat_orchestration.py  # 전투/미스터리/상점 노드 실행 오케스트라 (490줄)
 ├── ui_renderer.py           # Rich 터미널 UI 렌더링 (713줄)
-├── progression_system.py    # 세이브/퍼크/캠페인/어센션 (564줄)
+├── progression_system.py    # 세이브/퍼크/캠페인/어센션 (587줄)
 ├── combat_commands.py       # 전투 커맨드 핸들러 + 페널티 계산 (279줄)
 ├── artifact_system.py       # 28종 아티팩트 시스템 (400줄)
 ├── mystery_system.py        # MYSTERY 노드 이벤트 시스템 18종 (395줄)
@@ -50,7 +52,7 @@ Echoes of the Terminal/
 ├── argos_taunts.json        # ARGOS AI 다이얼로그
 ├── save_data.json           # 플레이어 세이브 데이터 (런타임 생성)
 │
-├── tests/                   # pytest 테스트 (11파일, 264케이스)
+├── tests/                   # pytest 테스트 (11파일, 266케이스)
 │   ├── test_achievement_system.py
 │   ├── test_artifact_effects.py
 │   ├── test_ascension_runtime.py

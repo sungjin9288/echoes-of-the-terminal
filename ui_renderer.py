@@ -27,6 +27,12 @@ def set_argos_taunts(taunts: dict[str, list[str]]) -> None:
     _ARGOS_TAUNTS = taunts if isinstance(taunts, dict) else {}
 
 
+def wait_for_enter(message: str = "계속하려면 Enter를 누르세요") -> None:
+    """화면 전환 전 사용자의 확인 입력을 받는다."""
+    from rich.prompt import Prompt
+    Prompt.ask(f"[bold white]{message}[/bold white]", default="")
+
+
 def render_logo() -> None:
     """게임 시작 또는 노드 진입 시 로고를 출력한다."""
     logo = r"""
