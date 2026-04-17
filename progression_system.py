@@ -182,6 +182,7 @@ ASCENSION_TABLE: dict[int, dict[str, int | bool | float]] = {
 # 세이브 파일 경로와 기본 구조를 상수로 관리해 전체 코드에서 일관성을 유지한다.
 SAVE_FILE_PATH: str = str(_get_default_save_path())
 DEFAULT_SAVE_DATA: dict[str, Any] = {
+    "schema_version": 1,
     "data_fragments": 0,
     "perks": {
         "penalty_reduction": False,
@@ -251,6 +252,42 @@ def _normalize_campaign(raw_campaign: Any) -> dict[str, Any]:
     return defaults
 
 
+_CURRENT_SCHEMA_VERSION: int = 1
+
+
+def _migrate_v0_to_v1(data: dict[str, Any]) -> dict[str, Any]:
+    """schema_version 필드가 없는 구버전(v0) 세이브를 v1으로 마이그레이션한다."""
+    migrated = deepcopy(data)
+    migrated["schema_version"] = 1
+    return migrated
+
+
+def _migrate_save(raw_data: dict[str, Any]) -> dict[str, Any]:
+    """
+    세이브 데이터의 schema_version을 확인하고 필요한 마이그레이션을 순차 적용한다.
+
+    새 버전을 추가할 때는 _migrate_vN_to_vN+1() 함수를 구현하고
+    이 함수의 디스패치 테이블에 등록한다.
+    """
+    data = deepcopy(raw_data)
+    version = data.get("schema_version", 0)
+    if not isinstance(version, int) or version < 0:
+        version = 0
+
+    migrations = {
+        0: _migrate_v0_to_v1,
+    }
+
+    while version < _CURRENT_SCHEMA_VERSION:
+        migrate_fn = migrations.get(version)
+        if migrate_fn is None:
+            break
+        data = migrate_fn(data)
+        version = data.get("schema_version", version + 1)
+
+    return data
+
+
 def _normalize_save_data(raw_data: Any) -> dict[str, Any]:
     """
     외부에서 들어온 데이터를 세이브 스키마에 맞춰 정규화한다.
@@ -258,6 +295,9 @@ def _normalize_save_data(raw_data: Any) -> dict[str, Any]:
     잘못된 타입/누락 키가 있어도 기본값으로 보정하여
     게임 실행 중 KeyError가 발생하지 않도록 방어한다.
     """
+    if isinstance(raw_data, dict):
+        raw_data = _migrate_save(raw_data)
+
     data = deepcopy(DEFAULT_SAVE_DATA)
     if not isinstance(raw_data, dict):
         return data

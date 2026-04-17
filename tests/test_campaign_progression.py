@@ -12,6 +12,7 @@ from progression_system import (
     get_campaign_progress_snapshot,
     is_campaign_cleared,
     update_campaign_progress,
+    _migrate_save,
     _normalize_save_data,
 )
 
@@ -168,3 +169,34 @@ def test_v90_perk_prices_are_valid() -> None:
     assert PERK_PRICES["adaptive_shield"] == 55
     assert PERK_PRICES["data_recovery"] == 25
     assert PERK_PRICES["swift_analysis"] == 75
+
+
+# ── 세이브 스키마 마이그레이션 테스트 ─────────────────────────────────────────
+
+def test_migrate_save_v0_adds_schema_version() -> None:
+    """schema_version 없는 구버전(v0) 세이브가 v1으로 마이그레이션된다."""
+    old_save = {"data_fragments": 42, "perks": {}}
+    migrated = _migrate_save(old_save)
+    assert migrated["schema_version"] == 1
+    assert migrated["data_fragments"] == 42
+
+
+def test_migrate_save_v1_is_idempotent() -> None:
+    """이미 v1인 세이브는 재마이그레이션해도 값이 변하지 않는다."""
+    v1_save = {"schema_version": 1, "data_fragments": 10}
+    migrated = _migrate_save(v1_save)
+    assert migrated["schema_version"] == 1
+    assert migrated["data_fragments"] == 10
+
+
+def test_migrate_save_does_not_mutate_input() -> None:
+    """마이그레이션은 원본 딕셔너리를 변경하지 않는다."""
+    original = {"data_fragments": 5}
+    _migrate_save(original)
+    assert "schema_version" not in original
+
+
+def test_normalize_save_data_sets_schema_version_on_fresh_data() -> None:
+    """_normalize_save_data는 새 세이브에 schema_version = 1을 포함한다."""
+    normalized = _normalize_save_data({})
+    assert normalized["schema_version"] == 1
