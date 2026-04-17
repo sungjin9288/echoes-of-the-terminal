@@ -6,6 +6,7 @@ from artifact_system import apply_artifact_effect, get_artifact
 from route_map import NodeType
 
 import main
+import run_loops
 
 
 def _scenario(
@@ -43,12 +44,12 @@ def _boss() -> dict[str, Any]:
 
 
 def _stub_common(monkeypatch, combat_pool: list[dict[str, Any]], boss: dict[str, Any]) -> None:
-    monkeypatch.setattr(main, "load_scenarios", lambda _path: [{"stub": True}])
-    monkeypatch.setattr(main, "_select_combat_scenarios", lambda _scenarios, _count: combat_pool)
-    monkeypatch.setattr(main, "_select_boss_scenario", lambda _scenarios: boss)
-    monkeypatch.setattr(main, "render_route_choice", lambda **_kwargs: None)
-    monkeypatch.setattr(main, "_wait_for_enter", lambda *_args, **_kwargs: None)
-    monkeypatch.setattr(main.Prompt, "ask", lambda *_args, **_kwargs: "A")
+    monkeypatch.setattr(run_loops, "load_scenarios", lambda _path: [{"stub": True}])
+    monkeypatch.setattr(run_loops, "_select_combat_scenarios", lambda _scenarios, _count: combat_pool)
+    monkeypatch.setattr(run_loops, "_select_boss_scenario", lambda _scenarios: boss)
+    monkeypatch.setattr(run_loops, "render_route_choice", lambda **_kwargs: None)
+    monkeypatch.setattr(run_loops, "_wait_for_enter", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(run_loops.Prompt, "ask", lambda *_args, **_kwargs: "A")
 
 
 def test_run_game_session_victory_on_full_combat_path(monkeypatch) -> None:
@@ -57,13 +58,13 @@ def test_run_game_session_victory_on_full_combat_path(monkeypatch) -> None:
     _stub_common(monkeypatch, combat_pool, boss)
 
     monkeypatch.setattr(
-        main,
+        run_loops,
         "build_route_choices",
         lambda _num: [(NodeType.NORMAL, NodeType.NORMAL)] * 6,
     )
-    monkeypatch.setattr(main, "_offer_artifact", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(run_loops, "_offer_artifact", lambda *_args, **_kwargs: None)
     monkeypatch.setattr(
-        main,
+        run_loops,
         "_run_combat_node",
         lambda scenario, position, total_positions, trace_level, node_type, perks, runtime, backtrack_used, run_state, acquired_artifacts, diver_class=None: (
             trace_level,
@@ -88,11 +89,11 @@ def test_run_game_session_returns_shutdown_when_combat_death_occurs(monkeypatch)
     _stub_common(monkeypatch, combat_pool, boss)
 
     monkeypatch.setattr(
-        main,
+        run_loops,
         "build_route_choices",
         lambda _num: [(NodeType.NORMAL, NodeType.NORMAL)] * 6,
     )
-    monkeypatch.setattr(main, "_offer_artifact", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(run_loops, "_offer_artifact", lambda *_args, **_kwargs: None)
 
     call_count = {"n": 0}
 
@@ -114,7 +115,7 @@ def test_run_game_session_returns_shutdown_when_combat_death_occurs(monkeypatch)
             return trace_level, backtrack_used, "death", None
         return trace_level, backtrack_used, "cleared", scenario["difficulty"]
 
-    monkeypatch.setattr(main, "_run_combat_node", _fake_combat)
+    monkeypatch.setattr(run_loops, "_run_combat_node", _fake_combat)
 
     save_data = {"data_fragments": 0, "perks": {}}
     correct, victory, result, cleared, _stats = main.run_game_session({}, save_data)
@@ -131,7 +132,7 @@ def test_run_game_session_follows_rest_and_shop_route(monkeypatch) -> None:
     _stub_common(monkeypatch, combat_pool, boss)
 
     monkeypatch.setattr(
-        main,
+        run_loops,
         "build_route_choices",
         lambda _num: [
             (NodeType.REST, NodeType.NORMAL),
@@ -142,7 +143,7 @@ def test_run_game_session_follows_rest_and_shop_route(monkeypatch) -> None:
             (NodeType.NORMAL, NodeType.NORMAL),
         ],
     )
-    monkeypatch.setattr(main, "_offer_artifact", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(run_loops, "_offer_artifact", lambda *_args, **_kwargs: None)
 
     node_types: list[NodeType] = []
 
@@ -173,8 +174,8 @@ def test_run_game_session_follows_rest_and_shop_route(monkeypatch) -> None:
         shop_calls["n"] += 1
         return trace_level
 
-    monkeypatch.setattr(main, "_run_combat_node", _fake_combat)
-    monkeypatch.setattr(main, "_run_mid_run_shop", _fake_mid_shop)
+    monkeypatch.setattr(run_loops, "_run_combat_node", _fake_combat)
+    monkeypatch.setattr(run_loops, "_run_mid_run_shop", _fake_mid_shop)
 
     save_data = {"data_fragments": 0, "perks": {}}
     correct, victory, result, cleared, _stats = main.run_game_session({}, save_data)
@@ -200,7 +201,7 @@ def test_run_game_session_applies_data_shard_bonus_after_elite_artifact(monkeypa
     _stub_common(monkeypatch, combat_pool, boss)
 
     monkeypatch.setattr(
-        main,
+        run_loops,
         "build_route_choices",
         lambda _num: [
             (NodeType.ELITE, NodeType.NORMAL),
@@ -212,7 +213,7 @@ def test_run_game_session_applies_data_shard_bonus_after_elite_artifact(monkeypa
         ],
     )
     monkeypatch.setattr(
-        main,
+        run_loops,
         "_run_combat_node",
         lambda scenario, position, total_positions, trace_level, node_type, perks, runtime, backtrack_used, run_state, acquired_artifacts, diver_class=None: (
             trace_level,
@@ -235,7 +236,7 @@ def test_run_game_session_applies_data_shard_bonus_after_elite_artifact(monkeypa
         if source == "ELITE":
             apply_artifact_effect(data_shard, runtime, run_state)
 
-    monkeypatch.setattr(main, "_offer_artifact", _fake_offer_artifact)
+    monkeypatch.setattr(run_loops, "_offer_artifact", _fake_offer_artifact)
 
     save_data = {"data_fragments": 10, "perks": {}}
     correct, victory, result, _cleared, _stats = main.run_game_session({}, save_data)
@@ -253,11 +254,11 @@ def test_run_game_session_uses_multi_phase_boss_on_high_ascension(monkeypatch) -
     _stub_common(monkeypatch, combat_pool, boss)
 
     monkeypatch.setattr(
-        main,
+        run_loops,
         "build_route_choices",
         lambda _num: [(NodeType.NORMAL, NodeType.NORMAL)] * 6,
     )
-    monkeypatch.setattr(main, "_offer_artifact", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(run_loops, "_offer_artifact", lambda *_args, **_kwargs: None)
 
     call_count = {"n": 0}
     boss_phase_indexes: list[int] = []
@@ -290,7 +291,7 @@ def test_run_game_session_uses_multi_phase_boss_on_high_ascension(monkeypatch) -
             boss_phase_fake_keyword_counts.append(int(runtime.get("ascension_boss_fake_keyword_count", 0)))
         return trace_level, backtrack_used, "cleared", scenario["difficulty"]
 
-    monkeypatch.setattr(main, "_run_combat_node", _fake_combat)
+    monkeypatch.setattr(run_loops, "_run_combat_node", _fake_combat)
 
     save_data = {"data_fragments": 0, "perks": {}}
     correct, victory, result, cleared, _stats = main.run_game_session({}, save_data, ascension_level=20)
@@ -314,13 +315,13 @@ def test_run_game_session_applies_asc20_boss_phase_scenario_override(monkeypatch
     _stub_common(monkeypatch, combat_pool, boss)
 
     monkeypatch.setattr(
-        main,
+        run_loops,
         "build_route_choices",
         lambda _num: [(NodeType.NORMAL, NodeType.NORMAL)] * 6,
     )
-    monkeypatch.setattr(main, "_offer_artifact", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(run_loops, "_offer_artifact", lambda *_args, **_kwargs: None)
     monkeypatch.setattr(
-        main,
+        run_loops,
         "load_boss_phase_pack",
         lambda _path: {
             999: [
@@ -350,7 +351,7 @@ def test_run_game_session_applies_asc20_boss_phase_scenario_override(monkeypatch
             boss_phase_keywords.append(str(scenario.get("target_keyword", "")))
         return trace_level, backtrack_used, "cleared", scenario["difficulty"]
 
-    monkeypatch.setattr(main, "_run_combat_node", _fake_combat)
+    monkeypatch.setattr(run_loops, "_run_combat_node", _fake_combat)
 
     save_data = {"data_fragments": 0, "perks": {}}
     correct, victory, result, _cleared, _stats = main.run_game_session({}, save_data, ascension_level=20)

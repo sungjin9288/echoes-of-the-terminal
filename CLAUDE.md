@@ -28,7 +28,8 @@ pip install -r requirements-dev.txt      # 테스트 포함
 
 ```
 Echoes of the Terminal/
-├── main.py                  # 게임 루프 엔진 (1026줄)
+├── main.py                  # 진입점 — 모듈 조립 + re-export (32줄)
+├── run_loops.py             # 런 루프 엔진 (run_game_session, run_daily_challenge) (883줄)
 ├── lobby.py                 # 로비 루프, 상점, 클래스/어센션 선택 (361줄)
 ├── combat_orchestration.py  # 전투/미스터리/상점 노드 실행 오케스트라 (490줄)
 ├── ui_renderer.py           # Rich 터미널 UI 렌더링 (713줄)

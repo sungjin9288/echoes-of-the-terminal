@@ -164,8 +164,8 @@ def test_get_boss_phase_runtime_scales_penalty_and_time() -> None:
     assert phase3["time_limit_seconds"] == 26
 
 
-def test_build_boss_fake_keywords_excludes_target(monkeypatch) -> None:
-    monkeypatch.setattr("main.random.sample", lambda seq, k: list(seq)[:k])
+def test_build_boss_fake_keywords_excludes_target(monkeypatch) -> None:  # noqa: PT019
+    monkeypatch.setattr("run_loops.random.sample", lambda seq, k: list(seq)[:k])
     text_log = "argos protocol vector breach signal terminal core memory"
     fake = _build_boss_fake_keywords(text_log, "core", 3)
     assert fake == ["argos", "breach", "memory"]
@@ -223,7 +223,7 @@ def test_mutate_route_choices_enforces_min_elite_choices() -> None:
 
 def test_mutate_route_choices_applies_relief_decay(monkeypatch) -> None:
     # random.random()=0.0이면 모든 확률 변이가 발동한다.
-    monkeypatch.setattr("main.random.random", lambda: 0.0)
+    monkeypatch.setattr("run_loops.random.random", lambda: 0.0)
     route_choices = [
         (NodeType.REST, NodeType.SHOP),
         (NodeType.NORMAL, NodeType.NORMAL),
