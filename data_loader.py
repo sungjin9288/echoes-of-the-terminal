@@ -110,6 +110,35 @@ def load_scenarios(file_path: str = "scenarios.json") -> list[dict[str, Any]]:
     return data
 
 
+def load_scenarios_with_packs(
+    base_file: str = "scenarios.json",
+    packs_dir: str | None = None,
+) -> tuple[list[dict[str, Any]], list[Any]]:
+    """기본 시나리오 파일과 packs/ 디렉터리의 추가 팩을 병합해 반환한다.
+
+    node_id 중복이 발견되면 ValueError를 발생시킨다.
+
+    Args:
+        base_file:  기본 scenarios.json 경로
+        packs_dir:  팩 디렉터리 경로. None이면 기본 packs/ 사용.
+
+    Returns:
+        (전체 시나리오 목록, 로드된 팩 메타데이터 목록)
+        팩이 없으면 빈 메타데이터 목록.
+
+    Raises:
+        FileNotFoundError: 기본 파일이 없을 때
+        ValueError:        node_id 중복 또는 구조 오류
+    """
+    from pack_loader import load_all_packs
+
+    base_scenarios = load_scenarios(base_file)
+    base_ids = {int(s["node_id"]) for s in base_scenarios}
+
+    pack_scenarios, pack_meta = load_all_packs(packs_dir, known_node_ids=base_ids)
+    return base_scenarios + pack_scenarios, pack_meta
+
+
 def load_argos_taunts(file_path: str = "argos_taunts.json") -> dict[str, list[str]]:
     """
     아르고스 대사 데이터를 로드한다.

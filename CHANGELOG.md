@@ -5,6 +5,21 @@
 
 ---
 
+## [1.3.0] — 2026-04-18
+
+### 추가 (Added)
+- **시나리오 팩 DLC 구조**: `packs/` 디렉터리의 `pack_*.json` 파일을 자동 발견·병합.
+- `pack_loader.py`: `PackMetadata` / `LoadedPack` 불변 데이터클래스, `load_scenario_pack()` / `discover_packs()` / `load_all_packs()` 공개 API. node_id 중복 감지 포함.
+- `data_loader.py`: `load_scenarios_with_packs()` — 기본 시나리오 + 팩 병합 단일 진입점.
+- `packs/pack_23_cyber_noir.json`: 팩 23 데모 (사이버 느와르, 3개 시나리오 / node_id 1001~1003).
+- `run_loops.py`: 게임 세션 및 데일리 챌린지 진입 시 팩 자동 로드.
+
+### 테스트
+- `tests/test_pack_loader.py` 신규 (27케이스): 구조·검증·탐색·병합·중복 감지·smoke 테스트.
+- 410 → **437 케이스**.
+
+---
+
 ## [1.2.0] — 2026-04-18
 
 ### 추가 (Added)

@@ -39,7 +39,7 @@ from daily_challenge import (
     record_daily_result,
     select_daily_scenarios,
 )
-from data_loader import load_boss_phase_pack, load_scenarios
+from data_loader import load_boss_phase_pack, load_scenarios, load_scenarios_with_packs
 from diver_class import DiverClass, apply_class_modifiers, on_node_clear
 from lobby import select_diver_class as _select_diver_class
 from progression_system import (
@@ -320,7 +320,7 @@ def _load_combat_pools(
         (combat_pool, boss_scenario, boss_phase_pack) 또는 실패 시 None
     """
     try:
-        scenarios = load_scenarios("scenarios.json")
+        scenarios, _pack_meta = load_scenarios_with_packs("scenarios.json")
     except (FileNotFoundError, ValueError) as exc:
         console.print(f"[bold red]시나리오 로드 실패: {exc}[/bold red]")
         return None
@@ -662,7 +662,7 @@ def run_daily_challenge(save_data: dict[str, Any]) -> None:
     selected_class = _select_diver_class()
 
     try:
-        scenarios = load_scenarios("scenarios.json")
+        scenarios, _pack_meta = load_scenarios_with_packs("scenarios.json")
     except (FileNotFoundError, ValueError) as exc:
         console.print(f"[bold red]시나리오 로드 실패: {exc}[/bold red]")
         return
