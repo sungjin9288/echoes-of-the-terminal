@@ -1,0 +1,106 @@
+{
+  "lang.name": "English",
+
+  "logo.subtitle": ">>> ECHOES OF THE TERMINAL // INFILTRATION SESSION START",
+
+  "lobby.status.title": "LOBBY STATUS",
+  "lobby.status.fragments": "Data Fragments: {count}",
+  "lobby.status.perks": "Unlocked Perks: {owned}/{total}",
+
+  "lobby.campaign.title": "LONG CAMPAIGN",
+  "lobby.campaign.points": "Campaign Points: {points}",
+  "lobby.campaign.victories": "Campaign Victories: {victories} / 450",
+  "lobby.campaign.class_victories": "Class Victories: A {analyst}  G {ghost}  C {cracker}",
+  "lobby.campaign.ascension": "Ascension Unlocked: {level}/20",
+  "lobby.campaign.status_clear": "CLEAR",
+  "lobby.campaign.status_progress": "IN PROGRESS (100h target)",
+  "lobby.campaign.state_label": "Status: {state}",
+
+  "lobby.achievement.title": "ACHIEVEMENTS",
+  "lobby.achievement.unlocked": "Unlocked: {unlocked} / {total}",
+  "lobby.achievement.recent": "Recent: {items}",
+  "lobby.achievement.none": "Recent: None",
+
+  "lobby.menu.title": "MAIN MENU",
+  "lobby.menu.game_start": "[1] Game Start",
+  "lobby.menu.shop": "[2] Perk Shop",
+  "lobby.menu.exit": "[3] Exit",
+  "lobby.menu.daily_available": "[4] DAILY CHALLENGE [Available!]",
+  "lobby.menu.daily_done": "[4] DAILY CHALLENGE [Done]",
+  "lobby.menu.records": "[5] Records",
+  "lobby.menu.tutorial": "[6] Tutorial",
+  "lobby.menu.change_slot": "[7] Change Slot",
+  "lobby.menu.change_theme": "[8] Change Theme",
+  "lobby.menu.change_language": "[9] Change Language",
+
+  "lobby.prompt.menu": "Select menu option",
+  "lobby.prompt.slot": "Select save slot",
+  "lobby.prompt.theme": "Select theme",
+  "lobby.prompt.language": "언어를 선택하세요 / Select language",
+  "lobby.prompt.ascension": "Select ascension level",
+  "lobby.prompt.class": "Select class number",
+  "lobby.prompt.perk_buy": "Select perk to buy (0: back to lobby)",
+  "lobby.prompt.artifact": "Select an artifact",
+  "lobby.prompt.path": "Select path",
+
+  "lobby.exit_msg": "Terminating session.",
+  "lobby.shutdown_msg": "Session ended: SYSTEM SHUTDOWN",
+  "lobby.victory_msg": "Session ended: CORE BREACHED",
+  "lobby.abort_msg": "Session ended unexpectedly.",
+
+  "slot.title": "SAVE SLOT SELECTION",
+  "slot.col_slot": "Slot",
+  "slot.col_fragments": "Data Fragments",
+  "slot.col_victories": "Campaign Victories",
+  "slot.col_saved": "Last Saved",
+  "slot.empty": "(Empty)",
+  "slot.never": "—",
+
+  "theme.title": "THEME SELECTION",
+  "theme.current": "Current Theme: {label}",
+  "theme.changed": "Theme changed: {label}",
+
+  "language.title": "LANGUAGE SELECTION",
+  "language.current": "Current Language: {label}",
+  "language.changed": "언어 변경 완료 / Language changed: {label}",
+
+  "shop.title": "HACKER PERK SHOP",
+  "shop.fragments": "Data Fragments: {count}",
+  "shop.col_num": "#",
+  "shop.col_name": "Perk",
+  "shop.col_desc": "Effect",
+  "shop.col_price": "Price (frags)",
+  "shop.col_status": "Status",
+  "shop.owned": "Owned",
+  "shop.not_owned": "Not Owned",
+  "shop.back": "Back",
+  "shop.back_desc": "Return to lobby menu",
+  "shop.err_already_owned": "You already own this perk.",
+  "shop.err_not_enough": "Not enough data fragments. (Required: {price})",
+  "shop.bought": "Perk purchased: {name}",
+
+  "settlement.nodes_cleared": "[SYSTEM LOG] Nodes cleared: {count} (Base reward: {base} frags)",
+  "settlement.final_trace": "[SYSTEM LOG] Final trace level: {trace}%",
+  "settlement.death_penalty": "[WARNING] Abnormal termination detected... 40% data fragment penalty applied.",
+  "settlement.result_victory": "[RESULT] CORE BREACHED — Final data fragments acquired: {reward}",
+  "settlement.result_defeat": "[RESULT] SYSTEM SHUTDOWN — Final data fragments acquired: {reward}",
+  "settlement.ascension_tax": "[ASCENSION TAX] Reward multiplier ×{mult:.2f} applied: {before} -> {after}",
+
+  "class.selection.header": "━━━ DIVER CLASS SELECTION ━━━",
+  "class.selection.prompt": "Select your class. Applied for the entire run.",
+  "class.label_chosen": "Class selected: [{cls}] {name}",
+
+  "ascension.header": "━━━ ASCENSION SELECTION ━━━",
+  "ascension.unlocked": "Currently unlocked: 0 ~ {max}",
+  "ascension.rules": "Rules: ASC 1(+5 penalty), ASC 3(time limit reduced), ASC 5(start TRACE 20%), ASC 10+(shop cost up/reward down/boss buffed), ASC 18+(boss multi-phase), ASC 20(phase command lock/scenario distortion)",
+  "ascension.chosen": "ASCENSION {level} selected",
+
+  "tutorial.header": "◀ TUTORIAL ▶  — Read each panel and press Enter",
+  "tutorial.current_theme": "Current Theme: {label}",
+
+  "artifact.selection.header": "ELITE NODE — ARTIFACT REWARD",
+  "artifact.selection.prompt": "Select one artifact.",
+
+  "records.press_enter": "Press Enter to return to lobby",
+  "common.press_enter": "Press Enter to continue"
+}

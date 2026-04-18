@@ -35,6 +35,11 @@ Echoes of the Terminal/
 ├── ui_renderer.py           # Rich 터미널 UI 렌더링 (720줄)
 ├── theme_system.py          # 색각 이상 대응 테마 시스템 3종 (92줄)
 ├── pack_loader.py           # 시나리오 팩 DLC 로더 (150줄)
+├── i18n.py                  # 다국어 지원 모듈 — t(), set_language() (110줄)
+│
+├── locale/                  # 언어별 UI 문자열
+│   ├── ko.json              # 한국어 (기본값, 74개 키)
+│   └── en.json              # 영어 (74개 키)
 │
 ├── packs/                   # 추가 시나리오 팩 (DLC) 디렉터리
 │   └── pack_23_cyber_noir.json  # 팩 23 데모 (사이버 느와르, 3개 시나리오)
@@ -59,7 +64,7 @@ Echoes of the Terminal/
 ├── argos_taunts.json        # ARGOS AI 다이얼로그
 ├── save_data.json           # 플레이어 세이브 데이터 (런타임 생성)
 │
-├── tests/                   # pytest 테스트 (18파일, 437케이스, 커버리지 81%+)
+├── tests/                   # pytest 테스트 (19파일, 462케이스, 커버리지 81%+)
 │   ├── test_achievement_system.py
 │   ├── test_artifact_effects.py
 │   ├── test_ascension_runtime.py
@@ -78,7 +83,8 @@ Echoes of the Terminal/
 │   ├── test_e2e_run.py
 │   ├── test_save_slots.py
 │   ├── test_theme_system.py
-│   └── test_pack_loader.py
+│   ├── test_pack_loader.py
+│   └── test_i18n.py
 │
 ├── scripts/                 # 유틸리티 스크립트
 ├── requirements.txt
@@ -297,6 +303,7 @@ def test_penalty_with_elite_modifier(monkeypatch) -> None:
 | `test_save_slots.py` | 16 | 슬롯 경로·독립성·마이그레이션·왕복 저장 검증 |
 | `test_theme_system.py` | 17 | 테마 구조·스타일 품질·세이브 정규화·UI 연동 검증 |
 | `test_pack_loader.py` | 27 | 팩 구조·검증·탐색·병합·중복 감지·Pack 23 smoke |
+| `test_i18n.py` | 25 | 언어 전환·폴백·보간·파일 검증·세이브 정규화·UI 연동 |
 
 ---
 

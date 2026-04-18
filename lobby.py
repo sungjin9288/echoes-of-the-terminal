@@ -38,6 +38,7 @@ from progression_system import (
     update_campaign_progress,
     update_run_stats,
 )
+from i18n import LANGUAGE_LABEL_MAP, SUPPORTED_LANGUAGES, get_language, set_language as set_i18n_language, t
 from theme_system import THEME_LABEL_MAP, VALID_THEMES
 from ui_renderer import (
     console,
@@ -355,6 +356,51 @@ def select_theme(save_data: dict[str, Any], slot: int = 0) -> None:
     wait_for_enter()
 
 
+# ── 언어 선택 ────────────────────────────────────────────────────────────────────
+
+def select_language(save_data: dict[str, Any], slot: int = 0) -> None:
+    """언어 선택 화면을 표시하고 선택된 언어를 세이브에 반영한다.
+
+    Args:
+        save_data: 현재 세이브 데이터 (직접 수정됨)
+        slot: 저장할 슬롯 번호 (0이면 기본 경로 save_game 사용)
+    """
+    from rich.panel import Panel
+
+    console.clear()
+    render_logo()
+    current = get_language()
+    current_label = LANGUAGE_LABEL_MAP.get(current, current)
+    console.print(t("language.current", label=current_label) + "\n")
+
+    lang_lines = "\n".join(
+        f"  [bold white]{code}[/bold white] — {label}"
+        for code, label in LANGUAGE_LABEL_MAP.items()
+        if code in SUPPORTED_LANGUAGES
+    )
+    console.print(Panel(lang_lines, title=t("language.title"), title_align="left", border_style="blue"))
+    console.print()
+
+    choices = [c for c in LANGUAGE_LABEL_MAP if c in SUPPORTED_LANGUAGES]
+    choice = Prompt.ask(
+        t("lobby.prompt.language"),
+        choices=choices,
+        default=current,
+    )
+    set_i18n_language(choice)
+    save_data["language"] = choice
+    chosen_label = LANGUAGE_LABEL_MAP.get(choice, choice)
+    console.print(t("language.changed", label=chosen_label))
+    try:
+        if slot > 0:
+            save_game_slot(save_data, slot)
+        else:
+            save_game(save_data)
+    except OSError:
+        pass
+    wait_for_enter()
+
+
 # ── 로비 루프 ────────────────────────────────────────────────────────────────────
 
 def run_lobby_loop(
@@ -382,8 +428,9 @@ def run_lobby_loop(
     while True:
         save_data = load_save_slot(current_slot)
 
-        # 세이브에 저장된 테마를 로드해 UI에 반영한다
+        # 세이브에 저장된 테마와 언어를 로드해 UI에 반영한다
         set_theme(save_data.get("theme", "default"))
+        set_i18n_language(save_data.get("language", "ko"))
 
         # 첫 실행(tutorial_completed=False) 시 자동으로 튜토리얼 진입
         if not save_data.get("tutorial_completed", False):
@@ -403,8 +450,8 @@ def run_lobby_loop(
         )
 
         menu_choice = Prompt.ask(
-            "[bold green]메뉴를 선택하세요[/bold green]",
-            choices=["1", "2", "3", "4", "5", "6", "7", "8"],
+            f"[bold green]{t('lobby.prompt.menu')}[/bold green]",
+            choices=["1", "2", "3", "4", "5", "6", "7", "8", "9"],
             default="1",
         )
 
@@ -455,11 +502,11 @@ def run_lobby_loop(
             _save(save_data)
 
             if result == "shutdown":
-                console.print("[bold red]세션 종료: SYSTEM SHUTDOWN[/bold red]")
+                console.print(f"[bold red]{t('lobby.shutdown_msg')}[/bold red]")
             elif result == "victory":
-                console.print("[bold green]세션 종료: CORE BREACHED[/bold green]")
+                console.print(f"[bold green]{t('lobby.victory_msg')}[/bold green]")
             else:
-                console.print("[bold yellow]세션이 비정상적으로 중단되었습니다.[/bold yellow]")
+                console.print(f"[bold yellow]{t('lobby.abort_msg')}[/bold yellow]")
 
             render_settlement_log(
                 correct_answers=correct_answers,
@@ -540,7 +587,7 @@ def run_lobby_loop(
                     render_achievement_unlocks(newly_unlocked)
                     _save(save_data)
 
-            wait_for_enter("로비로 복귀하려면 Enter를 누르세요")
+            wait_for_enter(t("records.press_enter"))
             continue
 
         if menu_choice == "2":
@@ -548,7 +595,7 @@ def run_lobby_loop(
             continue
 
         if menu_choice == "3":
-            console.print("[bold white]세션을 종료합니다.[/bold white]")
+            console.print(f"[bold white]{t('lobby.exit_msg')}[/bold white]")
             break
 
         if menu_choice == "4":
@@ -562,7 +609,7 @@ def run_lobby_loop(
             daily_snap = get_daily_state(save_data)
             stats_snap = get_run_stats_snapshot(save_data.get("stats", {}))
             render_records_screen(ach_snap, end_snap, camp_snap, daily_snap, stats_snap)
-            wait_for_enter("로비로 복귀하려면 Enter를 누르세요")
+            wait_for_enter(t("records.press_enter"))
             continue
 
         if menu_choice == "6":
@@ -578,4 +625,8 @@ def run_lobby_loop(
 
         if menu_choice == "8":
             select_theme(save_data, slot=current_slot)
+            continue
+
+        if menu_choice == "9":
+            select_language(save_data, slot=current_slot)
             continue

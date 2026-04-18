@@ -324,6 +324,7 @@ DEFAULT_SAVE_DATA: dict[str, Any] = {
         "most_seen_ending": "",
     },
     "theme": "default",
+    "language": "ko",
 }
 
 
@@ -456,6 +457,11 @@ def _normalize_save_data(raw_data: Any) -> dict[str, Any]:
     from theme_system import VALID_THEMES
     raw_theme = raw_data.get("theme", "default")
     data["theme"] = raw_theme if raw_theme in VALID_THEMES else "default"
+
+    # language: 지원하지 않는 값은 기본 언어(ko)로 복원
+    from i18n import SUPPORTED_LANGUAGES
+    raw_lang = raw_data.get("language", "ko")
+    data["language"] = raw_lang if raw_lang in SUPPORTED_LANGUAGES else "ko"
 
     return data
 

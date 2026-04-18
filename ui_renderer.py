@@ -5,6 +5,7 @@ import time
 from typing import Any
 
 from constants import BUILD_DATE, VERSION
+from i18n import t
 from theme_system import THEMES, get_theme_styles
 
 from rich.columns import Columns
@@ -61,7 +62,7 @@ def render_logo() -> None:
 |_____|\\___|_| |_|\___/ \___||___/___|_| |_|\__|_| |_|\___||_|\___|_|  |_| |_| |_|_|_| |_|\__,_|_|
 """
     console.print(logo, style="bold green")
-    console.print("[bold white]>>> ECHOES OF THE TERMINAL // 침투 세션 시작[/bold white]")
+    console.print(f"[bold white]{t('logo.subtitle')}[/bold white]")
     console.print(
         f"[dim]v{VERSION}  ({BUILD_DATE})[/dim]"
     )
@@ -95,30 +96,31 @@ def type_text(text: str, style: str = "white", delay: float = 0.02) -> None:
 def render_save_slot_selection(slots_info: list[dict[str, Any]]) -> None:
     """세이브 슬롯 선택 화면을 표시한다."""
     table = Table(
-        title="◀ SAVE SLOT ▶",
+        title=f"◀ {t('slot.title')} ▶",
         border_style="cyan",
         title_style="bold cyan",
         show_lines=True,
     )
-    table.add_column("슬롯", style="bold white", width=6, justify="center")
-    table.add_column("상태", width=12)
-    table.add_column("데이터 조각", justify="right", width=14)
-    table.add_column("캠페인 승리", justify="right", width=12)
-    table.add_column("마지막 저장", width=14)
+    table.add_column(t("slot.col_slot"), style="bold white", width=6, justify="center")
+    table.add_column("STATUS", width=12)
+    table.add_column(t("slot.col_fragments"), justify="right", width=14)
+    table.add_column(t("slot.col_victories"), justify="right", width=14)
+    table.add_column(t("slot.col_saved"), width=14)
 
+    dash = t("slot.never")
     for info in slots_info:
         slot_num = f"[{info['slot']}]"
         if info.get("empty"):
-            table.add_row(slot_num, "[dim]비어있음[/dim]", "—", "—", "—")
+            table.add_row(slot_num, f"[dim]{t('slot.empty')}[/dim]", dash, dash, dash)
         elif info.get("corrupted"):
-            table.add_row(slot_num, "[bold red]손상됨[/bold red]", "—", "—", "—")
+            table.add_row(slot_num, "[bold red]CORRUPTED[/bold red]", dash, dash, dash)
         else:
             frags = f"{info.get('data_fragments', 0):,}"
             victories = str(info.get("campaign_victories", 0))
-            last_saved = info.get("last_saved", "—")
+            last_saved = info.get("last_saved", dash)
             table.add_row(
                 slot_num,
-                "[bold green]저장됨[/bold green]",
+                "[bold green]SAVED[/bold green]",
                 frags,
                 victories,
                 last_saved,
@@ -217,40 +219,43 @@ def render_lobby(
     owned_count = sum(1 for is_owned in perks.values() if is_owned)
     total_perks = len(perks)
     lobby_status = Text()
-    lobby_status.append(f"보유 데이터 조각: {data_fragments}\n", style="bold green")
-    lobby_status.append(f"해금 특성: {owned_count}/{total_perks}", style="bold white")
-    console.print(Panel(lobby_status, title="LOBBY STATUS", title_align="left", border_style="green"))
+    lobby_status.append(t("lobby.status.fragments", count=data_fragments) + "\n", style="bold green")
+    lobby_status.append(t("lobby.status.perks", owned=owned_count, total=total_perks), style="bold white")
+    console.print(Panel(lobby_status, title=t("lobby.status.title"), title_align="left", border_style="green"))
 
     if campaign:
         class_victories = campaign.get("class_victories", {})
         ascension_unlocked = int(campaign.get("ascension_unlocked", 0))
         campaign_text = Text()
         campaign_text.append(
-            f"캠페인 포인트: {campaign.get('points', 0):,}\n",
+            t("lobby.campaign.points", points=f"{campaign.get('points', 0):,}") + "\n",
             style="bold cyan",
         )
         campaign_text.append(
-            f"캠페인 승리: {campaign.get('victories', 0)} / 450\n",
+            t("lobby.campaign.victories", victories=campaign.get("victories", 0)) + "\n",
             style="bold white",
         )
         campaign_text.append(
-            "클래스 승리: "
-            f"A {class_victories.get('ANALYST', 0)}  "
-            f"G {class_victories.get('GHOST', 0)}  "
-            f"C {class_victories.get('CRACKER', 0)}\n",
+            t(
+                "lobby.campaign.class_victories",
+                analyst=class_victories.get("ANALYST", 0),
+                ghost=class_victories.get("GHOST", 0),
+                cracker=class_victories.get("CRACKER", 0),
+            ) + "\n",
             style="bold white",
         )
         campaign_text.append(
-            f"ASCENSION 해금: {ascension_unlocked}/20\n",
+            t("lobby.campaign.ascension", level=ascension_unlocked) + "\n",
             style="bold white",
         )
-        state_str = "CLEAR" if campaign.get("cleared", False) else "IN PROGRESS (100h target)"
-        state_style = "bold green" if campaign.get("cleared", False) else "bold yellow"
-        campaign_text.append(f"상태: {state_str}", style=state_style)
+        cleared = campaign.get("cleared", False)
+        state_str = t("lobby.campaign.status_clear") if cleared else t("lobby.campaign.status_progress")
+        state_style = "bold green" if cleared else "bold yellow"
+        campaign_text.append(t("lobby.campaign.state_label", state=state_str), style=state_style)
         console.print(
             Panel(
                 campaign_text,
-                title="LONG CAMPAIGN",
+                title=t("lobby.campaign.title"),
                 title_align="left",
                 border_style="cyan",
             )
@@ -259,42 +264,46 @@ def render_lobby(
     if achievement_snapshot:
         achievement_text = Text()
         achievement_text.append(
-            f"해금 업적: {achievement_snapshot.get('unlocked_count', 0)} / "
-            f"{achievement_snapshot.get('total_count', 0)}\n",
+            t(
+                "lobby.achievement.unlocked",
+                unlocked=achievement_snapshot.get("unlocked_count", 0),
+                total=achievement_snapshot.get("total_count", 0),
+            ) + "\n",
             style="bold yellow",
         )
         unlocked_entries = achievement_snapshot.get("unlocked_entries", [])
         if isinstance(unlocked_entries, list) and unlocked_entries:
             recent_titles = [str(item.get("title", "")) for item in unlocked_entries[-3:] if isinstance(item, dict)]
             achievement_text.append(
-                "최근 해금: " + " | ".join(recent_titles),
+                t("lobby.achievement.recent", items=" | ".join(recent_titles)),
                 style="bold white",
             )
         else:
-            achievement_text.append("최근 해금: 없음", style="bold white")
+            achievement_text.append(t("lobby.achievement.none"), style="bold white")
         console.print(
             Panel(
                 achievement_text,
-                title="ACHIEVEMENTS",
+                title=t("lobby.achievement.title"),
                 title_align="left",
                 border_style="yellow",
             )
         )
 
     menu_text = Text()
-    menu_text.append("[1] 게임 시작\n", style="bold green")
-    menu_text.append("[2] 상점 진입\n", style="bold white")
-    menu_text.append("[3] 종료\n", style="bold white")
-    daily_tag = " [도전 가능!]" if daily_available else " [완료]"
-    menu_text.append(f"[4] DAILY CHALLENGE{daily_tag}\n", style="bold cyan")
-    menu_text.append("[5] 기록 보기\n", style="dim white")
-    menu_text.append("[6] 튜토리얼\n", style="dim white")
-    menu_text.append("[7] 슬롯 변경\n", style="dim white")
-    menu_text.append("[8] 테마 변경", style="dim white")
+    menu_text.append(t("lobby.menu.game_start") + "\n", style="bold green")
+    menu_text.append(t("lobby.menu.shop") + "\n", style="bold white")
+    menu_text.append(t("lobby.menu.exit") + "\n", style="bold white")
+    daily_key = "lobby.menu.daily_available" if daily_available else "lobby.menu.daily_done"
+    menu_text.append(t(daily_key) + "\n", style="bold cyan")
+    menu_text.append(t("lobby.menu.records") + "\n", style="dim white")
+    menu_text.append(t("lobby.menu.tutorial") + "\n", style="dim white")
+    menu_text.append(t("lobby.menu.change_slot") + "\n", style="dim white")
+    menu_text.append(t("lobby.menu.change_theme") + "\n", style="dim white")
+    menu_text.append(t("lobby.menu.change_language"), style="dim white")
     console.print(
         Panel(
             menu_text,
-            title="MAIN MENU",
+            title=t("lobby.menu.title"),
             title_align="left",
             border_style="green",
         )
@@ -339,16 +348,19 @@ def render_shop(
     각 특성의 효과, 비용, 현재 구매 상태를 한 번에 확인할 수 있도록 표 형태로 렌더링한다.
     perk_menu_map / perk_label_map / perk_desc_map을 전달하면 동적으로 행을 생성한다.
     """
-    console.print("[bold green]>>> HACKER PERK SHOP[/bold green]")
-    console.print(f"[bold white]보유 데이터 조각: {data_fragments}[/bold white]")
+    console.print(f"[bold green]>>> {t('shop.title')}[/bold green]")
+    console.print(f"[bold white]{t('shop.fragments', count=data_fragments)}[/bold white]")
     console.print()
 
     table = Table(show_header=True, header_style="bold green")
-    table.add_column("번호", style="bold white", width=6)
-    table.add_column("특성명", style="bold white")
-    table.add_column("효과", style="white")
-    table.add_column("비용", style="bold white", width=8)
-    table.add_column("상태", style="bold white", width=8)
+    table.add_column(t("shop.col_num"), style="bold white", width=6)
+    table.add_column(t("shop.col_name"), style="bold white")
+    table.add_column(t("shop.col_desc"), style="white")
+    table.add_column(t("shop.col_price"), style="bold white", width=10)
+    table.add_column(t("shop.col_status"), style="bold white", width=10)
+
+    owned_label = t("shop.owned")
+    not_owned_label = t("shop.not_owned")
 
     if perk_menu_map and perk_label_map:
         # 동적 행 생성: PERK_MENU_MAP 순서대로 렌더링
@@ -357,7 +369,7 @@ def render_shop(
             desc = (perk_desc_map or {}).get(perk_key, "-")
             price = perk_prices.get(perk_key, 0)
             owned = perks.get(perk_key, False)
-            status_str = "[bold green]보유[/bold green]" if owned else "미보유"
+            status_str = f"[bold green]{owned_label}[/bold green]" if owned else not_owned_label
             table.add_row(menu_num, label, desc, str(price), status_str)
     else:
         # 폴백: 기존 3개 특성 하드코딩
@@ -366,24 +378,24 @@ def render_shop(
             "오류 허용 버퍼",
             "오답 시 추적도 상승량 15% 감소",
             str(perk_prices.get("penalty_reduction", 50)),
-            "보유" if perks.get("penalty_reduction", False) else "미보유",
+            owned_label if perks.get("penalty_reduction", False) else not_owned_label,
         )
         table.add_row(
             "2",
             "타임 익스텐션",
             "입력 제한 시간 30초 → 40초",
             str(perk_prices.get("time_extension", 30)),
-            "보유" if perks.get("time_extension", False) else "미보유",
+            owned_label if perks.get("time_extension", False) else not_owned_label,
         )
         table.add_row(
             "3",
             "글리치 필터",
             "Hard 글리치 마스킹 단어 수 1개로 완화",
             str(perk_prices.get("glitch_filter", 20)),
-            "보유" if perks.get("glitch_filter", False) else "미보유",
+            owned_label if perks.get("glitch_filter", False) else not_owned_label,
         )
 
-    table.add_row("0", "돌아가기", "로비 메뉴로 복귀", "-", "-")
+    table.add_row("0", t("shop.back"), t("shop.back_desc"), "-", "-")
     console.print(table)
 
 
@@ -400,24 +412,21 @@ def render_settlement_log(
     명세에 따라 시스템 로그 형태 문구를 고정하며, 색상은 bold #00FFFF를 사용한다.
     """
     console.print(
-        f"[bold #00FFFF][SYSTEM LOG] 정답 노드: {correct_answers}개 "
-        f"(기본 보상: {base_reward} 조각)[/bold #00FFFF]"
+        f"[bold #00FFFF]{t('settlement.nodes_cleared', count=correct_answers, base=base_reward)}[/bold #00FFFF]"
     )
     if trace_final >= 0:
         trace_style = _trace_style(trace_final)
         console.print(
-            f"[{trace_style}][SYSTEM LOG] 최종 추적도: {trace_final}%[/{trace_style}]"
+            f"[{trace_style}]{t('settlement.final_trace', trace=trace_final)}[/{trace_style}]"
         )
     result_style = _result_style(is_victory)
     if not is_victory:
         console.print(
-            f"[{result_style}][WARNING] 비정상 종료(사망) 감지... "
-            f"보상 40% 데이터 유실 페널티 적용됨.[/{result_style}]"
+            f"[{result_style}]{t('settlement.death_penalty')}[/{result_style}]"
         )
-    result_label = "CORE BREACHED" if is_victory else "SYSTEM SHUTDOWN"
+    result_key = "settlement.result_victory" if is_victory else "settlement.result_defeat"
     console.print(
-        f"[{result_style}][RESULT] {result_label} — "
-        f"최종 획득 데이터 조각: {final_reward} 조각[/{result_style}]"
+        f"[{result_style}]{t(result_key, reward=final_reward)}[/{result_style}]"
     )
 
 
@@ -434,8 +443,8 @@ def render_class_selection(class_profiles: list[Any]) -> None:
         "CRACKER": "bold magenta",
     }
 
-    console.print("[bold white]━━━ DIVER CLASS SELECTION ━━━[/bold white]")
-    console.print("[bold white]클래스를 선택하세요. 런 전체에 적용됩니다.[/bold white]\n")
+    console.print(f"[bold white]{t('class.selection.header')}[/bold white]")
+    console.print(f"[bold white]{t('class.selection.prompt')}[/bold white]\n")
 
     for idx, profile in enumerate(class_profiles, start=1):
         style = class_styles.get(profile.diver_class.value, "bold white")

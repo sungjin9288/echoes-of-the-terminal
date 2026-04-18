@@ -1,0 +1,106 @@
+{
+  "lang.name": "한국어",
+
+  "logo.subtitle": ">>> ECHOES OF THE TERMINAL // 침투 세션 시작",
+
+  "lobby.status.title": "LOBBY STATUS",
+  "lobby.status.fragments": "보유 데이터 조각: {count}",
+  "lobby.status.perks": "해금 특성: {owned}/{total}",
+
+  "lobby.campaign.title": "LONG CAMPAIGN",
+  "lobby.campaign.points": "캠페인 포인트: {points}",
+  "lobby.campaign.victories": "캠페인 승리: {victories} / 450",
+  "lobby.campaign.class_victories": "클래스 승리: A {analyst}  G {ghost}  C {cracker}",
+  "lobby.campaign.ascension": "ASCENSION 해금: {level}/20",
+  "lobby.campaign.status_clear": "CLEAR",
+  "lobby.campaign.status_progress": "IN PROGRESS (100h target)",
+  "lobby.campaign.state_label": "상태: {state}",
+
+  "lobby.achievement.title": "ACHIEVEMENTS",
+  "lobby.achievement.unlocked": "해금 업적: {unlocked} / {total}",
+  "lobby.achievement.recent": "최근 해금: {items}",
+  "lobby.achievement.none": "최근 해금: 없음",
+
+  "lobby.menu.title": "MAIN MENU",
+  "lobby.menu.game_start": "[1] 게임 시작",
+  "lobby.menu.shop": "[2] 상점 진입",
+  "lobby.menu.exit": "[3] 종료",
+  "lobby.menu.daily_available": "[4] DAILY CHALLENGE [도전 가능!]",
+  "lobby.menu.daily_done": "[4] DAILY CHALLENGE [완료]",
+  "lobby.menu.records": "[5] 기록 보기",
+  "lobby.menu.tutorial": "[6] 튜토리얼",
+  "lobby.menu.change_slot": "[7] 슬롯 변경",
+  "lobby.menu.change_theme": "[8] 테마 변경",
+  "lobby.menu.change_language": "[9] 언어 변경",
+
+  "lobby.prompt.menu": "메뉴를 선택하세요",
+  "lobby.prompt.slot": "슬롯을 선택하세요",
+  "lobby.prompt.theme": "테마를 선택하세요",
+  "lobby.prompt.language": "언어를 선택하세요 / Select language",
+  "lobby.prompt.ascension": "각성 레벨을 선택하세요",
+  "lobby.prompt.class": "클래스 번호를 선택하세요",
+  "lobby.prompt.perk_buy": "구매할 특성 번호를 선택하세요 (0: 로비 복귀)",
+  "lobby.prompt.artifact": "아티팩트를 선택하세요",
+  "lobby.prompt.path": "경로를 선택하세요",
+
+  "lobby.exit_msg": "세션을 종료합니다.",
+  "lobby.shutdown_msg": "세션 종료: SYSTEM SHUTDOWN",
+  "lobby.victory_msg": "세션 종료: CORE BREACHED",
+  "lobby.abort_msg": "세션이 비정상적으로 중단되었습니다.",
+
+  "slot.title": "SAVE SLOT SELECTION",
+  "slot.col_slot": "슬롯",
+  "slot.col_fragments": "데이터 조각",
+  "slot.col_victories": "캠페인 승리",
+  "slot.col_saved": "마지막 저장",
+  "slot.empty": "(비어 있음)",
+  "slot.never": "—",
+
+  "theme.title": "THEME SELECTION",
+  "theme.current": "현재 테마: {label}",
+  "theme.changed": "테마 변경 완료: {label}",
+
+  "language.title": "LANGUAGE SELECTION",
+  "language.current": "현재 언어: {label}",
+  "language.changed": "언어 변경 완료 / Language changed: {label}",
+
+  "shop.title": "HACKER PERK SHOP",
+  "shop.fragments": "보유 데이터 조각: {count}",
+  "shop.col_num": "#",
+  "shop.col_name": "특성명",
+  "shop.col_desc": "효과",
+  "shop.col_price": "가격 (조각)",
+  "shop.col_status": "상태",
+  "shop.owned": "보유",
+  "shop.not_owned": "미보유",
+  "shop.back": "돌아가기",
+  "shop.back_desc": "로비 메뉴로 복귀",
+  "shop.err_already_owned": "이미 구매한 특성입니다.",
+  "shop.err_not_enough": "데이터 조각이 부족합니다. (필요: {price})",
+  "shop.bought": "특성 구매 완료: {name}",
+
+  "settlement.nodes_cleared": "[SYSTEM LOG] 정답 노드: {count}개 (기본 보상: {base} 조각)",
+  "settlement.final_trace": "[SYSTEM LOG] 최종 추적도: {trace}%",
+  "settlement.death_penalty": "[WARNING] 비정상 종료(사망) 감지... 보상 40% 데이터 유실 페널티 적용됨.",
+  "settlement.result_victory": "[RESULT] CORE BREACHED — 최종 획득 데이터 조각: {reward} 조각",
+  "settlement.result_defeat": "[RESULT] SYSTEM SHUTDOWN — 최종 획득 데이터 조각: {reward} 조각",
+  "settlement.ascension_tax": "[ASCENSION TAX] 보상 배율 ×{mult:.2f} 적용: {before} -> {after}",
+
+  "class.selection.header": "━━━ DIVER CLASS SELECTION ━━━",
+  "class.selection.prompt": "클래스를 선택하세요. 런 전체에 적용됩니다.",
+  "class.label_chosen": "클래스 선택: [{cls}] {name}",
+
+  "ascension.header": "━━━ ASCENSION SELECTION ━━━",
+  "ascension.unlocked": "현재 해금: 0 ~ {max}",
+  "ascension.rules": "주요 규칙: ASC 1(+5 페널티), ASC 3(제한시간 단축), ASC 5(시작 TRACE 20), ASC 10+(상점가↑/보상↓/보스 강화), ASC 18+(보스 멀티 페이즈), ASC 20(보스 페이즈 명령 잠금/시나리오 변조)",
+  "ascension.chosen": "ASCENSION {level} 선택",
+
+  "tutorial.header": "◀ TUTORIAL ▶  — 각 화면을 읽고 Enter를 누르세요",
+  "tutorial.current_theme": "현재 테마: {label}",
+
+  "artifact.selection.header": "ELITE NODE — ARTIFACT REWARD",
+  "artifact.selection.prompt": "아티팩트를 하나 선택하세요.",
+
+  "records.press_enter": "로비로 복귀하려면 Enter를 누르세요",
+  "common.press_enter": "계속하려면 Enter를 누르세요"
+}

@@ -5,6 +5,22 @@
 
 ---
 
+## [1.4.0] — 2026-04-18
+
+### 추가 (Added)
+- **다국어 지원 기반 구조 (i18n)**: 한국어(`ko`) / 영어(`en`) 2개 언어. 로비 메뉴 `[9] 언어 변경`에서 즉시 전환, 슬롯에 자동 저장.
+- `i18n.py`: `t(key, **kwargs)` 번역 함수, `set_language()` / `get_language()` / `reload()` 공개 API. 알 수 없는 키는 폴백 → 한국어 재시도 → 키 자체 반환. `str.format_map` 보간 지원.
+- `locale/ko.json` / `locale/en.json`: 74개 UI 키 (로비·정산·슬롯·상점·클래스·어센션·테마·언어 선택 문자열).
+- `ui_renderer.py`: `render_lobby()` / `render_settlement_log()` / `render_class_selection()` / `render_shop()` / `render_save_slot_selection()` 번역키 적용.
+- `lobby.py`: `select_language()` UI 함수, `[9] 언어 변경` 메뉴, 세이브 로드 시 저장된 언어 자동 복원.
+- `progression_system.py`: `DEFAULT_SAVE_DATA`에 `language` 필드 추가, 잘못된 값은 `"ko"` 자동 교정.
+
+### 테스트
+- `tests/test_i18n.py` 신규 (25케이스): 언어 전환·폴백·보간·파일 검증·세이브 정규화·UI 연동.
+- 437 → **462 케이스**.
+
+---
+
 ## [1.3.0] — 2026-04-18
 
 ### 추가 (Added)
