@@ -326,6 +326,7 @@ DEFAULT_SAVE_DATA: dict[str, Any] = {
     "theme": "default",
     "language": "ko",
     "run_history": [],
+    "personal_records": {},
 }
 
 
@@ -467,6 +468,10 @@ def _normalize_save_data(raw_data: Any) -> dict[str, Any]:
     # run_history: 리스트가 아니면 빈 리스트로 초기화
     raw_history = raw_data.get("run_history", [])
     data["run_history"] = raw_history if isinstance(raw_history, list) else []
+
+    # personal_records: 딕셔너리가 아니면 빈 딕셔너리로 초기화
+    raw_records = raw_data.get("personal_records", {})
+    data["personal_records"] = raw_records if isinstance(raw_records, dict) else {}
 
     return data
 
@@ -925,3 +930,93 @@ def apply_ascension_reward_multiplier(
     profile = get_ascension_profile(ascension_level)
     multiplier = max(0.0, float(profile.get("reward_mult", 1.0)))
     return max(0, int(safe_reward * multiplier)), multiplier
+
+
+# ── 개인 최고 기록 (Personal Records) ────────────────────────────────────────
+
+def _record_key(class_key: str, ascension: int) -> str:
+    """(클래스, 어센션) 조합의 딕셔너리 키를 생성한다."""
+    return f"{class_key.upper()}_{max(0, int(ascension))}"
+
+
+def update_personal_records(
+    save_data: dict[str, Any],
+    *,
+    class_key: str,
+    ascension: int,
+    result: str,
+    trace_final: int,
+    reward: int,
+    correct_answers: int,
+) -> None:
+    """런 종료 후 개인 최고 기록을 갱신한다.
+
+    승리 런에서만 best_trace / best_reward / best_correct를 경신 대상으로 삼는다.
+    모든 런에서 run_count를 증가시킨다.
+
+    Args:
+        save_data:       현재 세이브 데이터 (직접 수정)
+        class_key:       클래스 코드 ("ANALYST" / "GHOST" / "CRACKER")
+        ascension:       어센션 레벨
+        result:          런 결과 ("victory" / "shutdown" / "aborted")
+        trace_final:     최종 추적도
+        reward:          최종 보상
+        correct_answers: 정답 노드 수
+    """
+    records: dict[str, Any] = save_data.get("personal_records")
+    if not isinstance(records, dict):
+        records = {}
+        save_data["personal_records"] = records
+
+    key = _record_key(class_key, ascension)
+    entry: dict[str, Any] = records.get(key)
+    if not isinstance(entry, dict):
+        entry = {
+            "class_key": str(class_key).upper(),
+            "ascension": max(0, int(ascension)),
+            "run_count": 0,
+            "victory_count": 0,
+            "best_trace": None,     # 승리 런 중 최저 추적도 (낮을수록 좋음)
+            "best_reward": 0,       # 승리 런 중 최고 보상
+            "best_correct": 0,      # 승리 런 중 최고 정답 수
+        }
+
+    entry["run_count"] = int(entry.get("run_count", 0)) + 1
+    is_victory = result == "victory"
+    if is_victory:
+        entry["victory_count"] = int(entry.get("victory_count", 0)) + 1
+        safe_trace = max(0, min(100, int(trace_final)))
+        prev_trace = entry.get("best_trace")
+        if prev_trace is None or safe_trace < int(prev_trace):
+            entry["best_trace"] = safe_trace
+        safe_reward = max(0, int(reward))
+        if safe_reward > int(entry.get("best_reward", 0)):
+            entry["best_reward"] = safe_reward
+        safe_correct = max(0, int(correct_answers))
+        if safe_correct > int(entry.get("best_correct", 0)):
+            entry["best_correct"] = safe_correct
+
+    records[key] = entry
+
+
+def get_personal_records(
+    save_data: dict[str, Any],
+    class_key: str | None = None,
+) -> list[dict[str, Any]]:
+    """개인 기록을 클래스 → 어센션 순으로 정렬해 반환한다.
+
+    Args:
+        save_data:  현재 세이브 데이터
+        class_key:  None이면 전체 반환; 지정하면 해당 클래스만 필터링
+
+    Returns:
+        (class_key, ascension) 오름차순 정렬된 기록 리스트
+    """
+    raw: dict[str, Any] = save_data.get("personal_records", {})
+    if not isinstance(raw, dict):
+        return []
+    entries = [v for v in raw.values() if isinstance(v, dict)]
+    if class_key is not None:
+        normalized = str(class_key).upper()
+        entries = [e for e in entries if e.get("class_key", "").upper() == normalized]
+    return sorted(entries, key=lambda e: (e.get("class_key", ""), e.get("ascension", 0)))

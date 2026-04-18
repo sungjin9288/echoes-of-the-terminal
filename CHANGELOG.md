@@ -5,6 +5,21 @@
 
 ---
 
+## [1.6.0] — 2026-04-18
+
+### 추가 (Added)
+- **개인 최고 기록 (Personal Records)**: (클래스, 어센션) 조합별 런 수·승리 수·승률·최저 추적도·최고 보상·최다 정답 영구 저장.
+- `progression_system.py`: `update_personal_records()` / `get_personal_records()` 공개 API. `DEFAULT_SAVE_DATA`에 `personal_records` 필드 추가, 손상된 값은 빈 딕셔너리로 자동 교정.
+- `ui_renderer.py`: `render_personal_records(records)` — (클래스, 어센션) 오름차순 Rich 테이블. `render_records_screen()`에 `personal_records=` 파라미터 추가.
+- `lobby.py`: 런 종료 시 `update_personal_records()` 자동 호출. 기록 화면(`[5]`)에 개인 기록 테이블 표시.
+
+### 테스트
+- `tests/test_personal_records.py` 신규 (19케이스): update·get·승리/패배 분기·최고 기록 경신·세이브 정규화·UI render.
+- `tests/test_route_map.py` 신규 (34케이스): NodeType 열거형·build_route_choices·레이블/설명/스타일 헬퍼 (파라미터화).
+- 482 → **535 케이스**.
+
+---
+
 ## [1.5.0] — 2026-04-18
 
 ### 추가 (Added)

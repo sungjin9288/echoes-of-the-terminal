@@ -30,6 +30,7 @@ from progression_system import (
     calculate_reward,
     get_all_slots_info,
     get_campaign_progress_snapshot,
+    get_personal_records,
     get_run_history,
     get_run_stats_snapshot,
     load_save,
@@ -38,6 +39,7 @@ from progression_system import (
     save_game,
     save_game_slot,
     update_campaign_progress,
+    update_personal_records,
     update_run_stats,
 )
 from i18n import LANGUAGE_LABEL_MAP, SUPPORTED_LANGUAGES, get_language, set_language as set_i18n_language, t
@@ -51,6 +53,7 @@ from ui_renderer import (
     render_ending,
     render_lobby,
     render_logo,
+    render_personal_records,
     render_records_screen,
     render_run_history,
     render_save_slot_selection,
@@ -511,6 +514,15 @@ def run_lobby_loop(
                     reward=reward,
                     correct_answers=correct_answers,
                 )
+                update_personal_records(
+                    save_data,
+                    class_key=selected_class.value,
+                    ascension=selected_ascension,
+                    result=result,
+                    trace_final=run_stats.get("trace_final", 100),
+                    reward=reward,
+                    correct_answers=correct_answers,
+                )
 
             _save(save_data)
 
@@ -622,7 +634,11 @@ def run_lobby_loop(
             daily_snap = get_daily_state(save_data)
             stats_snap = get_run_stats_snapshot(save_data.get("stats", {}))
             history = get_run_history(save_data)
-            render_records_screen(ach_snap, end_snap, camp_snap, daily_snap, stats_snap, run_history=history)
+            rec_snap = get_personal_records(save_data)
+            render_records_screen(
+                ach_snap, end_snap, camp_snap, daily_snap, stats_snap,
+                run_history=history, personal_records=rec_snap,
+            )
             wait_for_enter(t("records.press_enter"))
             continue
 

@@ -798,6 +798,52 @@ def render_run_history(run_history: list[dict[str, Any]]) -> None:
     console.print()
 
 
+def render_personal_records(records: list[dict[str, Any]]) -> None:
+    """개인 최고 기록을 (클래스, 어센션) 기준으로 Rich 테이블로 출력한다.
+
+    Args:
+        records: get_personal_records() 반환값 — (class_key, ascension) 오름차순 정렬된 리스트
+    """
+    table = Table(
+        title="◀ PERSONAL RECORDS ▶",
+        border_style="cyan",
+        title_style="bold cyan",
+        show_lines=False,
+        header_style="bold white",
+    )
+    table.add_column("CLASS", style="bold white", width=9)
+    table.add_column("ASC", justify="right", width=5)
+    table.add_column("RUNS", justify="right", width=6)
+    table.add_column("WINS", justify="right", width=6)
+    table.add_column("WIN%", justify="right", width=7)
+    table.add_column("BEST TRACE", justify="right", width=12)
+    table.add_column("BEST REWARD", justify="right", width=13)
+    table.add_column("BEST CORRECT", justify="right", width=14)
+
+    if not records:
+        table.add_row("-", "-", "-", "-", "-", "[dim]기록 없음[/dim]", "-", "-")
+    else:
+        for rec in records:
+            run_count = int(rec.get("run_count", 0))
+            victory_count = int(rec.get("victory_count", 0))
+            win_pct = (victory_count / run_count * 100) if run_count > 0 else 0.0
+            best_trace = rec.get("best_trace")
+            best_trace_cell = f"{best_trace}%" if best_trace is not None else "[dim]—[/dim]"
+            table.add_row(
+                str(rec.get("class_key", "-")),
+                str(rec.get("ascension", 0)),
+                str(run_count),
+                f"[bold green]{victory_count}[/bold green]",
+                f"[bold #00FFFF]{win_pct:.0f}%[/bold #00FFFF]",
+                best_trace_cell,
+                str(rec.get("best_reward", 0)),
+                str(rec.get("best_correct", 0)),
+            )
+
+    console.print(table)
+    console.print()
+
+
 def render_records_screen(
     achievement_snapshot: dict[str, Any],
     endings_snapshot: dict[str, Any],
@@ -805,6 +851,7 @@ def render_records_screen(
     daily_state: dict[str, Any],
     stats_snapshot: dict[str, Any] | None = None,
     run_history: list[dict[str, Any]] | None = None,
+    personal_records: list[dict[str, Any]] | None = None,
 ) -> None:
     """
     로비 '기록 보기' 통합 화면 — 캠페인·업적·엔딩·데일리 현황을 한 번에 표시한다.
@@ -886,5 +933,9 @@ def render_records_screen(
     # ── 런 기록 히스토리 ────────────────────────────────────────────────────
     if run_history is not None:
         render_run_history(run_history)
+
+    # ── 개인 최고 기록 ──────────────────────────────────────────────────────
+    if personal_records is not None:
+        render_personal_records(personal_records)
 
     console.rule()

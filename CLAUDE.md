@@ -64,7 +64,7 @@ Echoes of the Terminal/
 ├── argos_taunts.json        # ARGOS AI 다이얼로그
 ├── save_data.json           # 플레이어 세이브 데이터 (런타임 생성)
 │
-├── tests/                   # pytest 테스트 (20파일, 482케이스, 커버리지 81%+)
+├── tests/                   # pytest 테스트 (22파일, 535케이스, 커버리지 81%+)
 │   ├── test_achievement_system.py
 │   ├── test_artifact_effects.py
 │   ├── test_ascension_runtime.py
@@ -85,7 +85,9 @@ Echoes of the Terminal/
 │   ├── test_theme_system.py
 │   ├── test_pack_loader.py
 │   ├── test_i18n.py
-│   └── test_run_history.py
+│   ├── test_run_history.py
+│   ├── test_personal_records.py
+│   └── test_route_map.py
 │
 ├── scripts/                 # 유틸리티 스크립트
 ├── requirements.txt
@@ -306,6 +308,8 @@ def test_penalty_with_elite_modifier(monkeypatch) -> None:
 | `test_pack_loader.py` | 27 | 팩 구조·검증·탐색·병합·중복 감지·Pack 23 smoke |
 | `test_i18n.py` | 25 | 언어 전환·폴백·보간·파일 검증·세이브 정규화·UI 연동 |
 | `test_run_history.py` | 20 | add·get·최대 제한·역순·세이브 정규화·UI render |
+| `test_personal_records.py` | 19 | update·get·승리/패배 분기·최고 기록 경신·세이브 정규화·UI render |
+| `test_route_map.py` | 34 | NodeType 열거형·build_route_choices·레이블/설명/스타일 헬퍼 (파라미터화) |
 
 ---
 
