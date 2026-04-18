@@ -64,7 +64,7 @@ Echoes of the Terminal/
 ├── argos_taunts.json        # ARGOS AI 다이얼로그
 ├── save_data.json           # 플레이어 세이브 데이터 (런타임 생성)
 │
-├── tests/                   # pytest 테스트 (19파일, 462케이스, 커버리지 81%+)
+├── tests/                   # pytest 테스트 (20파일, 482케이스, 커버리지 81%+)
 │   ├── test_achievement_system.py
 │   ├── test_artifact_effects.py
 │   ├── test_ascension_runtime.py
@@ -84,7 +84,8 @@ Echoes of the Terminal/
 │   ├── test_save_slots.py
 │   ├── test_theme_system.py
 │   ├── test_pack_loader.py
-│   └── test_i18n.py
+│   ├── test_i18n.py
+│   └── test_run_history.py
 │
 ├── scripts/                 # 유틸리티 스크립트
 ├── requirements.txt
@@ -304,6 +305,7 @@ def test_penalty_with_elite_modifier(monkeypatch) -> None:
 | `test_theme_system.py` | 17 | 테마 구조·스타일 품질·세이브 정규화·UI 연동 검증 |
 | `test_pack_loader.py` | 27 | 팩 구조·검증·탐색·병합·중복 감지·Pack 23 smoke |
 | `test_i18n.py` | 25 | 언어 전환·폴백·보간·파일 검증·세이브 정규화·UI 연동 |
+| `test_run_history.py` | 20 | add·get·최대 제한·역순·세이브 정규화·UI render |
 
 ---
 

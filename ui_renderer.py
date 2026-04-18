@@ -738,12 +738,73 @@ def render_endings_gallery(snapshot: dict[str, Any]) -> None:
     console.print(table)
 
 
+def render_run_history(run_history: list[dict[str, Any]]) -> None:
+    """최근 런 기록을 Rich 테이블로 출력한다 (최신순).
+
+    Args:
+        run_history: get_run_history() 반환값 (최신순 리스트)
+    """
+    table = Table(
+        title="◀ RUN HISTORY ▶",
+        border_style="magenta",
+        title_style="bold magenta",
+        show_lines=False,
+        header_style="bold white",
+    )
+    table.add_column("#", style="dim white", width=4, justify="right")
+    table.add_column("DATE", style="dim white", width=12)
+    table.add_column("CLASS", style="bold white", width=9)
+    table.add_column("ASC", justify="right", width=5)
+    table.add_column("RESULT", width=10)
+    table.add_column("TRACE", justify="right", width=7)
+    table.add_column("REWARD", justify="right", width=8)
+    table.add_column("CORRECT", justify="right", width=8)
+    table.add_column("ENDING", style="dim white", width=20)
+
+    if not run_history:
+        table.add_row("-", "-", "-", "-", "[dim]기록 없음[/dim]", "-", "-", "-", "-")
+    else:
+        for idx, rec in enumerate(run_history, start=1):
+            result = str(rec.get("result", ""))
+            if result == "victory":
+                result_cell = "[bold green]VICTORY[/bold green]"
+                trace_style = _trace_style(int(rec.get("trace_final", 0)))
+            elif result == "shutdown":
+                result_cell = "[bold red]SHUTDOWN[/bold red]"
+                trace_style = _THEME["trace_critical"]
+            else:
+                result_cell = "[dim]ABORTED[/dim]"
+                trace_style = "dim white"
+
+            trace_val = rec.get("trace_final", -1)
+            trace_cell = (
+                f"[{trace_style}]{trace_val}%[/{trace_style}]"
+                if isinstance(trace_val, int) and trace_val >= 0
+                else "-"
+            )
+            table.add_row(
+                str(idx),
+                str(rec.get("date", "-")),
+                str(rec.get("class_key", "-")),
+                str(rec.get("ascension", 0)),
+                result_cell,
+                trace_cell,
+                str(rec.get("reward", 0)),
+                str(rec.get("correct_answers", 0)),
+                str(rec.get("ending_id", "")) or "-",
+            )
+
+    console.print(table)
+    console.print()
+
+
 def render_records_screen(
     achievement_snapshot: dict[str, Any],
     endings_snapshot: dict[str, Any],
     campaign_snapshot: dict[str, Any],
     daily_state: dict[str, Any],
     stats_snapshot: dict[str, Any] | None = None,
+    run_history: list[dict[str, Any]] | None = None,
 ) -> None:
     """
     로비 '기록 보기' 통합 화면 — 캠페인·업적·엔딩·데일리 현황을 한 번에 표시한다.
@@ -821,5 +882,9 @@ def render_records_screen(
         stat_content.append(f"최고 어센션 클리어: Asc {best_asc}\n", style="bold yellow")
         stat_content.append(f"최다 엔딩:         {most_ending}\n", style="dim white")
         console.print(Panel(stat_content, title="CUMULATIVE STATS", title_align="left", border_style="magenta"))
+
+    # ── 런 기록 히스토리 ────────────────────────────────────────────────────
+    if run_history is not None:
+        render_run_history(run_history)
 
     console.rule()

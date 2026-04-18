@@ -23,12 +23,14 @@ from progression_system import (
     PERK_MENU_MAP,
     PERK_PRICES,
     SAVE_SLOT_COUNT,
+    add_run_to_history,
     apply_ascension_reward_multiplier,
     calculate_base_reward,
     calculate_campaign_gain,
     calculate_reward,
     get_all_slots_info,
     get_campaign_progress_snapshot,
+    get_run_history,
     get_run_stats_snapshot,
     load_save,
     load_save_slot,
@@ -50,6 +52,7 @@ from ui_renderer import (
     render_lobby,
     render_logo,
     render_records_screen,
+    render_run_history,
     render_save_slot_selection,
     render_settlement_log,
     render_shop,
@@ -490,13 +493,23 @@ def run_lobby_loop(
                     ascension_level=selected_ascension,
                 )
 
-            # 누적 통계 업데이트 (result != "aborted"인 경우만)
+            # 누적 통계 + 런 히스토리 업데이트 (result != "aborted"인 경우만)
             if result != "aborted":
                 update_run_stats(
                     save_data=save_data,
                     is_victory=is_victory,
                     final_trace=run_stats.get("trace_final", 100),
                     ascension_level=selected_ascension,
+                )
+                add_run_to_history(
+                    save_data,
+                    date=get_today_str(),
+                    class_key=selected_class.value,
+                    ascension=selected_ascension,
+                    result=result,
+                    trace_final=run_stats.get("trace_final", 100),
+                    reward=reward,
+                    correct_answers=correct_answers,
                 )
 
             _save(save_data)
@@ -608,7 +621,8 @@ def run_lobby_loop(
             camp_snap = get_campaign_progress_snapshot(save_data.get("campaign", {}))
             daily_snap = get_daily_state(save_data)
             stats_snap = get_run_stats_snapshot(save_data.get("stats", {}))
-            render_records_screen(ach_snap, end_snap, camp_snap, daily_snap, stats_snap)
+            history = get_run_history(save_data)
+            render_records_screen(ach_snap, end_snap, camp_snap, daily_snap, stats_snap, run_history=history)
             wait_for_enter(t("records.press_enter"))
             continue
 

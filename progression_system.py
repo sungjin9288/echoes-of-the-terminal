@@ -325,6 +325,7 @@ DEFAULT_SAVE_DATA: dict[str, Any] = {
     },
     "theme": "default",
     "language": "ko",
+    "run_history": [],
 }
 
 
@@ -462,6 +463,10 @@ def _normalize_save_data(raw_data: Any) -> dict[str, Any]:
     from i18n import SUPPORTED_LANGUAGES
     raw_lang = raw_data.get("language", "ko")
     data["language"] = raw_lang if raw_lang in SUPPORTED_LANGUAGES else "ko"
+
+    # run_history: 리스트가 아니면 빈 리스트로 초기화
+    raw_history = raw_data.get("run_history", [])
+    data["run_history"] = raw_history if isinstance(raw_history, list) else []
 
     return data
 
@@ -613,6 +618,99 @@ def get_run_stats_snapshot(stats: dict[str, Any]) -> dict[str, Any]:
         "most_seen_ending": str(stats.get("most_seen_ending", "")),
     }
 
+
+# ── 런 기록 히스토리 ──────────────────────────────────────────────────────────
+
+#: 저장할 최대 런 기록 수. 오래된 항목부터 삭제된다.
+RUN_HISTORY_MAX: int = 20
+
+#: run_record 딕셔너리의 필수 필드 집합.
+_RUN_RECORD_REQUIRED: frozenset[str] = frozenset({
+    "date", "class_key", "ascension", "result", "trace_final", "reward",
+})
+
+
+def _make_run_record(
+    date: str,
+    class_key: str,
+    ascension: int,
+    result: str,
+    trace_final: int,
+    reward: int,
+    correct_answers: int = 0,
+    ending_id: str = "",
+) -> dict[str, Any]:
+    """run_history 항목용 딕셔너리를 생성한다 (불변 값으로 구성)."""
+    return {
+        "date": str(date),
+        "class_key": str(class_key),
+        "ascension": max(0, int(ascension)),
+        "result": str(result),
+        "trace_final": max(0, min(100, int(trace_final))),
+        "reward": max(0, int(reward)),
+        "correct_answers": max(0, int(correct_answers)),
+        "ending_id": str(ending_id),
+    }
+
+
+def add_run_to_history(
+    save_data: dict[str, Any],
+    *,
+    date: str,
+    class_key: str,
+    ascension: int,
+    result: str,
+    trace_final: int,
+    reward: int,
+    correct_answers: int = 0,
+    ending_id: str = "",
+) -> None:
+    """런 종료 후 save_data["run_history"]에 기록을 추가한다.
+
+    기록이 RUN_HISTORY_MAX를 초과하면 가장 오래된 항목을 삭제한다.
+    save_data를 직접 수정한다.
+
+    Args:
+        save_data:       현재 세이브 데이터
+        date:            실행 날짜 (YYYY-MM-DD)
+        class_key:       다이버 클래스 코드 ("ANALYST" / "GHOST" / "CRACKER")
+        ascension:       사용한 어센션 레벨
+        result:          런 결과 ("victory" / "shutdown" / "aborted")
+        trace_final:     최종 추적도 (0~100)
+        reward:          최종 획득 데이터 조각
+        correct_answers: 정답 노드 수
+        ending_id:       발동된 엔딩 ID (없으면 빈 문자열)
+    """
+    history = save_data.get("run_history")
+    if not isinstance(history, list):
+        history = []
+    record = _make_run_record(
+        date=date,
+        class_key=class_key,
+        ascension=ascension,
+        result=result,
+        trace_final=trace_final,
+        reward=reward,
+        correct_answers=correct_answers,
+        ending_id=ending_id,
+    )
+    updated = list(history) + [record]
+    # 최대 개수 초과 시 앞에서부터 잘라낸다
+    if len(updated) > RUN_HISTORY_MAX:
+        updated = updated[-RUN_HISTORY_MAX:]
+    save_data["run_history"] = updated
+
+
+def get_run_history(save_data: dict[str, Any]) -> list[dict[str, Any]]:
+    """save_data에서 런 기록 리스트를 반환한다 (최신순 — 역순).
+
+    Returns:
+        최신 런이 첫 번째인 리스트 복사본
+    """
+    history = save_data.get("run_history", [])
+    if not isinstance(history, list):
+        return []
+    return list(reversed(history))
 
 def get_campaign_progress_snapshot(campaign: dict[str, Any]) -> dict[str, Any]:
     """UI 표시에 사용할 캠페인 진행도 스냅샷을 생성한다."""

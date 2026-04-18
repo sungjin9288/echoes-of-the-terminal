@@ -5,6 +5,20 @@
 
 ---
 
+## [1.5.0] — 2026-04-18
+
+### 추가 (Added)
+- **런 기록 히스토리**: 런 종료마다 날짜·클래스·어센션·결과·최종 추적도·보상·정답 수·엔딩 ID를 자동 저장. 최신 20건 유지 (초과 시 오래된 항목 삭제).
+- `progression_system.py`: `add_run_to_history()` / `get_run_history()` 공개 API. `RUN_HISTORY_MAX = 20` 상수. `DEFAULT_SAVE_DATA`에 `run_history` 필드 추가, 손상된 값은 빈 리스트로 자동 교정.
+- `ui_renderer.py`: `render_run_history(history)` — 최신순 Rich 테이블 (VICTORY 녹색 / SHUTDOWN 빨간색 강조). `render_records_screen()`에 `run_history=` 파라미터 추가.
+- `lobby.py`: 런 종료 시 `add_run_to_history()` 자동 호출. 기록 화면(`[5]`)에 히스토리 테이블 표시.
+
+### 테스트
+- `tests/test_run_history.py` 신규 (20케이스): add·get·최대 제한·역순·세이브 정규화·UI render.
+- 462 → **482 케이스**.
+
+---
+
 ## [1.4.0] — 2026-04-18
 
 ### 추가 (Added)
