@@ -5,6 +5,22 @@
 
 ---
 
+## [1.7.0] — 2026-04-18
+
+### 추가 (Added)
+- **로컬 리더보드 (Local Score Leaderboard)**: 런 종료마다 점수를 계산해 전체 Top-10 리더보드를 유지.
+  - 점수 공식: `보상 + (100 - 추적도) × 2 + 정답 × 10 + 어센션 × 30 + 승리 보너스 200`
+  - 순위권 진입 시 정산 화면에 `🏆 LOCAL LEADERBOARD #N 진입!` 알림 표시.
+- `progression_system.py`: `calculate_run_score()` / `update_leaderboard()` / `get_leaderboard()` 공개 API. `LEADERBOARD_MAX = 10` 상수. `DEFAULT_SAVE_DATA`에 `leaderboard` 필드 추가, 손상된 값은 빈 리스트로 자동 교정.
+- `ui_renderer.py`: `render_leaderboard(entries, new_rank=None)` — 점수 내림차순 Rich 테이블, 신규 순위 항목 ★ 강조. `render_records_screen()`에 `leaderboard=` 파라미터 추가.
+- `lobby.py`: 런 종료 시 `update_leaderboard()` 자동 호출. 순위권 진입 시 알림 패널 표시. 기록 화면(`[5]`)에 리더보드 테이블 표시.
+
+### 테스트
+- `tests/test_leaderboard.py` 신규 (23케이스): 점수 계산 공식·삽입·Top-10 제한·순위 재계산·세이브 정규화·UI render.
+- 535 → **558 케이스**.
+
+---
+
 ## [1.6.0] — 2026-04-18
 
 ### 추가 (Added)

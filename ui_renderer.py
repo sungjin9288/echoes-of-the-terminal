@@ -798,6 +798,69 @@ def render_run_history(run_history: list[dict[str, Any]]) -> None:
     console.print()
 
 
+def render_leaderboard(
+    entries: list[dict[str, Any]],
+    new_rank: int | None = None,
+) -> None:
+    """로컬 Top-10 리더보드를 Rich 테이블로 출력한다.
+
+    Args:
+        entries:  get_leaderboard() 반환값 (점수 내림차순)
+        new_rank: 방금 달성한 순위 (1-based). 해당 행을 강조 표시한다.
+    """
+    table = Table(
+        title="◀ LOCAL LEADERBOARD ▶",
+        border_style="yellow",
+        title_style="bold yellow",
+        show_lines=False,
+        header_style="bold white",
+    )
+    table.add_column("RANK", justify="center", width=6)
+    table.add_column("SCORE", justify="right", width=8, style="bold yellow")
+    table.add_column("DATE", style="dim white", width=12)
+    table.add_column("CLASS", style="bold white", width=9)
+    table.add_column("ASC", justify="right", width=5)
+    table.add_column("RESULT", width=10)
+    table.add_column("TRACE", justify="right", width=7)
+    table.add_column("REWARD", justify="right", width=8)
+    table.add_column("CORRECT", justify="right", width=8)
+
+    if not entries:
+        table.add_row("-", "-", "-", "-", "-", "[dim]기록 없음[/dim]", "-", "-", "-")
+    else:
+        for entry in entries:
+            rank = int(entry.get("rank", 0))
+            is_new = (new_rank is not None and rank == new_rank)
+            result = str(entry.get("result", ""))
+            if result == "victory":
+                result_cell = "[bold green]VICTORY[/bold green]"
+            elif result == "shutdown":
+                result_cell = "[bold red]SHUTDOWN[/bold red]"
+            else:
+                result_cell = "[dim]ABORTED[/dim]"
+
+            rank_cell = (
+                f"[bold #FFD700]★ {rank}[/bold #FFD700]" if is_new else str(rank)
+            )
+            trace_val = entry.get("trace_final", -1)
+            trace_cell = f"{trace_val}%" if isinstance(trace_val, int) and trace_val >= 0 else "-"
+
+            table.add_row(
+                rank_cell,
+                str(entry.get("score", 0)),
+                str(entry.get("date", "-")),
+                str(entry.get("class_key", "-")),
+                str(entry.get("ascension", 0)),
+                result_cell,
+                trace_cell,
+                str(entry.get("reward", 0)),
+                str(entry.get("correct_answers", 0)),
+            )
+
+    console.print(table)
+    console.print()
+
+
 def render_personal_records(records: list[dict[str, Any]]) -> None:
     """개인 최고 기록을 (클래스, 어센션) 기준으로 Rich 테이블로 출력한다.
 
@@ -852,6 +915,7 @@ def render_records_screen(
     stats_snapshot: dict[str, Any] | None = None,
     run_history: list[dict[str, Any]] | None = None,
     personal_records: list[dict[str, Any]] | None = None,
+    leaderboard: list[dict[str, Any]] | None = None,
 ) -> None:
     """
     로비 '기록 보기' 통합 화면 — 캠페인·업적·엔딩·데일리 현황을 한 번에 표시한다.
@@ -937,5 +1001,9 @@ def render_records_screen(
     # ── 개인 최고 기록 ──────────────────────────────────────────────────────
     if personal_records is not None:
         render_personal_records(personal_records)
+
+    # ── 로컬 리더보드 ────────────────────────────────────────────────────────
+    if leaderboard is not None:
+        render_leaderboard(leaderboard)
 
     console.rule()

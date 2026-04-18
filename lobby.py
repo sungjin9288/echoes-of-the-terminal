@@ -30,6 +30,7 @@ from progression_system import (
     calculate_reward,
     get_all_slots_info,
     get_campaign_progress_snapshot,
+    get_leaderboard,
     get_personal_records,
     get_run_history,
     get_run_stats_snapshot,
@@ -39,6 +40,7 @@ from progression_system import (
     save_game,
     save_game_slot,
     update_campaign_progress,
+    update_leaderboard,
     update_personal_records,
     update_run_stats,
 )
@@ -51,6 +53,7 @@ from ui_renderer import (
     render_alert,
     render_class_selection,
     render_ending,
+    render_leaderboard,
     render_lobby,
     render_logo,
     render_personal_records,
@@ -523,6 +526,18 @@ def run_lobby_loop(
                     reward=reward,
                     correct_answers=correct_answers,
                 )
+                new_rank = update_leaderboard(
+                    save_data,
+                    date=get_today_str(),
+                    class_key=selected_class.value,
+                    ascension=selected_ascension,
+                    result=result,
+                    trace_final=run_stats.get("trace_final", 100),
+                    reward=reward,
+                    correct_answers=correct_answers,
+                )
+            else:
+                new_rank = None
 
             _save(save_data)
 
@@ -612,6 +627,13 @@ def run_lobby_loop(
                     render_achievement_unlocks(newly_unlocked)
                     _save(save_data)
 
+            # ── 리더보드 순위권 진입 알림 ─────────────────────────────────────
+            if new_rank is not None:
+                render_alert(
+                    f"🏆 LOCAL LEADERBOARD #{new_rank} 진입!\n"
+                    f"기록 화면 [5]에서 전체 리더보드를 확인하세요."
+                )
+
             wait_for_enter(t("records.press_enter"))
             continue
 
@@ -635,9 +657,11 @@ def run_lobby_loop(
             stats_snap = get_run_stats_snapshot(save_data.get("stats", {}))
             history = get_run_history(save_data)
             rec_snap = get_personal_records(save_data)
+            lb_snap = get_leaderboard(save_data)
             render_records_screen(
                 ach_snap, end_snap, camp_snap, daily_snap, stats_snap,
                 run_history=history, personal_records=rec_snap,
+                leaderboard=lb_snap,
             )
             wait_for_enter(t("records.press_enter"))
             continue

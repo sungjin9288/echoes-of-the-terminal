@@ -327,6 +327,7 @@ DEFAULT_SAVE_DATA: dict[str, Any] = {
     "language": "ko",
     "run_history": [],
     "personal_records": {},
+    "leaderboard": [],
 }
 
 
@@ -472,6 +473,10 @@ def _normalize_save_data(raw_data: Any) -> dict[str, Any]:
     # personal_records: 딕셔너리가 아니면 빈 딕셔너리로 초기화
     raw_records = raw_data.get("personal_records", {})
     data["personal_records"] = raw_records if isinstance(raw_records, dict) else {}
+
+    # leaderboard: 리스트가 아니면 빈 리스트로 초기화
+    raw_board = raw_data.get("leaderboard", [])
+    data["leaderboard"] = raw_board if isinstance(raw_board, list) else []
 
     return data
 
@@ -1020,3 +1025,174 @@ def get_personal_records(
         normalized = str(class_key).upper()
         entries = [e for e in entries if e.get("class_key", "").upper() == normalized]
     return sorted(entries, key=lambda e: (e.get("class_key", ""), e.get("ascension", 0)))
+
+
+# ── 로컬 리더보드 (Local Score Leaderboard) ──────────────────────────────────
+
+#: 리더보드에 보관할 최대 항목 수.
+LEADERBOARD_MAX: int = 10
+
+#: 승리 런에 추가되는 리더보드 점수 보너스.
+_LB_VICTORY_BONUS: int = 200
+
+#: 어센션 레벨당 추가되는 리더보드 점수.
+_LB_ASCENSION_BONUS: int = 30
+
+#: 추적도 절감(100 - trace_final)당 리더보드 점수 배율.
+_LB_TRACE_MULT: int = 2
+
+#: 정답 노드 1개당 리더보드 점수.
+_LB_CORRECT_BONUS: int = 10
+
+
+def calculate_run_score(
+    result: str,
+    trace_final: int,
+    reward: int,
+    correct_answers: int,
+    ascension: int,
+) -> int:
+    """런 종료 후 리더보드 점수를 계산한다.
+
+    점수 공식:
+        reward
+        + (100 - trace_final) × 2   ← 추적도를 낮게 유지할수록 보너스
+        + correct_answers × 10
+        + ascension × 30            ← 높은 어센션일수록 가중치
+        + 200 (승리 시 추가)
+
+    Args:
+        result:          런 결과 ("victory" / "shutdown" / "aborted")
+        trace_final:     최종 추적도 (0~100)
+        reward:          최종 보상 (데이터 조각)
+        correct_answers: 정답 노드 수
+        ascension:       어센션 레벨
+
+    Returns:
+        정수 점수 (0 이상)
+    """
+    safe_trace = max(0, min(100, int(trace_final)))
+    safe_reward = max(0, int(reward))
+    safe_correct = max(0, int(correct_answers))
+    safe_asc = max(0, int(ascension))
+
+    score = (
+        safe_reward
+        + (100 - safe_trace) * _LB_TRACE_MULT
+        + safe_correct * _LB_CORRECT_BONUS
+        + safe_asc * _LB_ASCENSION_BONUS
+    )
+    if result == "victory":
+        score += _LB_VICTORY_BONUS
+    return max(0, score)
+
+
+def _make_leaderboard_entry(
+    rank: int,
+    score: int,
+    date: str,
+    class_key: str,
+    ascension: int,
+    result: str,
+    trace_final: int,
+    reward: int,
+    correct_answers: int,
+) -> dict[str, Any]:
+    """리더보드 항목 딕셔너리를 생성한다 (불변 값으로 구성)."""
+    return {
+        "rank": int(rank),
+        "score": max(0, int(score)),
+        "date": str(date),
+        "class_key": str(class_key).upper(),
+        "ascension": max(0, int(ascension)),
+        "result": str(result),
+        "trace_final": max(0, min(100, int(trace_final))),
+        "reward": max(0, int(reward)),
+        "correct_answers": max(0, int(correct_answers)),
+    }
+
+
+def update_leaderboard(
+    save_data: dict[str, Any],
+    *,
+    date: str,
+    class_key: str,
+    ascension: int,
+    result: str,
+    trace_final: int,
+    reward: int,
+    correct_answers: int,
+) -> int | None:
+    """런 종료 후 로컬 리더보드를 갱신한다.
+
+    점수를 계산해 현재 리더보드와 비교하고, 순위권이면 삽입한다.
+    LEADERBOARD_MAX 초과 시 최하위 항목을 삭제한다.
+
+    Args:
+        save_data:       현재 세이브 데이터 (직접 수정)
+        date:            런 날짜 (YYYY-MM-DD)
+        class_key:       클래스 코드
+        ascension:       어센션 레벨
+        result:          런 결과 ("victory" / "shutdown" / "aborted")
+        trace_final:     최종 추적도
+        reward:          최종 보상
+        correct_answers: 정답 노드 수
+
+    Returns:
+        순위권 진입 시 1-based 순위 (int), 진입 실패 시 None
+    """
+    board: list[dict[str, Any]] = save_data.get("leaderboard")
+    if not isinstance(board, list):
+        board = []
+
+    score = calculate_run_score(result, trace_final, reward, correct_answers, ascension)
+
+    # 현재 최하위 점수보다 낮으면 리더보드가 꽉 찬 경우 삽입하지 않는다.
+    if len(board) >= LEADERBOARD_MAX and score <= int(board[-1].get("score", 0)):
+        return None
+
+    # 임시 rank 0으로 새 항목 생성 후 삽입 위치를 결정한다.
+    new_entry: dict[str, Any] = _make_leaderboard_entry(
+        rank=0,
+        score=score,
+        date=date,
+        class_key=class_key,
+        ascension=ascension,
+        result=result,
+        trace_final=trace_final,
+        reward=reward,
+        correct_answers=correct_answers,
+    )
+
+    updated = list(board) + [new_entry]
+    updated.sort(key=lambda e: int(e.get("score", 0)), reverse=True)
+    if len(updated) > LEADERBOARD_MAX:
+        updated = updated[:LEADERBOARD_MAX]
+
+    # 순위(1-based) 재계산
+    for i, entry in enumerate(updated):
+        entry["rank"] = i + 1
+
+    save_data["leaderboard"] = updated
+
+    # 새 항목의 순위 반환
+    for entry in updated:
+        if (
+            entry.get("score") == score
+            and entry.get("date") == date
+            and entry.get("class_key") == str(class_key).upper()
+        ):
+            return int(entry["rank"])
+    return None
+
+
+def get_leaderboard(save_data: dict[str, Any]) -> list[dict[str, Any]]:
+    """로컬 리더보드를 점수 내림차순으로 반환한다.
+
+    Returns:
+        점수 내림차순 정렬된 리더보드 복사본
+    """
+    board = save_data.get("leaderboard", [])
+    if not isinstance(board, list):
+        return []
+    return list(board)
