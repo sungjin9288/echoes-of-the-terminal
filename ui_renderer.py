@@ -798,6 +798,57 @@ def render_run_history(run_history: list[dict[str, Any]]) -> None:
     console.print()
 
 
+def render_diver_profile(profile: dict[str, Any]) -> None:
+    """다이버 프로필 카드를 Rich Panel로 출력한다.
+
+    Args:
+        profile: get_diver_profile() 반환값
+    """
+    title = str(profile.get("title", "데이터 다이버"))
+    sig_class = str(profile.get("signature_class", "—"))
+    total_runs = int(profile.get("total_runs", 0))
+    win_rate = float(profile.get("win_rate", 0.0))
+    avg_trace = float(profile.get("avg_trace", 0.0))
+    best_asc = int(profile.get("best_ascension", 0))
+    fav_ending = str(profile.get("favorite_ending", "—"))
+    best_score = int(profile.get("best_lb_score", 0))
+    ach_count = int(profile.get("achievements_count", 0))
+    camp_cleared = bool(profile.get("campaign_cleared", False))
+
+    content = Text()
+    content.append(f"  {title}\n", style="bold #FFD700")
+    content.append("\n")
+    content.append(f"  주력 클래스:     ", style="dim white")
+    content.append(f"{sig_class}\n", style="bold #00FFFF")
+    content.append(f"  총 런 수:        ", style="dim white")
+    content.append(f"{total_runs}회\n", style="white")
+    content.append(f"  승률:            ", style="dim white")
+    content.append(f"{win_rate:.1f}%\n", style="bold green" if win_rate >= 60 else "white")
+    content.append(f"  평균 추적도:     ", style="dim white")
+    content.append(f"{avg_trace:.1f}%\n", style="white")
+    content.append(f"  최고 어센션:     ", style="dim white")
+    content.append(f"Asc {best_asc}\n", style="bold magenta" if best_asc >= 10 else "white")
+    content.append(f"  최다 엔딩:       ", style="dim white")
+    content.append(f"{fav_ending}\n", style="dim white")
+    content.append(f"  리더보드 최고점: ", style="dim white")
+    content.append(f"{best_score:,}\n", style="bold yellow" if best_score > 0 else "dim white")
+    content.append(f"  해금 업적:       ", style="dim white")
+    content.append(f"{ach_count}개\n", style="white")
+    if camp_cleared:
+        content.append("\n  ★ 100H 캠페인 클리어 달성!", style="bold #FFD700")
+
+    console.print(
+        Panel(
+            content,
+            title="[bold white]◀ DIVER PROFILE ▶[/bold white]",
+            title_align="center",
+            border_style="#FFD700",
+            padding=(0, 1),
+        )
+    )
+    console.print()
+
+
 def render_leaderboard(
     entries: list[dict[str, Any]],
     new_rank: int | None = None,
@@ -916,12 +967,17 @@ def render_records_screen(
     run_history: list[dict[str, Any]] | None = None,
     personal_records: list[dict[str, Any]] | None = None,
     leaderboard: list[dict[str, Any]] | None = None,
+    diver_profile: dict[str, Any] | None = None,
 ) -> None:
     """
     로비 '기록 보기' 통합 화면 — 캠페인·업적·엔딩·데일리 현황을 한 번에 표시한다.
     """
     console.print()
     console.rule("[bold white]RECORDS[/bold white]")
+
+    # ── 다이버 프로필 카드 (최상단 표시) ────────────────────────────────────
+    if diver_profile is not None:
+        render_diver_profile(diver_profile)
 
     # ── 캠페인 진행도 ─────────────────────────────────────────────────────
     pts = campaign_snapshot.get("points", 0)

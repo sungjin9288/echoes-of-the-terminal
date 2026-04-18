@@ -5,6 +5,23 @@
 
 ---
 
+## [1.8.0] — 2026-04-19
+
+### 추가 (Added)
+- **다이버 프로필 카드 (Diver Profile Card)**: 플레이어 전체 진행도를 집약한 프로필 패널. 기록 화면(`[5]`) 최상단에 표시.
+  - **칭호 시스템**: 승률·어센션 기반 자동 부여 (데이터 다이버 / 성장 / 숙련 / 전설 / 도전자 / 전문가 / 마스터 7등급)
+  - **주력 클래스**: 가장 많이 플레이한 클래스 자동 도출
+  - 총 런 수·승률·평균 추적도·최고 어센션·최다 엔딩·리더보드 최고 점수·해금 업적 수·캠페인 클리어 여부 한눈에 표시
+- `progression_system.py`: `get_diver_profile()` 공개 API. `_compute_diver_title()` / `_compute_signature_class()` 내부 헬퍼.
+- `ui_renderer.py`: `render_diver_profile(profile)` — 황금색 테두리 Rich Panel. `render_records_screen()`에 `diver_profile=` 파라미터 추가.
+- `lobby.py`: 기록 화면 `[5]` 진입 시 프로필 자동 계산·표시.
+
+### 테스트
+- `tests/test_diver_profile.py` 신규 (25케이스): 칭호 계산·주력 클래스·get_diver_profile 전체 필드·UI render.
+- 558 → **583 케이스**.
+
+---
+
 ## [1.7.0] — 2026-04-18
 
 ### 추가 (Added)

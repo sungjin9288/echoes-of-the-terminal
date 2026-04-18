@@ -64,7 +64,7 @@ Echoes of the Terminal/
 ├── argos_taunts.json        # ARGOS AI 다이얼로그
 ├── save_data.json           # 플레이어 세이브 데이터 (런타임 생성)
 │
-├── tests/                   # pytest 테스트 (23파일, 558케이스, 커버리지 81%+)
+├── tests/                   # pytest 테스트 (24파일, 583케이스, 커버리지 81%+)
 │   ├── test_achievement_system.py
 │   ├── test_artifact_effects.py
 │   ├── test_ascension_runtime.py
@@ -88,7 +88,8 @@ Echoes of the Terminal/
 │   ├── test_run_history.py
 │   ├── test_personal_records.py
 │   ├── test_route_map.py
-│   └── test_leaderboard.py
+│   ├── test_leaderboard.py
+│   └── test_diver_profile.py
 │
 ├── scripts/                 # 유틸리티 스크립트
 ├── requirements.txt
@@ -312,6 +313,7 @@ def test_penalty_with_elite_modifier(monkeypatch) -> None:
 | `test_personal_records.py` | 19 | update·get·승리/패배 분기·최고 기록 경신·세이브 정규화·UI render |
 | `test_route_map.py` | 34 | NodeType 열거형·build_route_choices·레이블/설명/스타일 헬퍼 (파라미터화) |
 | `test_leaderboard.py` | 23 | 점수 계산 공식·삽입·Top-10 제한·순위 재계산·세이브 정규화·UI render |
+| `test_diver_profile.py` | 25 | 칭호 계산·주력 클래스·get_diver_profile 전체 필드·UI render |
 
 ---
 

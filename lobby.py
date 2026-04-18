@@ -30,6 +30,7 @@ from progression_system import (
     calculate_reward,
     get_all_slots_info,
     get_campaign_progress_snapshot,
+    get_diver_profile,
     get_leaderboard,
     get_personal_records,
     get_run_history,
@@ -52,6 +53,7 @@ from ui_renderer import (
     render_achievement_unlocks,
     render_alert,
     render_class_selection,
+    render_diver_profile,
     render_ending,
     render_leaderboard,
     render_lobby,
@@ -658,10 +660,11 @@ def run_lobby_loop(
             history = get_run_history(save_data)
             rec_snap = get_personal_records(save_data)
             lb_snap = get_leaderboard(save_data)
+            profile_snap = get_diver_profile(save_data)
             render_records_screen(
                 ach_snap, end_snap, camp_snap, daily_snap, stats_snap,
                 run_history=history, personal_records=rec_snap,
-                leaderboard=lb_snap,
+                leaderboard=lb_snap, diver_profile=profile_snap,
             )
             wait_for_enter(t("records.press_enter"))
             continue

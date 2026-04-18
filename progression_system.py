@@ -1196,3 +1196,116 @@ def get_leaderboard(save_data: dict[str, Any]) -> list[dict[str, Any]]:
     if not isinstance(board, list):
         return []
     return list(board)
+
+
+# ── 다이버 프로필 카드 ────────────────────────────────────────────────────────
+
+#: 승률 기반 칭호 테이블 — (최소승률, 칭호) 내림차순
+_TITLE_BY_WIN_RATE: list[tuple[float, str]] = [
+    (80.0, "전설적 다이버"),
+    (60.0, "숙련된 다이버"),
+    (40.0, "성장하는 다이버"),
+    (0.0,  "데이터 다이버"),
+]
+
+#: 어센션 기반 칭호 오버라이드 — 승률보다 우선 (어센션 ≥ threshold)
+_TITLE_BY_ASCENSION: list[tuple[int, str]] = [
+    (18, "어센션 마스터"),
+    (12, "어센션 전문가"),
+    (6,  "고난이도 도전자"),
+]
+
+
+def _compute_diver_title(win_rate: float, best_ascension: int) -> str:
+    """승률·어센션을 조합해 다이버 칭호를 결정한다."""
+    for threshold, title in _TITLE_BY_ASCENSION:
+        if best_ascension >= threshold:
+            return title
+    for threshold, title in _TITLE_BY_WIN_RATE:
+        if win_rate >= threshold:
+            return title
+    return "데이터 다이버"
+
+
+def _compute_signature_class(personal_records: dict[str, Any]) -> str:
+    """개인 기록에서 가장 많이 플레이한 클래스를 반환한다."""
+    if not isinstance(personal_records, dict):
+        return "—"
+
+    class_runs: dict[str, int] = {}
+    for entry in personal_records.values():
+        if not isinstance(entry, dict):
+            continue
+        ck = str(entry.get("class_key", "")).upper()
+        if ck:
+            class_runs[ck] = class_runs.get(ck, 0) + int(entry.get("run_count", 0))
+
+    if not class_runs:
+        return "—"
+    return max(class_runs, key=lambda k: class_runs[k])
+
+
+def get_diver_profile(save_data: dict[str, Any]) -> dict[str, Any]:
+    """플레이어 전체 진행도를 집약한 다이버 프로필 카드를 반환한다.
+
+    기존 save_data 필드만 참조하므로 별도 저장 없이 항상 최신 상태를 반영한다.
+
+    반환 키:
+        title             (str)   — 플레이어 칭호
+        signature_class   (str)   — 가장 많이 플레이한 클래스 ("ANALYST" / "GHOST" / "CRACKER" / "—")
+        total_runs        (int)   — 누적 런 수
+        win_rate          (float) — 승률 (%)
+        avg_trace         (float) — 평균 최종 추적도 (%)
+        best_ascension    (int)   — 클리어한 최고 어센션
+        favorite_ending   (str)   — 가장 많이 본 엔딩 ID (없으면 "—")
+        best_lb_score     (int)   — 리더보드 최고 점수 (없으면 0)
+        achievements_count (int)  — 해금된 업적 수
+        campaign_cleared  (bool)  — 캠페인 클리어 여부
+    """
+    stats = save_data.get("stats", {})
+    if not isinstance(stats, dict):
+        stats = {}
+
+    total_runs = int(stats.get("total_runs", 0))
+    total_vic = int(stats.get("total_victories", 0))
+    win_rate = round((total_vic / total_runs * 100) if total_runs > 0 else 0.0, 1)
+
+    counted = int(stats.get("total_trace_counted", 0))
+    avg_trace = round(
+        (int(stats.get("total_trace_sum", 0)) / counted) if counted > 0 else 0.0,
+        1,
+    )
+    best_ascension = int(stats.get("best_ascension_cleared", 0))
+    favorite_ending = str(stats.get("most_seen_ending", "") or "—")
+
+    # 리더보드 최고 점수
+    board = save_data.get("leaderboard", [])
+    best_lb_score = int(board[0].get("score", 0)) if isinstance(board, list) and board else 0
+
+    # 해금된 업적 수
+    achievements = save_data.get("achievements", {})
+    unlocked_list = achievements.get("unlocked", []) if isinstance(achievements, dict) else []
+    achievements_count = len(unlocked_list) if isinstance(unlocked_list, list) else 0
+
+    # 캠페인 클리어 여부
+    campaign = save_data.get("campaign", {})
+    campaign_cleared = bool(campaign.get("cleared", False)) if isinstance(campaign, dict) else False
+
+    # 주력 클래스
+    personal_records = save_data.get("personal_records", {})
+    signature_class = _compute_signature_class(personal_records)
+
+    title = _compute_diver_title(win_rate, best_ascension)
+
+    return {
+        "title": title,
+        "signature_class": signature_class,
+        "total_runs": total_runs,
+        "win_rate": win_rate,
+        "avg_trace": avg_trace,
+        "best_ascension": best_ascension,
+        "favorite_ending": favorite_ending,
+        "best_lb_score": best_lb_score,
+        "achievements_count": achievements_count,
+        "campaign_cleared": campaign_cleared,
+    }
