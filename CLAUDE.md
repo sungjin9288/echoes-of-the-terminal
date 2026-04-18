@@ -42,7 +42,9 @@ Echoes of the Terminal/
 │   └── en.json              # 영어 (74개 키)
 │
 ├── packs/                   # 추가 시나리오 팩 (DLC) 디렉터리
-│   └── pack_23_cyber_noir.json  # 팩 23 데모 (사이버 느와르, 3개 시나리오)
+│   ├── pack_23_cyber_noir.json        # 팩 23 (사이버 느와르, 3개 시나리오, node_id 1001~1003)
+│   ├── pack_24_dystopian_court.json   # 팩 24 (미래 법정, 5개 시나리오, node_id 1004~1008)
+│   └── pack_25_neon_underground.json  # 팩 25 (네온 지하경제, 5개 시나리오, node_id 1009~1013)
 ├── progression_system.py    # 세이브/퍼크/캠페인/어센션 (587줄)
 ├── combat_commands.py       # 전투 커맨드 핸들러 + 페널티 계산 (279줄)
 ├── artifact_system.py       # 28종 아티팩트 시스템 (400줄)
@@ -64,7 +66,7 @@ Echoes of the Terminal/
 ├── argos_taunts.json        # ARGOS AI 다이얼로그
 ├── save_data.json           # 플레이어 세이브 데이터 (런타임 생성)
 │
-├── tests/                   # pytest 테스트 (24파일, 583케이스, 커버리지 81%+)
+├── tests/                   # pytest 테스트 (25파일, 606케이스, 커버리지 81%+)
 │   ├── test_achievement_system.py
 │   ├── test_artifact_effects.py
 │   ├── test_ascension_runtime.py
@@ -89,7 +91,8 @@ Echoes of the Terminal/
 │   ├── test_personal_records.py
 │   ├── test_route_map.py
 │   ├── test_leaderboard.py
-│   └── test_diver_profile.py
+│   ├── test_diver_profile.py
+│   └── test_new_packs.py
 │
 ├── scripts/                 # 유틸리티 스크립트
 ├── requirements.txt
@@ -314,6 +317,7 @@ def test_penalty_with_elite_modifier(monkeypatch) -> None:
 | `test_route_map.py` | 34 | NodeType 열거형·build_route_choices·레이블/설명/스타일 헬퍼 (파라미터화) |
 | `test_leaderboard.py` | 23 | 점수 계산 공식·삽입·Top-10 제한·순위 재계산·세이브 정규화·UI render |
 | `test_diver_profile.py` | 25 | 칭호 계산·주력 클래스·get_diver_profile 전체 필드·UI render |
+| `test_new_packs.py` | 23 | Pack 24/25 로드·메타데이터·node_id 범위·필드 검증·난이도 분포·팩 간 충돌 감지 |
 
 ---
 

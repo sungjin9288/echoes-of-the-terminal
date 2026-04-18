@@ -5,6 +5,25 @@
 
 ---
 
+## [1.9.0] — 2026-04-19
+
+### 추가 (Added)
+- **Pack 24 — DYSTOPIAN COURT** (`packs/pack_24_dystopian_court.json`): 2076년 AI 법정 테마 5시나리오.
+  - node_id 1004~1008 / 테마 `DYSTOPIAN_COURT_A~E`
+  - Easy×2 · Hard×2 · NIGHTMARE×1
+  - 주요 결함: AI 판사 타임스탬프 모순, 홀로그램 서버 점검 중 목격, 블록체인 해시 변조 불가, 신경 인터페이스 비호환, 양자 백업 미인증
+- **Pack 25 — NEON UNDERGROUND** (`packs/pack_25_neon_underground.json`): 사이버펑크 지하경제 테마 5시나리오.
+  - node_id 1009~1013 / 테마 `NEON_UNDERGROUND_A~E`
+  - Easy×2 · Hard×2 · NIGHTMARE×1
+  - 주요 결함: 데이터 수신 전 전송 완료, 리콜 카메라 영상 신뢰 불가, 폐기된 암호화 프로토콜, 위성 차단 구역 업링크, 존재 불가 블록체인 블록 번호
+- 총 시나리오 수: 280 + 3(Pack 23) + 5(Pack 24) + 5(Pack 25) = **293개**
+
+### 테스트
+- `tests/test_new_packs.py` 신규 (23케이스): 팩 로드·메타데이터·node_id 범위·필드 검증·난이도 분포·팩 간 충돌 감지.
+- 583 → **606 케이스**.
+
+---
+
 ## [1.8.0] — 2026-04-19
 
 ### 추가 (Added)
