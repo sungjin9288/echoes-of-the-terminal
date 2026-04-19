@@ -959,6 +959,58 @@ def render_personal_records(records: list[dict[str, Any]]) -> None:
     console.print()
 
 
+def render_run_timeline(entry: dict[str, Any]) -> None:
+    """단일 런 기록의 타임라인 이벤트를 Rich Tree로 렌더링한다.
+
+    Args:
+        entry: get_run_history() 반환 리스트의 항목 1개 (timeline 필드 포함)
+    """
+    from rich.tree import Tree
+
+    timeline: list[dict[str, Any]] = entry.get("timeline", [])
+    date = str(entry.get("date", "-"))
+    class_key = str(entry.get("class_key", "?"))
+    ascension = int(entry.get("ascension", 0))
+    result = str(entry.get("result", "-"))
+    result_color = "green" if result == "victory" else ("red" if result == "shutdown" else "dim")
+
+    tree_label = (
+        f"[bold white]{date}[/bold white]  "
+        f"[bold cyan]{class_key}[/bold cyan]  "
+        f"[dim]ASC {ascension}[/dim]  "
+        f"[bold {result_color}]{result.upper()}[/bold {result_color}]"
+    )
+    tree = Tree(tree_label)
+
+    _EVENT_STYLE: dict[str, tuple[str, str]] = {
+        "correct": ("✓", "bold green"),
+        "wrong": ("✗", "bold red"),
+        "timeout": ("⏱", "bold #FF8C00"),
+        "artifact": ("◆", "bold magenta"),
+        "mystery_engage": ("?", "bold #FFD700"),
+        "mystery_skip": ("—", "dim"),
+        "rest": ("♥", "bold cyan"),
+        "shop": ("$", "bold white"),
+    }
+
+    if not timeline:
+        tree.add("[dim]타임라인 데이터 없음[/dim]")
+    else:
+        for ev in timeline:
+            event_type = str(ev.get("event", ""))
+            node_num = int(ev.get("node", 0))
+            detail = str(ev.get("detail", ""))
+            icon, style = _EVENT_STYLE.get(event_type, ("·", "white"))
+            tree.add(
+                f"[{style}]{icon}[/{style}]  "
+                f"[dim]N{node_num:02d}[/dim]  "
+                f"[{style}]{detail}[/{style}]"
+            )
+
+    console.print(tree)
+    console.print()
+
+
 def render_records_screen(
     achievement_snapshot: dict[str, Any],
     endings_snapshot: dict[str, Any],
@@ -1068,6 +1120,10 @@ def render_records_screen(
     # ── 런 기록 히스토리 ────────────────────────────────────────────────────
     if run_history is not None:
         render_run_history(run_history)
+        # 최근 1개 런의 타임라인을 표시
+        if run_history:
+            console.print("[bold white]◀ 최근 런 타임라인 ▶[/bold white]")
+            render_run_timeline(run_history[0])
 
     # ── 개인 최고 기록 ──────────────────────────────────────────────────────
     if personal_records is not None:

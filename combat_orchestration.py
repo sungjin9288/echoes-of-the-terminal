@@ -284,6 +284,11 @@ def _offer_artifact(
     console.print(
         f"[bold magenta][ARTIFACT] 획득: {chosen.name} — {chosen.desc}[/bold magenta]"
     )
+    run_state.setdefault("timeline", []).append({
+        "event": "artifact",
+        "node": int(run_state.get("current_node", 0)),
+        "detail": chosen.name,
+    })
     wait_for_enter()
 
 
@@ -425,6 +430,11 @@ def run_combat_node(
             console.print(
                 f"[bold white]TRACE +{effective_timeout_penalty}% -> {trace_level}%[/bold white]"
             )
+            run_state.setdefault("timeline", []).append({
+                "event": "timeout",
+                "node": position + 1,
+                "detail": f"+{effective_timeout_penalty}%",
+            })
             if trace_level >= TRACE_MAX:
                 trace_level, backtrack_used, survived = _handle_death(trace_level, backtrack_used)
                 if not survived:
@@ -599,6 +609,11 @@ def run_mystery_node(
         )
         if run_state is not None:
             run_state["mystery_skipped"] = run_state.get("mystery_skipped", 0) + 1
+            run_state.setdefault("timeline", []).append({
+                "event": "mystery_skip",
+                "node": node_position + 1,
+                "detail": event.title,
+            })
         wait_for_enter()
         return trace_level, save_data
 
@@ -641,6 +656,14 @@ def run_mystery_node(
             run_state["mystery_frags_gained"] = (
                 int(run_state.get("mystery_frags_gained", 0)) + delta
             )
+
+    if run_state is not None:
+        outcome_str = "좋은 결과" if is_good else "나쁜 결과"
+        run_state.setdefault("timeline", []).append({
+            "event": "mystery_engage",
+            "node": node_position + 1,
+            "detail": f"{event.title} ({outcome_str})",
+        })
 
     wait_for_enter()
     return new_trace, new_save_data

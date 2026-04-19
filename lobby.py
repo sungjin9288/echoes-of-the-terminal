@@ -519,6 +519,7 @@ def run_lobby_loop(
                     trace_final=run_stats.get("trace_final", 100),
                     reward=reward,
                     correct_answers=correct_answers,
+                    timeline=run_stats.get("timeline", []),
                 )
                 update_personal_records(
                     save_data,

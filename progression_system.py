@@ -280,7 +280,7 @@ ASCENSION_TABLE: dict[int, dict[str, int | bool | float]] = {
 # 세이브 파일 경로와 기본 구조를 상수로 관리해 전체 코드에서 일관성을 유지한다.
 SAVE_FILE_PATH: str = str(_get_default_save_path())
 DEFAULT_SAVE_DATA: dict[str, Any] = {
-    "schema_version": 2,
+    "schema_version": 3,
     "tutorial_completed": False,
     "data_fragments": 0,
     "perks": {
@@ -364,7 +364,7 @@ def _normalize_campaign(raw_campaign: Any) -> dict[str, Any]:
     return defaults
 
 
-_CURRENT_SCHEMA_VERSION: int = 2
+_CURRENT_SCHEMA_VERSION: int = 3
 
 
 def _migrate_v0_to_v1(data: dict[str, Any]) -> dict[str, Any]:
@@ -386,6 +386,23 @@ def _migrate_v1_to_v2(data: dict[str, Any]) -> dict[str, Any]:
     return migrated
 
 
+def _migrate_v2_to_v3(data: dict[str, Any]) -> dict[str, Any]:
+    """v2 → v3: run_history 각 항목에 timeline 필드 추가.
+
+    기존 기록에는 빈 타임라인을 채워 스키마를 통일한다.
+    """
+    migrated = deepcopy(data)
+    migrated["schema_version"] = 3
+    raw_history = migrated.get("run_history", [])
+    if isinstance(raw_history, list):
+        migrated["run_history"] = [
+            {**entry, "timeline": []} if isinstance(entry, dict) and "timeline" not in entry
+            else entry
+            for entry in raw_history
+        ]
+    return migrated
+
+
 def _migrate_save(raw_data: dict[str, Any]) -> dict[str, Any]:
     """
     세이브 데이터의 schema_version을 확인하고 필요한 마이그레이션을 순차 적용한다.
@@ -401,6 +418,7 @@ def _migrate_save(raw_data: dict[str, Any]) -> dict[str, Any]:
     migrations = {
         0: _migrate_v0_to_v1,
         1: _migrate_v1_to_v2,
+        2: _migrate_v2_to_v3,
     }
 
     while version < _CURRENT_SCHEMA_VERSION:
@@ -649,6 +667,7 @@ def _make_run_record(
     reward: int,
     correct_answers: int = 0,
     ending_id: str = "",
+    timeline: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     """run_history 항목용 딕셔너리를 생성한다 (불변 값으로 구성)."""
     return {
@@ -660,6 +679,7 @@ def _make_run_record(
         "reward": max(0, int(reward)),
         "correct_answers": max(0, int(correct_answers)),
         "ending_id": str(ending_id),
+        "timeline": list(timeline) if isinstance(timeline, list) else [],
     }
 
 
@@ -674,6 +694,7 @@ def add_run_to_history(
     reward: int,
     correct_answers: int = 0,
     ending_id: str = "",
+    timeline: list[dict[str, Any]] | None = None,
 ) -> None:
     """런 종료 후 save_data["run_history"]에 기록을 추가한다.
 
@@ -703,6 +724,7 @@ def add_run_to_history(
         reward=reward,
         correct_answers=correct_answers,
         ending_id=ending_id,
+        timeline=timeline,
     )
     updated = list(history) + [record]
     # 최대 개수 초과 시 앞에서부터 잘라낸다

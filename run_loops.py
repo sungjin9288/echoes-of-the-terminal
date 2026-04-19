@@ -287,6 +287,7 @@ def _initialize_run_state(
         "wrong_analyzes": 0,
         "timeout_events": 0,
         "mystery_frags_gained": 0,
+        "timeline": [],
     }
     runtime = _build_runtime_modifiers(perks)
     trace_level = _apply_ascension_modifiers(ascension_level, runtime)
@@ -374,6 +375,7 @@ def _build_run_stats(
         "cascade_triggered": bool(run_state.get("cascade_used", False)),
         "void_scanner_used": bool(run_state.get("void_scanner_used", False)),
         "mystery_frags_gained": int(run_state.get("mystery_frags_gained", 0)),
+        "timeline": list(run_state.get("timeline", [])),
     }
 
 
@@ -443,6 +445,7 @@ def run_game_session(
         if trace_level > max_trace_reached:
             max_trace_reached = trace_level
         run_state["current_trace"] = trace_level
+        run_state["current_node"] = position + 1
 
         # pulse_barrier: 이전 오답에서 남긴 다음 노드 타임 보너스 적용
         pending_bonus = int(run_state.get("pending_time_bonus", 0))
@@ -479,10 +482,20 @@ def run_game_session(
                 delay=0.03,
             )
             _wait_for_enter()
+            run_state["timeline"].append({
+                "event": "rest",
+                "node": position + 1,
+                "detail": f"추적도 -{heal_amount}%",
+            })
 
         # ── SHOP NODE ────────────────────────────────────────────────────────
         elif ntype == NodeType.SHOP:
             trace_level = _run_mid_run_shop(save_data, trace_level, run_state, runtime)
+            run_state["timeline"].append({
+                "event": "shop",
+                "node": position + 1,
+                "detail": "상점 방문",
+            })
 
         # ── MYSTERY NODE ─────────────────────────────────────────────────────
         elif ntype == NodeType.MYSTERY:
@@ -569,6 +582,12 @@ def run_game_session(
             correct_answers += 1
             if difficulty:
                 node_difficulties_cleared.append(difficulty)
+            run_state["timeline"].append({
+                "event": "correct",
+                "node": position + 1,
+                "detail": str(difficulty) if difficulty else str(scenario.get("difficulty", "NORMAL")),
+                "keyword": str(scenario.get("target_keyword", "")),
+            })
             cleared_themes = run_state.get("cleared_themes")
             if isinstance(cleared_themes, set):
                 theme = str(scenario.get("theme", "")).strip()

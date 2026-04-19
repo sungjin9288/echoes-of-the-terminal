@@ -151,7 +151,7 @@ def test_load_save_slot_creates_default_on_missing_file(
     monkeypatch.chdir(tmp_path)
     loaded = load_save_slot(2)
     assert loaded["data_fragments"] == 0
-    assert loaded["schema_version"] == 2
+    assert loaded["schema_version"] == 3
 
 
 def test_slots_are_independent(

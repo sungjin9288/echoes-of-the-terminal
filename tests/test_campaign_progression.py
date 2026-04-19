@@ -179,26 +179,26 @@ def test_migrate_save_v0_migrates_to_current() -> None:
     """schema_version 없는 구버전(v0) 세이브가 현재 버전으로 마이그레이션된다."""
     old_save = {"data_fragments": 42, "perks": {}}
     migrated = _migrate_save(old_save)
-    assert migrated["schema_version"] == 2
+    assert migrated["schema_version"] == 3
     assert migrated["data_fragments"] == 42
     # 기존 유저 → tutorial_completed=True
     assert migrated["tutorial_completed"] is True
 
 
-def test_migrate_save_v1_upgrades_to_v2() -> None:
-    """v1 세이브가 v2로 마이그레이션되며 tutorial_completed=True가 추가된다."""
+def test_migrate_save_v1_upgrades_to_current() -> None:
+    """v1 세이브가 현재 스키마 버전(v3)까지 마이그레이션된다."""
     v1_save = {"schema_version": 1, "data_fragments": 10}
     migrated = _migrate_save(v1_save)
-    assert migrated["schema_version"] == 2
+    assert migrated["schema_version"] == 3
     assert migrated["tutorial_completed"] is True
     assert migrated["data_fragments"] == 10
 
 
-def test_migrate_save_v2_is_idempotent() -> None:
-    """이미 v2인 세이브는 재마이그레이션해도 값이 변하지 않는다."""
+def test_migrate_save_v2_upgrades_to_v3() -> None:
+    """v2 세이브가 v3로 마이그레이션되며 tutorial_completed 값은 보존된다."""
     v2_save = {"schema_version": 2, "data_fragments": 10, "tutorial_completed": False}
     migrated = _migrate_save(v2_save)
-    assert migrated["schema_version"] == 2
+    assert migrated["schema_version"] == 3
     assert migrated["tutorial_completed"] is False
 
 
@@ -216,7 +216,7 @@ def test_normalize_save_data_sets_schema_version_on_fresh_data() -> None:
     _normalize_save_data({})는 기존 유저의 빈 v0 세이브 시나리오를 나타낸다.
     """
     normalized = _normalize_save_data({})
-    assert normalized["schema_version"] == 2
+    assert normalized["schema_version"] == 3
     # 기존 유저(v0 이상) → tutorial 완료로 표시
     assert normalized["tutorial_completed"] is True
 

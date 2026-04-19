@@ -5,6 +5,31 @@
 
 ---
 
+## [1.11.0] — 2026-04-19
+
+### 추가 (Added)
+- **런 타임라인 (Run Timeline)**: 런 중 발생한 노드별 이벤트를 8가지 유형으로 기록하여 런 완료 후 기록 화면에 트리 형식으로 표시.
+  - 이벤트 유형: `correct` ✓ / `wrong` ✗ / `timeout` ⏱ / `artifact` ◆ / `mystery_engage` ? / `mystery_skip` — / `rest` ♥ / `shop` $
+  - 각 이벤트는 `{event, node, detail}` 구조로 저장, 세이브 데이터에 영속.
+  - 기록 화면 런 히스토리 하단에 최근 런 타임라인 자동 표시.
+- **`render_run_timeline(entry)`** — ui_renderer.py에 신규 함수. Rich Tree로 이벤트 아이콘·노드번호·상세정보 렌더.
+
+### 변경 (Changed)
+- **세이브 스키마 v2 → v3**: 기존 `run_history` 엔트리에 `timeline: []` 필드 자동 추가 (마이그레이션).
+  - `_migrate_v2_to_v3()` 추가, `_CURRENT_SCHEMA_VERSION = 3`.
+  - `_make_run_record` / `add_run_to_history`에 `timeline` 파라미터 추가.
+- `run_state` 초기화에 `"timeline": []` 추가 — 런 전체에 걸쳐 이벤트를 축적.
+- `_build_run_stats()`에 `timeline` 필드 포함, lobby.py의 `add_run_to_history` 호출에 전달.
+- `run_state["current_node"]` 필드 추가 — 노드 루프 진입 시 갱신, 하위 핸들러(wrong/timeout/artifact 이벤트)에서 참조.
+
+### 테스트
+- `tests/test_run_timeline.py` 신규 (19케이스): `_make_run_record` timeline 필드·`add_run_to_history` 영속·v2→v3 마이그레이션·UI 렌더링.
+- `tests/test_campaign_progression.py` — 스키마 버전 기대값 3으로 갱신 (3케이스 수정).
+- `tests/test_save_slots.py` — `schema_version == 3` 갱신 (1케이스 수정).
+- 637 → **656 케이스**.
+
+---
+
 ## [1.10.0] — 2026-04-19
 
 ### 추가 (Added)

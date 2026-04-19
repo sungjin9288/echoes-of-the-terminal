@@ -56,6 +56,7 @@ Echoes of the Terminal/
 ├── achievement_data.py      # 115종 업적 정의 데이터 (622줄)
 ├── achievement_system.py    # 업적 평가 로직 + 상태 관리 (430줄)
 ├── achievement_progress.py  # 업적 진행률(current/target) 계산 (200줄)
+│   ※ run_state["timeline"]: 런 이벤트 배열 — 8종(correct/wrong/timeout/artifact/mystery_engage/mystery_skip/rest/shop)
 ├── mutator_system.py        # Glitch 마스킹 텍스트 변형 (128줄)
 ├── route_map.py             # 노드 타입 라우팅 (99줄)
 ├── boss_phase_pack_tools.py # ASC20 보스 툴 (89줄)
@@ -295,6 +296,7 @@ def test_penalty_with_elite_modifier(monkeypatch) -> None:
 |---|---|---|
 | `test_achievement_system.py` | 95 | 115종 업적 해금 조건 + 중복 방지 검증 |
 | `test_achievement_progress.py` | 31 | 업적 진행률 계산·진행바 포맷·UI 통합 |
+| `test_run_timeline.py` | 19 | 런 타임라인 기록·저장·v2→v3 마이그레이션·UI 렌더 |
 | `test_artifact_effects.py` | 20 | 28종 아티팩트 runtime 수정 검증 |
 | `test_ascension_runtime.py` | 15 | 패널티 스케일링, 시간 조정, 보스 페이즈 |
 | `test_boss_phase_pack.py` | 2 | 보스 페이즈 로딩 |

@@ -265,6 +265,11 @@ def handle_analyze(
 
     # 오답 처리
     run_state["wrong_analyzes"] = int(run_state.get("wrong_analyzes", 0)) + 1
+    run_state.setdefault("timeline", []).append({
+        "event": "wrong",
+        "node": int(run_state.get("current_node", 0)),
+        "detail": f"오답: {parts[1].strip()}",
+    })
 
     # cascade_core: 3연속 정답 스트릭 초기화
     if run_state.get("cascade_core_active"):
