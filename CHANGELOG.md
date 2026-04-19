@@ -5,6 +5,24 @@
 
 ---
 
+## [1.12.0] — 2026-04-20
+
+### 추가 (Added)
+- **Pack 26 — QUANTUM HEIST** (`packs/pack_26_quantum_heist.json`): 2077년 양자 기술 범죄 테마 5시나리오.
+  - node_id 1014~1018 / 테마 `QUANTUM_HEIST_A~E`
+  - Easy×2 · Hard×2 · NIGHTMARE×1
+  - 키워드: 접근(이중 볼트 동시 인증 불가) · 서명(서명 선행 타임스탬프 역전) · 측정(양자 관측 즉시 경보 발령 — 검찰 무탐지 주장 모순) · 복사(no-cloning theorem 위반) · 양자(양자 얽힘으로 FTL 정보 전송 불가)
+- **Pack 27 — BIOMECH ASYLUM** (`packs/pack_27_biomech_asylum.json`): 2077년 생체공학 의료·보안 범죄 테마 5시나리오.
+  - node_id 1019~1023 / 테마 `BIOMECH_ASYLUM_A~E`
+  - Easy×2 · Hard×2 · NIGHTMARE×1
+  - 키워드: 배터리(82일 만에 99% 방전 — 90일 명세 위반) · 수술(동의서 서명일이 수술·퇴원 이틀 후) · 센서(3배 과다계상 펌웨어 결함 이미 패치 적용 후 사건 발생) · 패치(ZeroSkin 취약점 패치 완료 후 침입 시도 + 인증 실패 로그만 존재) · 기억(BCI가 기억 이식 기능 미지원 + 파일 메타데이터에 47일 후 출시 펌웨어 버전)
+
+### 테스트
+- `tests/test_new_packs_v12.py` 신규 (26케이스): Pack 26/27 로드·메타데이터·node_id 범위·필드 검증·난이도 분포·키워드 in text_log·팩 간 node_id 충돌 감지·패널티-난이도 매핑 검증.
+- 656 → **682 케이스**.
+
+---
+
 ## [1.11.0] — 2026-04-19
 
 ### 추가 (Added)
