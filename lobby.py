@@ -8,6 +8,7 @@ from typing import Any, Callable
 
 from rich.prompt import Prompt
 
+from achievement_progress import get_locked_progress_entries
 from achievement_system import evaluate_achievements, get_achievement_snapshot
 from daily_challenge import get_daily_state, get_today_str, has_played_today
 from data_loader import load_argos_taunts
@@ -661,10 +662,12 @@ def run_lobby_loop(
             rec_snap = get_personal_records(save_data)
             lb_snap = get_leaderboard(save_data)
             profile_snap = get_diver_profile(save_data)
+            progress_snap = get_locked_progress_entries(save_data, top_n=5)
             render_records_screen(
                 ach_snap, end_snap, camp_snap, daily_snap, stats_snap,
                 run_history=history, personal_records=rec_snap,
                 leaderboard=lb_snap, diver_profile=profile_snap,
+                achievement_progress=progress_snap,
             )
             wait_for_enter(t("records.press_enter"))
             continue

@@ -4,6 +4,7 @@ import random
 import time
 from typing import Any
 
+from achievement_progress import format_progress_bar, get_locked_progress_entries
 from constants import BUILD_DATE, VERSION
 from i18n import t
 from theme_system import THEMES, get_theme_styles
@@ -968,6 +969,7 @@ def render_records_screen(
     personal_records: list[dict[str, Any]] | None = None,
     leaderboard: list[dict[str, Any]] | None = None,
     diver_profile: dict[str, Any] | None = None,
+    achievement_progress: list[dict[str, Any]] | None = None,
 ) -> None:
     """
     로비 '기록 보기' 통합 화면 — 캠페인·업적·엔딩·데일리 현황을 한 번에 표시한다.
@@ -1015,6 +1017,19 @@ def render_records_screen(
         ach_content.append(f"  --  {entry.get('desc','')}\n", style="dim white")
     if ach_unlocked == 0:
         ach_content.append("  아직 해금된 업적이 없습니다.\n", style="dim white")
+
+    # ── 진행 중인 업적 (locked, 진행률 표시) ───────────────────────────────
+    if achievement_progress:
+        ach_content.append("\n진행 중:\n", style="bold #FFD700")
+        for entry in achievement_progress:
+            current = int(entry.get("current", 0))
+            target = int(entry.get("target", 0))
+            bar = format_progress_bar(current, target, width=10)
+            title = str(entry.get("title", ""))
+            ach_content.append(f"  {bar} ", style="#FFD700")
+            ach_content.append(f"{current}/{target}  ", style="bold white")
+            ach_content.append(f"{title}\n", style="dim white")
+
     console.print(Panel(ach_content, title="ACHIEVEMENTS", title_align="left", border_style="yellow"))
 
     # ── 엔딩 갤러리 ───────────────────────────────────────────────────────

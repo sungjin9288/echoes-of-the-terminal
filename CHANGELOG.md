@@ -5,6 +5,28 @@
 
 ---
 
+## [1.10.0] — 2026-04-19
+
+### 추가 (Added)
+- **업적 진행률 표시 (Achievement Progress)**: 미해금 업적 중 누적 카운터 계열 45종에 대해 `current/target` + 유니코드 진행바(`[▓▓▓▓▓▓▓░░░]`)를 기록 화면(`[5]`)에 표시.
+  - 추적 대상: `runs_N`·`victories_N`·`campaign_points_N`·클래스별 승리(`analyst_master`·`triple_master` 등)·`ascension_unlocked_N`·`endings_N`·`data_fragments_N`·`perk_hoarder_N`·MYSTERY 누적.
+  - 진행률 비율 내림차순 상위 5개를 "진행 중" 섹션에 노출 — 해금 임박 업적을 한눈에 파악.
+  - 이벤트 트리거형(`first_shutdown`·`perfect_infiltration` 등 70종)은 진행률 없이 기존 unlocked/locked 표기 유지.
+
+### 신규 모듈
+- `achievement_progress.py` (약 200줄): `compute_achievement_progress`, `get_locked_progress_entries`, `format_progress_bar`.
+- `PROGRESS_SPECS` 명세 테이블로 업적 ID ↔ 세이브 필드 매핑 중앙화.
+
+### 수정 (Changed)
+- `ui_renderer.render_records_screen` — `achievement_progress: list | None` 파라미터 추가. ACHIEVEMENTS 패널 하단에 진행률 블록 렌더.
+- `lobby.py` 기록 메뉴 — `get_locked_progress_entries(save_data, top_n=5)` 호출 후 UI로 전달.
+
+### 테스트
+- `tests/test_achievement_progress.py` 신규 (31케이스): 진행바 포맷·진행률 계산·손상된 save_data 방어·정렬·UI 렌더 통합.
+- 606 → **637 케이스**.
+
+---
+
 ## [1.9.0] — 2026-04-19
 
 ### 추가 (Added)
