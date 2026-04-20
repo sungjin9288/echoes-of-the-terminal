@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Echoes of the Terminal — Logo Variants</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0A0E14;
+    color: #E5E9F0;
+    font-family: 'Courier New', 'Lucida Console', monospace;
+    padding: 48px 32px;
+    min-height: 100vh;
+  }
+  h2 {
+    color: #6B7A8D;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+    border-bottom: 1px solid #1A2332;
+    padding-bottom: 8px;
+  }
+  .variant { margin-bottom: 64px; }
+
+  /* ─── Variant A: Classic Terminal ─── */
+  .logo-a {
+    display: inline-block;
+    padding: 24px 40px;
+    border: 1px solid #2A3F5A;
+    background: #0D1117;
+    position: relative;
+  }
+  .logo-a::before {
+    content: '[ SYSTEM ACCESS GRANTED ]';
+    position: absolute;
+    top: -10px; left: 20px;
+    font-size: 10px;
+    color: #39FF14;
+    background: #0D1117;
+    padding: 0 8px;
+    letter-spacing: 2px;
+  }
+  .logo-a .line1 {
+    font-size: 11px;
+    color: #6B7A8D;
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .logo-a .line2 {
+    font-size: 52px;
+    font-weight: 700;
+    color: #39FF14;
+    letter-spacing: -1px;
+    line-height: 1;
+    text-shadow: 0 0 8px #39FF14, 0 0 24px #39FF1455;
+  }
+  .logo-a .line3 {
+    font-size: 14px;
+    color: #00FFFF;
+    letter-spacing: 12px;
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+  .logo-a .cursor {
+    display: inline-block;
+    width: 10px; height: 36px;
+    background: #39FF14;
+    margin-left: 4px;
+    vertical-align: middle;
+    animation: blink 1s step-end infinite;
+    box-shadow: 0 0 8px #39FF14;
+  }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+  /* ─── Variant B: Glitch Style ─── */
+  .logo-b {
+    display: inline-block;
+    padding: 28px 48px;
+    background: #0D1117;
+    position: relative;
+    overflow: hidden;
+  }
+  .logo-b::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,65,0.03) 2px, rgba(0,255,65,0.03) 4px);
+    pointer-events: none;
+  }
+  .logo-b .prefix {
+    font-size: 11px;
+    color: #FF073A;
+    letter-spacing: 3px;
+    margin-bottom: 2px;
+  }
+  .logo-b .title {
+    font-size: 48px;
+    font-weight: 700;
+    color: #E5E9F0;
+    letter-spacing: 2px;
+    line-height: 1.1;
+    position: relative;
+  }
+  .logo-b .title::before {
+    content: attr(data-text);
+    position: absolute; top: 0; left: -2px;
+    color: #FF073A;
+    opacity: 0.6;
+    clip-path: polygon(0 30%, 100% 30%, 100% 45%, 0 45%);
+  }
+  .logo-b .title::after {
+    content: attr(data-text);
+    position: absolute; top: 0; left: 2px;
+    color: #00FFFF;
+    opacity: 0.6;
+    clip-path: polygon(0 65%, 100% 65%, 100% 75%, 0 75%);
+  }
+  .logo-b .subtitle {
+    font-size: 13px;
+    color: #FFD700;
+    letter-spacing: 6px;
+    margin-top: 8px;
+    text-transform: uppercase;
+  }
+  .logo-b .tag {
+    font-size: 10px;
+    color: #6B7A8D;
+    margin-top: 4px;
+  }
+
+  /* ─── Variant C: Bracket / Frame ─── */
+  .logo-c {
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 32px;
+    background: #0D1117;
+  }
+  .logo-c .bracket {
+    font-size: 72px;
+    color: #00FFFF;
+    line-height: 1;
+    text-shadow: 0 0 12px #00FFFF66;
+    font-weight: 300;
+  }
+  .logo-c .inner { text-align: center; }
+  .logo-c .main {
+    font-size: 32px;
+    font-weight: 700;
+    color: #39FF14;
+    letter-spacing: 4px;
+    text-shadow: 0 0 8px #39FF14, 0 0 20px #39FF1444;
+    display: block;
+  }
+  .logo-c .sub {
+    font-size: 11px;
+    color: #6B7A8D;
+    letter-spacing: 10px;
+    text-transform: uppercase;
+    display: block;
+    margin-top: 2px;
+  }
+  .logo-c .ver {
+    font-size: 10px;
+    color: #FF073A;
+    letter-spacing: 2px;
+    display: block;
+    margin-top: 6px;
+  }
+</style>
+</head>
+<body>
+
+<div class="variant">
+  <h2>Variant A — Classic Terminal</h2>
+  <div class="logo-a">
+    <div class="line1">Echoes of the</div>
+    <div class="line2">TERMINAL<span class="cursor"></span></div>
+    <div class="line3">Text Log Roguelike</div>
+  </div>
+</div>
+
+<div class="variant">
+  <h2>Variant B — Glitch</h2>
+  <div class="logo-b">
+    <div class="prefix">&gt;&gt;&gt; SIGNAL DETECTED</div>
+    <div class="title" data-text="ECHOES OF THE TERMINAL">ECHOES OF THE TERMINAL</div>
+    <div class="subtitle">텍스트 로그 추리 roguelike</div>
+    <div class="tag">// analyze [keyword] to breach the core</div>
+  </div>
+</div>
+
+<div class="variant">
+  <h2>Variant C — Bracket Frame</h2>
+  <div class="logo-c">
+    <div class="bracket">[</div>
+    <div class="inner">
+      <span class="main">ECHOES OF THE<br>TERMINAL</span>
+      <span class="sub">Text Log Roguelike</span>
+      <span class="ver">v1.15.0</span>
+    </div>
+    <div class="bracket">]</div>
+  </div>
+</div>
+
+</body>
+</html>

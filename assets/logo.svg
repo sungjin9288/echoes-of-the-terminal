@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="200" viewBox="0 0 560 200" role="img" aria-label="Echoes of the Terminal">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&amp;display=swap');
+      .mono { font-family: 'Courier New', 'Lucida Console', monospace; }
+
+      @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50%       { opacity: 0; }
+      }
+      @keyframes glitch-r {
+        0%, 90%, 100% { clip-path: polygon(0 22% , 100% 22%, 100% 34%, 0 34%); transform: translateX(-2px); }
+        92%           { clip-path: polygon(0 10% , 100% 10%, 100% 26%, 0 26%); transform: translateX(-4px); }
+        95%           { clip-path: polygon(0 40% , 100% 40%, 100% 52%, 0 52%); transform: translateX( 0px); }
+      }
+      @keyframes glitch-c {
+        0%, 90%, 100% { clip-path: polygon(0 62% , 100% 62%, 100% 74%, 0 74%); transform: translateX( 2px); }
+        93%           { clip-path: polygon(0 70% , 100% 70%, 100% 82%, 0 82%); transform: translateX( 4px); }
+        96%           { clip-path: polygon(0 50% , 100% 50%, 100% 62%, 0 62%); transform: translateX( 0px); }
+      }
+      .cursor    { animation: blink   1s step-end infinite; }
+      .glitch-r  { animation: glitch-r 4s step-end infinite; }
+      .glitch-c  { animation: glitch-c 4s step-end infinite; }
+    </style>
+
+    <!-- Green glow filter -->
+    <filter id="glow-green" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur1"/>
+      <feGaussianBlur stdDeviation="10" result="blur2"/>
+      <feMerge>
+        <feMergeNode in="blur2"/>
+        <feMergeNode in="blur1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Scanline pattern -->
+    <pattern id="scanlines" x="0" y="0" width="560" height="4" patternUnits="userSpaceOnUse">
+      <rect width="560" height="2" fill="transparent"/>
+      <rect y="2" width="560" height="2" fill="rgba(0,255,65,0.025)"/>
+    </pattern>
+  </defs>
+
+  <!-- Background -->
+  <rect width="560" height="200" fill="#0D1117"/>
+
+  <!-- Border -->
+  <rect x="0.5" y="0.5" width="559" height="199" fill="none" stroke="#2A3F5A" stroke-width="1"/>
+
+  <!-- Scanline overlay -->
+  <rect width="560" height="200" fill="url(#scanlines)" opacity="1"/>
+
+  <!-- Top badge background -->
+  <rect x="24" y="-1" width="178" height="14" fill="#0D1117"/>
+
+  <!-- Top badge text -->
+  <text x="28" y="9" class="mono" font-size="9" fill="#39FF14" letter-spacing="2">[ SYSTEM ACCESS GRANTED ]</text>
+
+  <!-- Eyebrow -->
+  <text x="52" y="68" class="mono" font-size="11" fill="#6B7A8D" letter-spacing="7" text-anchor="start">ECHOES OF THE</text>
+
+  <!-- Main title — red glitch layer -->
+  <text class="mono glitch-r" x="52" y="143" font-size="72" font-weight="700" fill="#FF073A" opacity="0.45"
+        letter-spacing="-1" clip-path="polygon(0 22%, 100% 22%, 100% 34%, 0 34%)"
+        style="clip-path: polygon(0 22%, 100% 22%, 100% 34%, 0 34%); transform: translateX(-2px);">TERMINAL</text>
+
+  <!-- Main title — cyan glitch layer -->
+  <text class="mono glitch-c" x="52" y="143" font-size="72" font-weight="700" fill="#00FFFF" opacity="0.4"
+        letter-spacing="-1"
+        style="clip-path: polygon(0 62%, 100% 62%, 100% 74%, 0 74%); transform: translateX(2px);">TERMINAL</text>
+
+  <!-- Main title — base (green neon) -->
+  <text x="52" y="143" class="mono" font-size="72" font-weight="700" fill="#39FF14" letter-spacing="-1"
+        filter="url(#glow-green)">TERMINAL</text>
+
+  <!-- Cursor block -->
+  <rect class="cursor" x="467" y="87" width="11" height="58" fill="#39FF14"
+        style="filter: drop-shadow(0 0 8px #39FF14);"/>
+
+  <!-- Subtitle -->
+  <text x="52" y="180" class="mono" font-size="13" fill="#00FFFF" letter-spacing="10" opacity="0.9">TEXT LOG ROGUELIKE</text>
+</svg>

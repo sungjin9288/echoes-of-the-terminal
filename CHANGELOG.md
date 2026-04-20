@@ -5,6 +5,31 @@
 
 ---
 
+## [1.15.0] — 2026-04-20
+
+### 추가 (Added)
+- **비주얼 아이덴티티 에셋** (`assets/` 디렉터리):
+  - `assets/logo.svg` — 게임 로고타입 SVG (560×200). Green neon TERMINAL 타이틀 + RGB glitch pseudo-element + 블링킹 커서 + scanline 오버레이.
+  - `assets/logo_final.html` — 로고 애니메이션 프로토타입 (Preview MCP 렌더링 기준).
+  - `assets/banner_preview.html` — itch.io 배너 HTML (630×500). 그리드 배경·vignette·코너 데코·feature 태그·`analyze [keyword]` 프롬프트.
+  - `assets/tokens.json` — 디자인 토큰 v1.15. 색상 12종 / 타이포그래피 / 간격 / 효과(glow·scanline) / border_radius.
+  - `assets/screenshots/` — 게임 스크린샷 보관 디렉터리.
+- **README.md 리뉴얼**:
+  - 상단 로고 SVG 임베드 (`<img src="assets/logo.svg">`).
+  - 배지 5종: Python 버전 / MIT License / Tests passing / Coverage / Version.
+  - 스크린샷 갤러리 섹션 (2×2 그리드).
+  - 비주얼 에셋 파일 목록 섹션.
+  - 수치 갱신: 시나리오 290개·업적 118종·테스트 749+케이스.
+
+### 변경 (Changed)
+- `pyproject.toml` / `constants.py`: 버전 `1.14.0` → `1.15.0`.
+
+### 개발 도구
+- `assets/logo_preview.html` — 초기 3개 변형(Classic Terminal / Glitch / Bracket Frame) 비교용 프로토타입.
+- `.claude/launch.json` — Preview MCP용 Python HTTP 서버 설정 (port 7788, `assets/` serving).
+
+---
+
 ## [1.14.0] — 2026-04-20
 
 ### 추가 (Added)

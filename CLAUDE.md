@@ -55,7 +55,7 @@ Echoes of the Terminal/
 ├── daily_challenge.py       # 일일 도전 시스템 (341줄)
 ├── ending_system.py         # 13종 엔딩 판정 (350줄)
 ├── diver_class.py           # 3종 다이버 클래스 (194줄)
-├── achievement_data.py      # 115종 업적 정의 데이터 (622줄)
+├── achievement_data.py      # 118종 업적 정의 데이터 (625줄)
 ├── achievement_system.py    # 업적 평가 로직 + 상태 관리 (430줄)
 ├── achievement_progress.py  # 업적 진행률(current/target) 계산 (200줄)
 │   ※ run_state["timeline"]: 런 이벤트 배열 — 8종(correct/wrong/timeout/artifact/mystery_engage/mystery_skip/rest/shop)
@@ -69,6 +69,14 @@ Echoes of the Terminal/
 ├── boss_phase_pack.json     # ASC20 보스 페이즈 오버라이드
 ├── argos_taunts.json        # ARGOS AI 다이얼로그
 ├── save_data.json           # 플레이어 세이브 데이터 (런타임 생성)
+│
+├── assets/                  # 비주얼 아이덴티티 에셋 (v1.15)
+│   ├── logo.svg             # 게임 로고타입 SVG (560×200, green neon + glitch)
+│   ├── logo_final.html      # 로고 애니메이션 프로토타입
+│   ├── logo_preview.html    # 로고 3개 변형 비교 프로토타입
+│   ├── banner_preview.html  # itch.io 배너 HTML (630×500)
+│   ├── tokens.json          # 디자인 토큰 v1.15 (색상·타이포·간격·효과)
+│   └── screenshots/         # 게임 스크린샷 (lobby/combat/boss/records/ending)
 │
 ├── tests/                   # pytest 테스트 (30파일, 749케이스, 커버리지 81%+)
 │   ├── test_achievement_system.py

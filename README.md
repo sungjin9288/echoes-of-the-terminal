@@ -1,6 +1,37 @@
-# Echoes of the Terminal
+<div align="center">
+  <img src="assets/logo.svg" alt="Echoes of the Terminal" width="560"/>
 
-텍스트 기반 로그라이트 추리 게임. 터미널 화면에 출력된 수사 조서와 기밀 문서를 분석해 논리적 모순을 찾아내라.
+  <br/>
+
+  [![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
+  [![License: MIT](https://img.shields.io/badge/License-MIT-39FF14?style=flat-square)](LICENSE)
+  [![Tests](https://img.shields.io/badge/Tests-749%20passing-39FF14?style=flat-square&logo=pytest&logoColor=white)](tests/)
+  [![Coverage](https://img.shields.io/badge/Coverage-81%25%2B-00FFFF?style=flat-square)](tests/)
+  [![Version](https://img.shields.io/badge/Version-v1.15.0-FFD700?style=flat-square)](CHANGELOG.md)
+
+  <br/>
+
+  **텍스트 기반 로그라이트 추리 게임.**  
+  터미널 화면에 출력된 수사 조서와 기밀 문서를 분석해 논리적 모순을 찾아내라.
+</div>
+
+---
+
+## 스크린샷
+
+<div align="center">
+
+| 로비 | 전투 노드 |
+|:---:|:---:|
+| ![로비 화면](assets/screenshots/lobby.png) | ![전투 화면](assets/screenshots/combat.png) |
+
+| 보스 전투 | 런 기록 |
+|:---:|:---:|
+| ![보스 화면](assets/screenshots/boss.png) | ![기록 화면](assets/screenshots/records.png) |
+
+</div>
+
+---
 
 ## 플레이 방법
 
@@ -49,7 +80,7 @@ Python 3.11 이상 권장 (3.12 테스트 완료).
 | CRACKER | 1초 내 속공 시 스택 축적, ELITE 아티팩트 +1 | 브루트 포스: 다음 오답 면제 |
 
 ### 아티팩트
-ELITE/BOSS 클리어 시 아티팩트 1개를 선택한다. **총 28종** (COMMON/RARE/EPIC).
+ELITE/BOSS 클리어 시 아티팩트 1개를 선택한다. **총 28종** (COMMON / RARE / EPIC).
 
 대표 아티팩트:
 - `chrono_anchor` — 오답 시 시간 3초 복구
@@ -93,8 +124,8 @@ Ascension 0~20 전부 클리어 시 `TERMINAL SILENCE` 엔딩 해금. 장기 목
 | PERK MASTER | 퍼크 10+ 보유 상태로 클리어 |
 | …외 4종 | 특수 조건 |
 
-### 업적 (115종)
-런 스타일·극한 목표·수집 기반의 다양한 업적 제공. 누적 통계 기반 자동 해금.
+### 업적 (118종)
+런 스타일·극한 목표·수집 기반의 다양한 업적 제공. 누적 통계 기반 자동 해금. 데일리 챌린지 연속 달성(3·7·30일) 업적 포함.
 
 ## 세이브 데이터 위치
 
@@ -120,6 +151,7 @@ mutator_system.py     — 글리치 마스킹
 ui_renderer.py        — Rich 기반 터미널 UI
 data_loader.py        — JSON 데이터 로더
 scenarios.json        — 시나리오 280개 (Pack 01-22)
+packs/                — DLC 시나리오 팩 (Pack 23-27, 시나리오 23개)
 boss_phase_pack.json  — ASC20 보스 페이즈 오버라이드
 argos_taunts.json     — ARGOS AI 다이얼로그
 ```
@@ -128,8 +160,18 @@ argos_taunts.json     — ARGOS AI 다이얼로그
 
 ```bash
 pip install -r requirements-dev.txt
-PYTHONPATH=. pytest tests/ -v         # 전체 테스트 (264+ 케이스)
+PYTHONPATH=. pytest tests/ -v         # 전체 테스트 (749+ 케이스)
 ```
+
+## 비주얼 에셋
+
+| 파일 | 설명 |
+|------|------|
+| `assets/logo.svg` | 게임 로고타입 SVG (560×200) |
+| `assets/logo_final.html` | 로고 애니메이션 프로토타입 |
+| `assets/banner_preview.html` | itch.io 배너 HTML (630×500) |
+| `assets/tokens.json` | 디자인 토큰 (색상·타이포·간격·효과) |
+| `assets/screenshots/` | 게임 스크린샷 5장 |
 
 ## 라이선스
 

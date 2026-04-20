@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Echoes of the Terminal — Final Logo</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0A0E14;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'Courier New', 'Lucida Console', monospace;
+  }
+
+  /* ── Final Logo ── */
+  .logo-wrap {
+    display: inline-block;
+    padding: 32px 52px 28px;
+    border: 1px solid #2A3F5A;
+    background: #0D1117;
+    position: relative;
+  }
+
+  /* top-left corner label */
+  .logo-wrap::before {
+    content: '[ SYSTEM ACCESS GRANTED ]';
+    position: absolute;
+    top: -10px; left: 24px;
+    font-size: 10px;
+    color: #39FF14;
+    background: #0D1117;
+    padding: 0 8px;
+    letter-spacing: 2px;
+  }
+
+  /* scanline overlay */
+  .logo-wrap::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent, transparent 2px,
+      rgba(0,255,65,0.025) 2px, rgba(0,255,65,0.025) 4px
+    );
+    pointer-events: none;
+  }
+
+  .eyebrow {
+    font-size: 11px;
+    color: #6B7A8D;
+    letter-spacing: 7px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  /* main title with glitch pseudo-elements */
+  .title-wrap {
+    position: relative;
+    line-height: 1;
+  }
+
+  .title {
+    font-size: 64px;
+    font-weight: 700;
+    color: #39FF14;
+    letter-spacing: -1px;
+    text-shadow:
+      0 0 8px #39FF14,
+      0 0 28px #39FF1455;
+    display: block;
+    line-height: 1;
+  }
+
+  /* red glitch slice */
+  .title-wrap::before {
+    content: 'TERMINAL';
+    position: absolute;
+    top: 0; left: -2px;
+    font-size: 64px;
+    font-weight: 700;
+    color: #FF073A;
+    opacity: 0.45;
+    letter-spacing: -1px;
+    clip-path: polygon(0 22%, 100% 22%, 100% 34%, 0 34%);
+    animation: glitch-r 4s step-end infinite;
+    pointer-events: none;
+  }
+
+  /* cyan glitch slice */
+  .title-wrap::after {
+    content: 'TERMINAL';
+    position: absolute;
+    top: 0; left: 2px;
+    font-size: 64px;
+    font-weight: 700;
+    color: #00FFFF;
+    opacity: 0.4;
+    letter-spacing: -1px;
+    clip-path: polygon(0 62%, 100% 62%, 100% 74%, 0 74%);
+    animation: glitch-c 4s step-end infinite;
+    pointer-events: none;
+  }
+
+  @keyframes glitch-r {
+    0%, 90%, 100% { clip-path: polygon(0 22%, 100% 22%, 100% 34%, 0 34%); left: -2px; }
+    92%           { clip-path: polygon(0 10%, 100% 10%, 100% 26%, 0 26%); left: -4px; }
+    95%           { clip-path: polygon(0 40%, 100% 40%, 100% 52%, 0 52%); left:  0px; }
+  }
+  @keyframes glitch-c {
+    0%, 90%, 100% { clip-path: polygon(0 62%, 100% 62%, 100% 74%, 0 74%); left: 2px; }
+    93%           { clip-path: polygon(0 70%, 100% 70%, 100% 80%, 0 80%); left: 4px; }
+    96%           { clip-path: polygon(0 50%, 100% 50%, 100% 62%, 0 62%); left: 0px; }
+  }
+
+  .cursor {
+    display: inline-block;
+    width: 11px; height: 52px;
+    background: #39FF14;
+    margin-left: 3px;
+    vertical-align: top;
+    animation: blink 1s step-end infinite;
+    box-shadow: 0 0 10px #39FF14, 0 0 24px #39FF1466;
+  }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+  .subtitle {
+    font-size: 13px;
+    color: #00FFFF;
+    letter-spacing: 10px;
+    text-transform: uppercase;
+    margin-top: 10px;
+    opacity: 0.9;
+  }
+</style>
+</head>
+<body>
+  <div class="logo-wrap">
+    <div class="eyebrow">Echoes of the</div>
+    <div class="title-wrap">
+      <span class="title">TERMINAL</span><span class="cursor"></span>
+    </div>
+    <div class="subtitle">Text Log Roguelike</div>
+  </div>
+</body>
+</html>
