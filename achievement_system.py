@@ -438,5 +438,16 @@ def evaluate_achievements(
         if is_vic and mystery_frags >= 300:
             _unlock("mystery_rich")
 
+    # ── 데일리 챌린지 스트릭 업적 ───────────────────────────────────────────────
+    daily_data = save_data.get("daily", {})
+    if isinstance(daily_data, dict):
+        daily_streak = int(daily_data.get("streak", 0))
+        if daily_streak >= 3:
+            _unlock("daily_streak_3")
+        if daily_streak >= 7:
+            _unlock("daily_streak_7")
+        if daily_streak >= 30:
+            _unlock("daily_streak_30")
+
     save_data["achievements"] = achievement_state
     return newly_unlocked

@@ -610,6 +610,22 @@ ACHIEVEMENTS: tuple[dict[str, str], ...] = (
         "title": "운 좋은 침투자",
         "desc": "단일 런 MYSTERY 이벤트로 데이터 조각 300 이상 획득 후 승리했다.",
     },
+    # ── 데일리 챌린지 스트릭 (v1.13) ─────────────────────────────────────────
+    {
+        "id": "daily_streak_3",
+        "title": "3일 연속",
+        "desc": "데일리 챌린지를 3일 연속으로 완료했다.",
+    },
+    {
+        "id": "daily_streak_7",
+        "title": "일주일의 집착",
+        "desc": "데일리 챌린지를 7일 연속으로 완료했다.",
+    },
+    {
+        "id": "daily_streak_30",
+        "title": "한 달의 습관",
+        "desc": "데일리 챌린지를 30일 연속으로 완료했다.",
+    },
 )
 
 ACHIEVEMENT_INDEX: dict[str, dict[str, str]] = {

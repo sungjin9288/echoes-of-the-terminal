@@ -4,6 +4,8 @@ import random
 import time
 from typing import Any
 
+from daily_challenge import get_performance_grade as _get_daily_grade
+
 from achievement_progress import format_progress_bar, get_locked_progress_entries
 from constants import BUILD_DATE, VERSION
 from i18n import t
@@ -644,29 +646,61 @@ def render_daily_result(
 
 
 def render_daily_history(history: list[dict[str, Any]]) -> None:
-    """데일리 챌린지 히스토리 테이블을 렌더링한다."""
+    """데일리 챌린지 히스토리를 점수 바 차트 포함 테이블로 렌더링한다.
+
+    최신 14개 항목을 최신순으로 표시하며, 각 행에 점수 분포를 시각 바로 표현한다.
+    """
     if not history:
         console.print("[dim white]데일리 챌린지 히스토리가 없습니다.[/dim white]")
         return
 
-    table = Table(title="DAILY CHALLENGE HISTORY", border_style="cyan", header_style="bold cyan")
-    table.add_column("날짜", style="white", width=12)
-    table.add_column("결과", width=8)
-    table.add_column("점수", style="bold yellow", justify="right", width=8)
-    table.add_column("클리어", justify="center", width=6)
-    table.add_column("TRACE", justify="center", width=6)
-    table.add_column("클래스", width=8)
+    _GRADE_STYLE: dict[str, str] = {
+        "S": "bold #FFD700",
+        "A": "bold #00FFFF",
+        "B": "bold green",
+        "C": "bold white",
+        "D": "dim white",
+    }
+    _BAR_WIDTH = 16
 
-    for entry in reversed(history[-10:]):  # 최신 10개
-        victory = entry.get("is_victory", False)
+    recent = list(reversed(history[-14:]))  # 최신 14개, 최신→과거 순
+    max_score = max((int(e.get("score", 0)) for e in recent), default=1) or 1
+
+    table = Table(
+        title="DAILY CHALLENGE HISTORY",
+        border_style="cyan",
+        header_style="bold cyan",
+        show_lines=False,
+    )
+    table.add_column("날짜", style="white", width=12)
+    table.add_column("결과", width=6)
+    table.add_column("점수 분포", width=_BAR_WIDTH + 2)
+    table.add_column("점수", style="bold yellow", justify="right", width=8)
+    table.add_column("등급", justify="center", width=4)
+    table.add_column("오답", justify="center", width=4)
+
+    for entry in recent:
+        score = int(entry.get("score", 0))
+        victory = bool(entry.get("is_victory", False))
+        date_str = str(entry.get("date", ""))
+        wrong = int(entry.get("wrong_analyzes", 0))
+
+        grade = _get_daily_grade(score)
+        grade_text = Text(grade, style=_GRADE_STYLE.get(grade, "white"))
+
+        bar_len = max(0, int(score / max_score * _BAR_WIDTH))
+        bar_str = "█" * bar_len + "░" * (_BAR_WIDTH - bar_len)
+        bar_text = Text(bar_str, style="green" if victory else "red")
+
         result_str = "[green]WIN[/green]" if victory else "[red]FAIL[/red]"
+
         table.add_row(
-            str(entry.get("date", "")),
+            date_str,
             result_str,
-            f"{entry.get('score', 0):,}",
-            str(entry.get("correct_answers", 0)),
-            f"{entry.get('trace_final', 0)}%",
-            str(entry.get("class_key", "")),
+            bar_text,
+            f"{score:,}",
+            grade_text,
+            str(wrong),
         )
     console.print(table)
 
@@ -1099,6 +1133,12 @@ def render_records_screen(
     daily_content.append(f"총 플레이:     {total_plays}회\n", style="white")
     daily_content.append(f"마지막 플레이: {last_date}\n", style="dim white")
     console.print(Panel(daily_content, title="DAILY CHALLENGE", title_align="left", border_style="cyan"))
+
+    # ── 데일리 히스토리 바 차트 ────────────────────────────────────────────────
+    daily_history = daily_state.get("history", [])
+    if daily_history:
+        render_daily_history(daily_history)
+
     # ── 누적 통계 ─────────────────────────────────────────────────────────
     if stats_snapshot:
         total_runs = stats_snapshot.get("total_runs", 0)

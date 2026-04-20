@@ -83,7 +83,7 @@ def _run(
 
 def test_achievements_tuple_has_109_entries() -> None:
     # 100종 + MYSTERY 5종 + endings_8 1종 + artifact 3종 + perk 3종 + v9.4 3종 = 115종
-    assert len(ACHIEVEMENTS) == 115
+    assert len(ACHIEVEMENTS) == 118
 
 
 def test_achievement_index_matches_tuple() -> None:
@@ -131,7 +131,7 @@ def test_snapshot_counts_match() -> None:
     save = _clean_save(achievements_unlocked=["first_shutdown", "first_breach"])
     snap = get_achievement_snapshot(save["achievements"])
     assert snap["unlocked_count"] == 2
-    assert snap["total_count"] == 115
+    assert snap["total_count"] == 118
     assert snap["unlocked_ids"] == ["first_shutdown", "first_breach"]
 
 
@@ -467,7 +467,7 @@ def test_save_data_achievements_updated_in_place() -> None:
 # ── 신규 업적 (105종 확장) ────────────────────────────────────────────────────
 
 def test_achievements_tuple_has_109_entries_v2() -> None:
-    assert len(ACHIEVEMENTS) == 115
+    assert len(ACHIEVEMENTS) == 118
 
 
 def test_victories_10_milestone() -> None:

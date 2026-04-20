@@ -5,6 +5,35 @@
 
 ---
 
+## [1.13.0] — 2026-04-20
+
+### 추가 (Added)
+- **일일 도전 결과 히스토리 바 차트** (`ui_renderer.render_daily_history`): 기존 텍스트 테이블에서 점수 비례 바 차트 포함 테이블로 강화.
+  - 최신 14개 항목을 최신순(최신→과거)으로 표시.
+  - 각 행: 날짜 · WIN/FAIL · `█░` 점수 바(승리=green, 패배=red) · 점수 · 등급(S/A/B/C/D) · 오답 수.
+  - 최고 점수 기준 상대 비율로 바 길이 결정.
+- **기록 화면 데일리 히스토리 자동 표시**: `render_records_screen`이 `daily_state["history"]`가 있을 때 바 차트 테이블을 DAILY CHALLENGE 요약 패널 직후에 출력.
+- **데일리 streak 업적 3종** (`achievement_data.py`):
+  - `daily_streak_3` — "3일 연속": 데일리 챌린지를 3일 연속으로 완료.
+  - `daily_streak_7` — "일주일의 집착": 7일 연속 완료.
+  - `daily_streak_30` — "한 달의 습관": 30일 연속 완료.
+- **업적 총계 115 → 118종** (`achievement_system.py`): streak 평가 블록 추가.
+
+### 변경 (Changed)
+- `ui_renderer.py` 상단에 `from daily_challenge import get_performance_grade as _get_daily_grade` 추가 — 바 차트 등급 표시에 사용.
+
+### 테스트
+- `tests/test_daily_history.py` 신규 (36케이스):
+  - `TestRenderDailyHistoryBarChart` (9): 빈 히스토리·테이블 렌더·비례 바·색상·등급·오답·14개 상한·제목·최신순.
+  - `TestDailyStreakAchievements` (10): streak 2/3/7/30/50·중복 방지·필드 누락 방어·메타데이터.
+  - `TestRecordsScreenDailyHistory` (3): 히스토리 있을 때 호출·없을 때 미호출·올바른 데이터 전달.
+  - `TestNormalizeHistoryRingBuffer` (7): 빈 리스트·비정상 타입·30개 상한·최신 30개 유지·잘못된 항목 스킵·음수 점수 클램프·필드 존재.
+  - `TestRecordDailyResult` (7): 첫 플레이·연속 증가·갭 리셋·베스트 점수·히스토리 추가·30개 상한·총 플레이.
+- `tests/test_achievement_system.py` — 업적 수 기대값 115 → 118 갱신 (3케이스 수정).
+- 682 → **718 케이스**.
+
+---
+
 ## [1.12.0] — 2026-04-20
 
 ### 추가 (Added)
