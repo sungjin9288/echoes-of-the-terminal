@@ -7,7 +7,7 @@
   [![License: MIT](https://img.shields.io/badge/License-MIT-39FF14?style=flat-square)](LICENSE)
   [![Tests](https://img.shields.io/badge/Tests-749%20passing-39FF14?style=flat-square&logo=pytest&logoColor=white)](tests/)
   [![Coverage](https://img.shields.io/badge/Coverage-81%25%2B-00FFFF?style=flat-square)](tests/)
-  [![Version](https://img.shields.io/badge/Version-v1.15.0-FFD700?style=flat-square)](CHANGELOG.md)
+  [![Version](https://img.shields.io/badge/Version-v1.16.0-FFD700?style=flat-square)](CHANGELOG.md)
 
   <br/>
 

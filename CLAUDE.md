@@ -112,6 +112,8 @@ Echoes of the Terminal/
 │   └── test_leaderboard_io.py
 │
 ├── scripts/                 # 유틸리티 스크립트
+│   ├── generate_boss_phase_pack_template.py  # 보스 페이즈 팩 템플릿 생성기
+│   └── itch_upload.sh       # butler CLI itch.io 3-플랫폼 업로드 자동화 (v1.16)
 ├── requirements.txt
 ├── requirements-dev.txt
 └── README.md                # 한국어 게임 가이드

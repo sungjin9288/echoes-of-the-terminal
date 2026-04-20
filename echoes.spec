@@ -9,6 +9,8 @@ a = Analysis(
         ("scenarios.json", "."),
         ("argos_taunts.json", "."),
         ("boss_phase_pack.json", "."),
+        ("locale", "locale"),
+        ("packs", "packs"),
     ],
     hiddenimports=[],
     hookspath=[],

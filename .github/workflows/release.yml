@@ -14,13 +14,13 @@ jobs:
         include:
           - os: ubuntu-latest
             artifact_name: echoes-linux
-            pyinstaller_name: echoes
+            exe_name: EchoesOfTheTerminal
           - os: windows-latest
             artifact_name: echoes-windows
-            pyinstaller_name: echoes.exe
+            exe_name: EchoesOfTheTerminal.exe
           - os: macos-latest
             artifact_name: echoes-macos
-            pyinstaller_name: echoes
+            exe_name: EchoesOfTheTerminal
 
     steps:
       - name: Checkout
@@ -41,11 +41,19 @@ jobs:
       - name: Build with PyInstaller
         run: pyinstaller echoes.spec
 
+      - name: Rename artifact for platform
+        shell: bash
+        run: |
+          src="dist/${{ matrix.exe_name }}"
+          dst="dist/${{ matrix.artifact_name }}"
+          [ "${{ matrix.os }}" = "windows-latest" ] && dst="${dst}.exe"
+          mv "$src" "$dst" 2>/dev/null || true
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact_name }}
-          path: dist/${{ matrix.pyinstaller_name }}
+          path: dist/${{ matrix.artifact_name }}*
 
   release:
     needs: build
@@ -61,8 +69,8 @@ jobs:
         with:
           path: dist-artifacts
 
-      - name: Create GitHub Release
+      - name: Upload binaries to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: dist-artifacts/**/*
-          generate_release_notes: true
+          update_existing_release: true

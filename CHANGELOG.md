@@ -5,6 +5,31 @@
 
 ---
 
+## [1.16.0] — 2026-04-20
+
+### 추가 (Added)
+- **itch.io 배포 인프라**:
+  - `scripts/itch_upload.sh` — butler CLI 3-플랫폼 업로드 자동화 스크립트 (linux/windows/mac 채널). `ITCH_USER` 환경 변수 + 버전 자동 추출.
+  - `docs/ITCH_PAGE.md` — itch.io 게임 페이지 설명문 (한국어·영어). 게임 소개·특징·명령어·시스템 요구사항·업로드 체크리스트 포함.
+- **PyInstaller 빌드 개선** (`echoes.spec`):
+  - `datas`에 `locale/`·`packs/` 디렉터리 추가 — i18n 언어 파일과 DLC 팩 JSON을 단일 실행 파일에 번들링.
+- **GitHub Actions 수정** (`.github/workflows/release.yml`):
+  - `pyinstaller_name` → `exe_name`으로 명칭 정리. spec 출력파일 `EchoesOfTheTerminal`과 일치.
+  - Rename 스텝 추가: 플랫폼별로 `echoes-linux` / `echoes-windows.exe` / `echoes-macos`로 재명명.
+  - `update_existing_release: true` 추가 — 수동 생성 릴리즈에 바이너리 자동 첨부 지원.
+
+### 변경 (Changed)
+- `pyproject.toml` / `constants.py`: 버전 `1.15.0` → `1.16.0`.
+
+### 배포 방법
+```bash
+# 1. GitHub Actions가 자동으로 3-플랫폼 바이너리 빌드 (v* 태그 push 시)
+# 2. dist-artifacts/ 에 바이너리 배치 후:
+ITCH_USER=<your_username> ./scripts/itch_upload.sh v1.16.0
+```
+
+---
+
 ## [1.15.0] — 2026-04-20
 
 ### 추가 (Added)
