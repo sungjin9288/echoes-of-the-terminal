@@ -32,6 +32,15 @@
   "lobby.menu.change_slot": "[7] Change Slot",
   "lobby.menu.change_theme": "[8] Change Theme",
   "lobby.menu.change_language": "[9] Change Language",
+  "lobby.menu.lb_export": "[a] Export Leaderboard",
+  "lobby.menu.lb_import": "[b] Import Leaderboard",
+
+  "lb.export.prompt": "Enter export file path (e.g. leaderboard_export.json)",
+  "lb.export.success": "Leaderboard exported: {path}",
+  "lb.export.fail": "Export failed: {err}",
+  "lb.import.prompt": "Enter import file path",
+  "lb.import.success": "Merge complete — added: {added} / skipped: {skipped} / total: {total}",
+  "lb.import.fail": "Import failed: {err}",
 
   "lobby.prompt.menu": "Select menu option",
   "lobby.prompt.slot": "Select save slot",

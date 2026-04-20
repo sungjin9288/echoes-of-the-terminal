@@ -5,6 +5,29 @@
 
 ---
 
+## [1.14.0] — 2026-04-20
+
+### 추가 (Added)
+- **리더보드 내보내기/가져오기** (`progression_system.export_leaderboard` / `import_leaderboard`):
+  - `export_leaderboard(save_data, path)` — SHA-256 서명된 JSON 파일로 리더보드 저장.
+  - `import_leaderboard(path, save_data)` — 서명 검증 후 기존 리더보드와 병합, `LEADERBOARD_MAX` 상한 유지.
+  - 병합 로직: 기존 + 임포트 항목 합산 → 점수 내림차순 → (score, date, class_key) 중복 제거 → Top 10 → 순위 재계산.
+  - `LeaderboardImportError` 예외: 파일 없음 / JSON 파싱 실패 / 포맷 불일치 / 서명 불일치 시 발생.
+- **로비 메뉴 `[a]` / `[b]`**: 리더보드 내보내기 / 가져오기 메뉴 항목 추가.
+  - 내보내기(`a`): 파일 경로 입력(기본값 `leaderboard_export.json`) → 저장.
+  - 가져오기(`b`): 파일 경로 입력 → 검증 & 병합 → 세이브 즉시 반영.
+- **i18n 키 추가** (`locale/ko.json`, `locale/en.json`): `lb.export.*` / `lb.import.*` / `lobby.menu.lb_export` / `lobby.menu.lb_import`.
+
+### 테스트
+- `tests/test_leaderboard_io.py` 신규 (31케이스):
+  - `TestComputeSignature` (5): 결정성·변조 탐지·빈 보드·순서 민감·hex 형식.
+  - `TestExportLeaderboard` (8): 파일 생성·포맷·내용·서명·빈 보드·디렉터리 자동 생성·OSError.
+  - `TestImportLeaderboard` (13): 정상 경로·항목 반영·서명 불일치·포맷 오류·파일 없음·JSON 오류·리스트 아님·병합·정렬·중복 제거·상한·순위 재계산·반환 통계.
+  - `TestRoundTrip` (4): 항목 보존·변조 탐지·점수 정렬·자기 임포트 중복 없음.
+- 718 → **749 케이스**.
+
+---
+
 ## [1.13.0] — 2026-04-20
 
 ### 추가 (Added)

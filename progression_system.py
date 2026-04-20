@@ -1,5 +1,6 @@
 """메타 진행도(재화/특성) 저장 및 정산을 담당하는 모듈."""
 
+import hashlib
 import json
 import os
 import sys
@@ -1331,3 +1332,136 @@ def get_diver_profile(save_data: dict[str, Any]) -> dict[str, Any]:
         "achievements_count": achievements_count,
         "campaign_cleared": campaign_cleared,
     }
+
+
+# ── 리더보드 임포트/익스포트 ───────────────────────────────────────────────────
+
+#: 익스포트 파일 포맷 식별자 — 변조 탐지 및 버전 확인에 사용.
+_LB_FORMAT: str = "echoes_leaderboard_v1"
+
+#: HMAC-style 서명 솔트 — 소스 내 하드코딩으로 단순 파일 조작을 억제함.
+_LB_SIGN_SALT: str = "ECHOES_LEADERBOARD_SIGN_v1"
+
+
+def _compute_lb_signature(leaderboard: list[dict[str, Any]]) -> str:
+    """리더보드 목록의 SHA-256 서명을 계산한다.
+
+    JSON 직렬화 시 `sort_keys=True`, `separators=(",", ":")` 로 정규화하여
+    동일한 데이터에 대해 항상 동일한 서명을 반환한다.
+    """
+    payload = json.dumps(leaderboard, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+    raw = f"{_LB_SIGN_SALT}:{payload}"
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+
+def export_leaderboard(save_data: dict[str, Any], path: str) -> None:
+    """로컬 리더보드를 서명된 JSON 파일로 내보낸다.
+
+    파일 포맷:
+    ```json
+    {
+      "format": "echoes_leaderboard_v1",
+      "leaderboard": [...],
+      "signature": "<sha256hex>"
+    }
+    ```
+
+    Args:
+        save_data: 현재 세이브 데이터.
+        path:      저장할 파일 경로 문자열.
+
+    Raises:
+        OSError: 파일 쓰기에 실패한 경우.
+    """
+    board = get_leaderboard(save_data)
+    signature = _compute_lb_signature(board)
+    export_obj = {
+        "format": _LB_FORMAT,
+        "leaderboard": board,
+        "signature": signature,
+    }
+    out_path = Path(path)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(export_obj, f, ensure_ascii=False, indent=2)
+
+
+class LeaderboardImportError(Exception):
+    """리더보드 임포트 실패를 나타내는 예외."""
+
+
+def import_leaderboard(
+    path: str,
+    save_data: dict[str, Any],
+) -> dict[str, int]:
+    """서명된 리더보드 JSON을 가져와 현재 리더보드에 병합한다.
+
+    병합 로직:
+    1. 파일을 읽고 JSON 파싱.
+    2. 포맷과 서명 검증.
+    3. 외부 항목 + 기존 항목을 합산해 점수 내림차순 정렬.
+    4. LEADERBOARD_MAX 상한 적용, 순위(rank) 재계산.
+    5. save_data["leaderboard"] 업데이트.
+
+    Args:
+        path:      임포트할 파일 경로 문자열.
+        save_data: 현재 세이브 데이터 (직접 수정).
+
+    Returns:
+        {"added": int, "skipped": int, "total": int}
+
+    Raises:
+        LeaderboardImportError: 파일 읽기 실패 / 포맷 불일치 / 서명 오류.
+    """
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except (OSError, json.JSONDecodeError) as exc:
+        raise LeaderboardImportError(f"파일 읽기 실패: {exc}") from exc
+
+    if not isinstance(data, dict):
+        raise LeaderboardImportError("파일 포맷 오류: 최상위 오브젝트가 아닙니다.")
+
+    if data.get("format") != _LB_FORMAT:
+        raise LeaderboardImportError(
+            f"지원하지 않는 포맷: '{data.get('format')}' (필요: '{_LB_FORMAT}')"
+        )
+
+    imported_board = data.get("leaderboard", [])
+    if not isinstance(imported_board, list):
+        raise LeaderboardImportError("leaderboard 필드가 리스트가 아닙니다.")
+
+    expected_sig = _compute_lb_signature(imported_board)
+    if data.get("signature") != expected_sig:
+        raise LeaderboardImportError("서명 불일치: 파일이 변조되었을 수 있습니다.")
+
+    existing_board: list[dict[str, Any]] = get_leaderboard(save_data)
+    original_count = len(existing_board)
+
+    # 병합: 기존 + 임포트 항목 합산 후 점수 내림차순
+    combined = list(existing_board) + [
+        entry for entry in imported_board
+        if isinstance(entry, dict)
+    ]
+    combined.sort(key=lambda e: int(e.get("score", 0)), reverse=True)
+
+    # 중복 제거 (같은 score + date + class_key 조합)
+    seen: set[tuple[int, str, str]] = set()
+    deduped: list[dict[str, Any]] = []
+    for entry in combined:
+        key = (int(entry.get("score", 0)), str(entry.get("date", "")), str(entry.get("class_key", "")))
+        if key not in seen:
+            seen.add(key)
+            deduped.append(entry)
+
+    trimmed = deduped[:LEADERBOARD_MAX]
+
+    # 순위 재계산
+    for i, entry in enumerate(trimmed):
+        entry["rank"] = i + 1
+
+    save_data["leaderboard"] = trimmed
+
+    added = max(0, len(trimmed) - original_count)
+    skipped = len(imported_board) - added
+    return {"added": added, "skipped": skipped, "total": len(trimmed)}

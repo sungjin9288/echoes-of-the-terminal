@@ -41,6 +41,9 @@ from progression_system import (
     migrate_legacy_save,
     save_game,
     save_game_slot,
+    LeaderboardImportError,
+    export_leaderboard,
+    import_leaderboard,
     update_campaign_progress,
     update_leaderboard,
     update_personal_records,
@@ -463,7 +466,7 @@ def run_lobby_loop(
 
         menu_choice = Prompt.ask(
             f"[bold green]{t('lobby.prompt.menu')}[/bold green]",
-            choices=["1", "2", "3", "4", "5", "6", "7", "8", "9"],
+            choices=["1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b"],
             default="1",
         )
 
@@ -690,4 +693,34 @@ def run_lobby_loop(
 
         if menu_choice == "9":
             select_language(save_data, slot=current_slot)
+            continue
+
+        if menu_choice == "a":
+            default_path = "leaderboard_export.json"
+            out_path = Prompt.ask(
+                f"[bold white]{t('lb.export.prompt')}[/bold white]",
+                default=default_path,
+            )
+            try:
+                export_leaderboard(save_data, out_path)
+                console.print(f"[bold green]{t('lb.export.success', path=out_path)}[/bold green]")
+            except OSError as exc:
+                console.print(f"[bold red]{t('lb.export.fail', err=str(exc))}[/bold red]")
+            wait_for_enter(t("common.press_enter"))
+            continue
+
+        if menu_choice == "b":
+            in_path = Prompt.ask(
+                f"[bold white]{t('lb.import.prompt')}[/bold white]",
+                default="leaderboard_export.json",
+            )
+            try:
+                stats = import_leaderboard(in_path, save_data)
+                _save(save_data)
+                console.print(
+                    f"[bold green]{t('lb.import.success', added=stats['added'], skipped=stats['skipped'], total=stats['total'])}[/bold green]"
+                )
+            except LeaderboardImportError as exc:
+                console.print(f"[bold red]{t('lb.import.fail', err=str(exc))}[/bold red]")
+            wait_for_enter(t("common.press_enter"))
             continue

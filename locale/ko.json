@@ -32,6 +32,15 @@
   "lobby.menu.change_slot": "[7] 슬롯 변경",
   "lobby.menu.change_theme": "[8] 테마 변경",
   "lobby.menu.change_language": "[9] 언어 변경",
+  "lobby.menu.lb_export": "[a] 리더보드 내보내기",
+  "lobby.menu.lb_import": "[b] 리더보드 가져오기",
+
+  "lb.export.prompt": "저장 경로를 입력하세요 (예: leaderboard_export.json)",
+  "lb.export.success": "리더보드 내보내기 완료: {path}",
+  "lb.export.fail": "내보내기 실패: {err}",
+  "lb.import.prompt": "가져올 파일 경로를 입력하세요",
+  "lb.import.success": "병합 완료 — 추가: {added}개 / 건너뜀: {skipped}개 / 최종 항목: {total}개",
+  "lb.import.fail": "가져오기 실패: {err}",
 
   "lobby.prompt.menu": "메뉴를 선택하세요",
   "lobby.prompt.slot": "슬롯을 선택하세요",

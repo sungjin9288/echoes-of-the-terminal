@@ -70,7 +70,7 @@ Echoes of the Terminal/
 ├── argos_taunts.json        # ARGOS AI 다이얼로그
 ├── save_data.json           # 플레이어 세이브 데이터 (런타임 생성)
 │
-├── tests/                   # pytest 테스트 (29파일, 718케이스, 커버리지 81%+)
+├── tests/                   # pytest 테스트 (30파일, 749케이스, 커버리지 81%+)
 │   ├── test_achievement_system.py
 │   ├── test_artifact_effects.py
 │   ├── test_ascension_runtime.py
@@ -100,7 +100,8 @@ Echoes of the Terminal/
 │   ├── test_achievement_progress.py
 │   ├── test_run_timeline.py
 │   ├── test_new_packs_v12.py
-│   └── test_daily_history.py
+│   ├── test_daily_history.py
+│   └── test_leaderboard_io.py
 │
 ├── scripts/                 # 유틸리티 스크립트
 ├── requirements.txt
@@ -332,6 +333,7 @@ def test_penalty_with_elite_modifier(monkeypatch) -> None:
 | `test_run_timeline.py` | 19 | `_make_run_record` timeline 필드·`add_run_to_history` 영속·v2→v3 마이그레이션·UI 렌더링 |
 | `test_new_packs_v12.py` | 26 | Pack 26/27 로드·메타데이터·node_id 범위·필드 검증·난이도 분포·키워드 in text_log·팩 간 충돌 감지·패널티-난이도 매핑 |
 | `test_daily_history.py` | 36 | 바 차트 렌더·streak 업적 해금·records screen 통합·링버퍼 정규화·record_daily_result 저장 |
+| `test_leaderboard_io.py` | 31 | 서명 결정성·변조 탐지·익스포트 파일 구조·임포트 병합·중복 제거·순위 재계산·왕복 통합 |
 
 ---
 

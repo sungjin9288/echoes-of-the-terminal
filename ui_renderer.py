@@ -302,7 +302,9 @@ def render_lobby(
     menu_text.append(t("lobby.menu.tutorial") + "\n", style="dim white")
     menu_text.append(t("lobby.menu.change_slot") + "\n", style="dim white")
     menu_text.append(t("lobby.menu.change_theme") + "\n", style="dim white")
-    menu_text.append(t("lobby.menu.change_language"), style="dim white")
+    menu_text.append(t("lobby.menu.change_language") + "\n", style="dim white")
+    menu_text.append(t("lobby.menu.lb_export") + "\n", style="dim white")
+    menu_text.append(t("lobby.menu.lb_import"), style="dim white")
     console.print(
         Panel(
             menu_text,
