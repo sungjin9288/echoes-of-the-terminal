@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}로비 — Echoes of the Terminal{% endblock %}
+
+{% block content %}
+<div class="lobby-wrap">
+
+  <!-- 로고 -->
+  <div class="logo-box">
+    <div class="logo-eyebrow">ECHOES OF THE</div>
+    <div class="logo-title">TERMINAL<span class="cursor"></span></div>
+    <div class="logo-sub">TEXT LOG ROGUELIKE</div>
+  </div>
+
+  <!-- 플레이어 통계 -->
+  <div class="stat-row">
+    <div class="stat-chip">
+      <span class="dim">RUNS</span>
+      <span class="val">{{ run_count }}</span>
+    </div>
+    <div class="stat-chip">
+      <span class="dim">TOP SCORE</span>
+      <span class="val">{{ top_score }}</span>
+    </div>
+  </div>
+
+  <!-- 클래스 선택 -->
+  <form id="lobby-form"
+        hx-post="/api/lobby/select"
+        hx-target="#lobby-feedback"
+        hx-swap="innerHTML">
+    <div class="section-title">&gt; SELECT CLASS</div>
+    <div class="class-grid">
+      {% for cls in diver_classes %}
+      <label class="class-card {% if cls == selected_class %}active{% endif %}">
+        <input type="radio" name="diver_class" value="{{ cls }}"
+               {% if cls == selected_class %}checked{% endif %}>
+        <span class="cls-name">{{ cls }}</span>
+        {% if cls == "ANALYST" %}
+          <span class="cls-desc">키워드 힌트 · Hard+ 패널티 -10%</span>
+        {% elif cls == "GHOST" %}
+          <span class="cls-desc">REST +15% · 타임아웃 완화</span>
+        {% else %}
+          <span class="cls-desc">속공 스택 · ELITE 아티팩트 +1</span>
+        {% endif %}
+      </label>
+      {% endfor %}
+    </div>
+
+    <!-- 어센션 선택 -->
+    <div class="section-title asc-title">&gt; ASCENSION LEVEL</div>
+    <div class="asc-row">
+      <input type="range" name="ascension" id="asc-slider"
+             min="0" max="20" value="{{ ascension }}"
+             oninput="document.getElementById('asc-val').textContent = this.value">
+      <span id="asc-val" class="asc-val">{{ ascension }}</span>
+    </div>
+
+    <button type="submit" class="btn-secondary">SAVE SETTINGS</button>
+    <div id="lobby-feedback" class="feedback"></div>
+  </form>
+
+  <!-- 게임 시작 -->
+  <form id="start-form"
+        hx-post="/api/game/start"
+        hx-on::after-request="handleStartResp(event)">
+    <button type="submit" class="btn-primary">&gt; START RUN _</button>
+  </form>
+
+</div>
+
+<script>
+function handleStartResp(evt) {
+  try {
+    const data = JSON.parse(evt.detail.xhr.responseText);
+    if (data.redirect) window.location.href = data.redirect;
+  } catch(e) {}
+}
+
+// 클래스 카드 선택 시 active 스타일 갱신
+document.querySelectorAll('input[name="diver_class"]').forEach(r => {
+  r.addEventListener('change', () => {
+    document.querySelectorAll('.class-card').forEach(c => c.classList.remove('active'));
+    r.closest('.class-card').classList.add('active');
+  });
+});
+</script>
+{% endblock %}

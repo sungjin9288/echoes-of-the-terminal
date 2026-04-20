@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% block title %}게임 — Echoes of the Terminal{% endblock %}
+
+{% block content %}
+<div class="game-wrap" id="game-root" data-sid="{{ session_id }}">
+
+  <!-- 터미널 출력 영역 -->
+  <div class="term-screen" id="term-screen">
+    <div id="term-output">
+      <pre class="term-out dim">[ ESTABLISHING CONNECTION... ]</pre>
+    </div>
+
+    <!-- 커맨드 입력 -->
+    <div class="cmd-row" id="cmd-row">
+      <span class="prompt-str">&gt;&nbsp;</span>
+      <form id="cmd-form">
+        <input
+          id="cmd-input"
+          type="text"
+          autocomplete="off"
+          autocorrect="off"
+          spellcheck="false"
+          placeholder="analyze [keyword] | cat log | ls | help"
+          autofocus
+        >
+        <button type="submit" class="btn-send">SEND</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 상태 표시 -->
+  <div class="game-status-bar">
+    <span id="status-txt" class="dim">CONNECTING</span>
+    <span class="sep">|</span>
+    <a href="/" class="dim quit-link" onclick="return quitGame()">[ QUIT ]</a>
+  </div>
+
+</div>
+
+<script>
+const SID = document.getElementById('game-root').dataset.sid;
+const termOutput = document.getElementById('term-output');
+const cmdInput = document.getElementById('cmd-input');
+const statusTxt = document.getElementById('status-txt');
+let polling = true;
+let lastStatus = 'playing';
+
+/* ── 폴링 ────────────────────────────────────────────────────────────── */
+async function poll() {
+  if (!polling) return;
+  try {
+    const res = await fetch(`/api/game/${SID}/poll`);
+    if (!res.ok) { scheduleNext(1000); return; }
+    const data = await res.json();
+
+    // 출력 청크 추가
+    data.chunks.forEach(chunk => appendOutput(chunk.html));
+
+    // 상태 업데이트
+    if (data.status !== lastStatus) {
+      lastStatus = data.status;
+      updateStatus(data.status);
+    }
+
+    scheduleNext(data.waiting ? 300 : 500);
+  } catch(e) {
+    scheduleNext(1000);
+  }
+}
+
+function scheduleNext(ms) {
+  if (polling) setTimeout(poll, ms);
+}
+
+/* ── 출력 추가 ───────────────────────────────────────────────────────── */
+function appendOutput(html) {
+  if (!html || html.trim() === '') return;
+  const div = document.createElement('div');
+  div.innerHTML = html;
+  termOutput.appendChild(div);
+  // 스크롤 하단 고정
+  termOutput.parentElement.scrollTop = termOutput.parentElement.scrollHeight;
+}
+
+/* ── 커맨드 전송 ─────────────────────────────────────────────────────── */
+document.getElementById('cmd-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const cmd = cmdInput.value.trim();
+  cmdInput.value = '';
+  if (lastStatus !== 'playing') return;
+
+  // 에코
+  appendOutput(`<pre class="term-out echo">&gt; ${escHtml(cmd)}</pre>`);
+
+  try {
+    const form = new FormData();
+    form.append('cmd', cmd);
+    await fetch(`/api/game/${SID}/command`, { method: 'POST', body: form });
+  } catch(e) {}
+  poll();
+});
+
+/* ── 상태 업데이트 ───────────────────────────────────────────────────── */
+function updateStatus(s) {
+  const map = { playing: 'ONLINE', ended: 'SESSION ENDED', lobby: 'LOBBY' };
+  statusTxt.textContent = map[s] || s.toUpperCase();
+  if (s === 'ended') {
+    polling = false;
+    appendOutput('<pre class="term-out dim">[ SESSION TERMINATED — <a href="/" style="color:#00FFFF">return to lobby</a> ]</pre>');
+    document.getElementById('cmd-row').style.opacity = '0.3';
+    document.getElementById('cmd-row').style.pointerEvents = 'none';
+  }
+}
+
+/* ── 종료 ────────────────────────────────────────────────────────────── */
+async function quitGame() {
+  if (!confirm('런을 포기하고 로비로 돌아갑니까?')) return false;
+  polling = false;
+  await fetch(`/api/game/${SID}/quit`, { method: 'POST' });
+  window.location.href = '/';
+  return false;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ── 시작 ────────────────────────────────────────────────────────────── */
+cmdInput.focus();
+poll();
+</script>
+{% endblock %}

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Echoes of the Terminal{% endblock %}</title>
+<link rel="stylesheet" href="/static/style.css">
+<script src="https://unpkg.com/htmx.org@1.9.12" defer></script>
+</head>
+<body>
+<header class="site-header">
+  <span class="header-logo">[ ECHOES OF THE TERMINAL ]</span>
+  <span class="header-ver">v2.0</span>
+</header>
+
+<main>
+{% block content %}{% endblock %}
+</main>
+
+<footer class="site-footer">
+  <span class="dim">// analyze [keyword] to breach the core</span>
+</footer>
+</body>
+</html>

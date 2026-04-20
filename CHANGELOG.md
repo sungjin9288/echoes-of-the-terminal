@@ -5,6 +5,51 @@
 
 ---
 
+## [2.0.0] — 2026-04-21
+
+### 추가 (Added)
+- **FastAPI + htmx 웹 UI** (`web/` 패키지 신규):
+  - `web/adapters.py` — `ConsoleBridge` (thread-local 프록시), `WebGameSession` (큐 기반 I/O), `install_patches()` (`builtins.input` + `PromptBase.ask` 패치). 게임 엔진 코드 수정 없음.
+  - `web/session.py` — `SessionStore` (인메모리, TTL 1시간), 세션 생성·조회·만료 정리.
+  - `web/app.py` — FastAPI 앱. 로비 페이지(`GET /`), 게임 페이지(`GET /game`), API 엔드포인트 8종. lifespan 태스크로 5분마다 세션 만료 정리.
+  - `web/templates/base.html` — 공통 레이아웃 (htmx CDN 포함).
+  - `web/templates/lobby.html` — 클래스 선택·어센션 슬라이더·게임 시작 버튼. htmx form 전송.
+  - `web/templates/game.html` — 터미널 출력 영역 + 커맨드 입력 + 300ms htmx 폴링. 게임 종료 감지 및 입력 비활성화.
+  - `web/static/style.css` — Design Token CSS 변수 (`assets/tokens.json` 기반). 터미널 스타일 UI.
+- **Dockerfile** — `python:3.12-slim` 기반 단일 워커 uvicorn 컨테이너.
+- **의존성 추가** (`requirements.txt` / `requirements-dev.txt`): `fastapi`, `uvicorn[standard]`, `jinja2`, `python-multipart`, `httpx`(dev).
+
+### 아키텍처
+```
+[브라우저 htmx]  ──HTTP──>  [FastAPI web/app.py]
+                                  │
+                           [WebGameSession thread]
+                                  │
+                           [기존 run_loops.py 등 — 수정 없음]
+                           (ConsoleBridge → 세션 Console)
+                           (builtins.input → 세션 Queue)
+```
+
+### 실행
+```bash
+# 터미널 버전 (기존)
+python main.py
+
+# 웹 버전 (신규)
+uvicorn web.app:app --reload
+# → http://localhost:8000
+```
+
+### 테스트
+- `tests/test_web_session.py` 신규 (30케이스): 로비·게임페이지·폴링·커맨드·세션 스토어·WebGameSession 단위.
+- 749 → **779 케이스**.
+
+### 변경 (Changed)
+- `pyproject.toml` / `constants.py`: 버전 `1.16.0` → `2.0.0`.
+- `README.md`: 버전 배지 v2.0.0 갱신.
+
+---
+
 ## [1.16.0] — 2026-04-20
 
 ### 추가 (Added)
