@@ -5,7 +5,7 @@
 
   [![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
   [![License: MIT](https://img.shields.io/badge/License-MIT-39FF14?style=flat-square)](LICENSE)
-  [![Tests](https://img.shields.io/badge/Tests-749%20passing-39FF14?style=flat-square&logo=pytest&logoColor=white)](tests/)
+  [![Tests](https://img.shields.io/badge/Tests-779%20passing-39FF14?style=flat-square&logo=pytest&logoColor=white)](tests/)
   [![Coverage](https://img.shields.io/badge/Coverage-81%25%2B-00FFFF?style=flat-square)](tests/)
   [![Version](https://img.shields.io/badge/Version-v2.0.0-FFD700?style=flat-square)](CHANGELOG.md)
 
@@ -13,6 +13,10 @@
 
   **텍스트 기반 로그라이트 추리 게임.**  
   터미널 화면에 출력된 수사 조서와 기밀 문서를 분석해 논리적 모순을 찾아내라.
+
+  <br/>
+
+  ![Echoes of the Terminal — 20초 게임플레이 루프](assets/trailer.gif)
 </div>
 
 ---

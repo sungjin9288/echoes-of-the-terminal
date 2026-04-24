@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Echoes of the Terminal — Demo</title>
+<style>
+:root {
+  --bg:   #0A0E14;
+  --surf: #111820;
+  --grn:  #39FF14;
+  --cyn:  #00FFFF;
+  --red:  #FF073A;
+  --yel:  #FFD700;
+  --dim:  #6B7A8D;
+  --brd:  #2A3F5A;
+  --font: 'Courier New', 'Lucida Console', monospace;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--bg);
+  font-family: var(--font);
+  width: 800px;
+  height: 500px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ── Scanline ── */
+body::after {
+  content:'';
+  position:fixed; inset:0;
+  background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.1) 2px,rgba(0,0,0,.1) 4px);
+  pointer-events:none; z-index:99;
+}
+
+/* ── Screens ── */
+.screen { position:absolute; inset:0; opacity:0; }
+
+/* ─── SCREEN 1: Lobby ─── */
+#s-lobby { background:var(--bg); padding:32px 48px; animation: show-lobby 20s linear infinite; }
+@keyframes show-lobby {
+  0%   { opacity:0 }  2%  { opacity:1 }
+  22%  { opacity:1 }  25% { opacity:0 }
+  100% { opacity:0 }
+}
+.lobby-logo { text-align:center; margin-bottom:28px; }
+.logo-eye { font-size:11px; color:var(--dim); letter-spacing:7px; }
+.logo-title {
+  font-size:52px; font-weight:700; color:var(--grn);
+  text-shadow:0 0 10px var(--grn),0 0 30px #39FF1455;
+  animation: cursor-blink 20s linear infinite;
+}
+.logo-cursor { display:inline-block; width:8px; height:42px; background:var(--grn); vertical-align:top; margin-left:3px; animation: blink 1s step-end infinite; box-shadow:0 0 8px var(--grn); }
+.logo-sub { font-size:12px; color:var(--cyn); letter-spacing:10px; margin-top:6px; }
+
+.class-row { display:flex; gap:12px; margin-bottom:20px; }
+.cls {
+  flex:1; border:1px solid var(--brd); padding:10px 14px;
+  font-size:12px; color:var(--dim); background:var(--surf);
+  transition: all .3s;
+}
+.cls.active { border-color:var(--grn); color:var(--cyn); background:#1a2d1a; box-shadow:0 0 8px #39FF1422; }
+.cls-name { font-weight:700; font-size:13px; display:block; margin-bottom:3px; }
+
+.btn-start {
+  display:block; width:100%; padding:14px;
+  background:var(--grn); color:var(--bg);
+  font-family:var(--font); font-weight:700;
+  font-size:14px; letter-spacing:4px; border:none;
+  box-shadow:0 0 16px var(--grn);
+  animation: btn-pulse 20s linear infinite;
+}
+@keyframes btn-pulse {
+  18% { box-shadow:0 0 16px var(--grn); }
+  20% { box-shadow:0 0 40px var(--grn),0 0 80px #39FF1444; }
+  22% { box-shadow:0 0 16px var(--grn); }
+  100%{ box-shadow:0 0 16px var(--grn); }
+}
+
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+/* ─── SCREEN 2: Booting ─── */
+#s-boot { background:var(--bg); display:flex; align-items:center; justify-content:center; animation: show-boot 20s linear infinite; }
+@keyframes show-boot {
+  24% { opacity:0 } 26% { opacity:1 }
+  32% { opacity:1 } 34% { opacity:0 }
+  100%{ opacity:0 }
+}
+.boot-box { text-align:center; }
+.boot-line { font-size:12px; color:var(--grn); letter-spacing:2px; opacity:0; }
+.boot-line:nth-child(1) { animation: fadein 20s 4.9s linear infinite; }
+.boot-line:nth-child(2) { animation: fadein 20s 5.4s linear infinite; }
+.boot-line:nth-child(3) { animation: fadein 20s 5.8s linear infinite; }
+.boot-line:nth-child(4) { color:var(--cyn); animation: fadein 20s 6.2s linear infinite; }
+@keyframes fadein { 0%,100%{opacity:0} 1%{opacity:1} }
+
+/* ─── SCREEN 3: Combat ─── */
+#s-combat {
+  background:var(--surf); border:1px solid var(--brd);
+  display:flex; flex-direction:column;
+  animation: show-combat 20s linear infinite;
+}
+@keyframes show-combat {
+  34%  { opacity:0 } 36% { opacity:1 }
+  88%  { opacity:1 } 90% { opacity:0 }
+  100% { opacity:0 }
+}
+
+.term-header {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:8px 16px; border-bottom:1px solid var(--brd);
+  font-size:10px; color:var(--dim); letter-spacing:2px;
+}
+.trace-wrap { display:flex; align-items:center; gap:8px; }
+.trace-bar { width:80px; height:4px; background:var(--brd); }
+.trace-fill { height:4px; background:var(--grn); width:0%; transition:width .5s; animation: trace-anim 20s linear infinite; }
+@keyframes trace-anim {
+  34%  { width:0%  }
+  60%  { width:0%  }
+  65%  { width:35% }  /* 오답 없이 진행 */
+  100% { width:35% }
+}
+
+.term-body { flex:1; padding:14px 16px; overflow:hidden; font-size:12px; line-height:1.55; }
+
+/* 시나리오 텍스트 (타이핑 효과) */
+.log-block { color:var(--dim); white-space:pre-wrap; overflow:hidden; max-height:0; animation: expand-log 20s linear infinite; }
+@keyframes expand-log {
+  36%  { max-height:0;    opacity:0 }
+  38%  { opacity:1       }
+  48%  { max-height:220px }
+  100% { max-height:220px }
+}
+
+.cmd-echo { color:var(--cyn); margin-top:8px; overflow:hidden; max-height:0; animation: show-cmd 20s linear infinite; }
+@keyframes show-cmd {
+  48%  { max-height:0; opacity:0 }
+  50%  { max-height:20px; opacity:1 }
+  100% { max-height:20px }
+}
+
+.analyze-echo { color:var(--grn); margin-top:4px; overflow:hidden; max-height:0; animation: show-analyze 20s linear infinite; }
+@keyframes show-analyze {
+  62%  { max-height:0; opacity:0 }
+  64%  { max-height:20px; opacity:1 }
+  100% { max-height:20px }
+}
+
+/* 정답 플래시 */
+.success-flash {
+  margin-top:10px;
+  padding:10px 16px;
+  border:1px solid var(--grn);
+  background:#0f200f;
+  color:var(--grn);
+  font-weight:700;
+  letter-spacing:2px;
+  opacity:0;
+  animation: show-success 20s linear infinite;
+  box-shadow:0 0 16px #39FF1433;
+}
+@keyframes show-success {
+  66%  { opacity:0; transform:scale(.97) }
+  68%  { opacity:1; transform:scale(1)   }
+  85%  { opacity:1 }
+  88%  { opacity:0 }
+  100% { opacity:0 }
+}
+
+.success-detail { font-size:11px; color:var(--dim); font-weight:400; margin-top:4px; }
+
+.term-footer {
+  display:flex; align-items:center; gap:8px;
+  padding:8px 16px; border-top:1px solid var(--brd);
+  font-size:12px;
+}
+.prompt { color:var(--grn); }
+.cmd-input {
+  color:var(--cyn); flex:1;
+  animation: type-cmd 20s linear infinite;
+}
+
+/* cmd input animation: cat log → analyze 무역 */
+@keyframes type-cmd {
+  48%  { content:""; }
+  50%  { color:var(--cyn); }
+  61%  { color:var(--cyn); }
+  62%  { color:var(--grn); }
+  87%  { color:var(--grn); }
+  88%  { color:var(--cyn); }
+  100% { color:var(--cyn); }
+}
+#cmd-text { color:inherit; }
+
+/* ─── NODE CLEAR badge ─── */
+.node-badge {
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  background:#0f200f; border:2px solid var(--grn);
+  padding:20px 40px; text-align:center;
+  box-shadow:0 0 40px #39FF1444;
+  opacity:0;
+  animation: badge-anim 20s linear infinite;
+  z-index:10;
+}
+@keyframes badge-anim {
+  74%  { opacity:0; transform:translate(-50%,-50%) scale(.8) }
+  76%  { opacity:1; transform:translate(-50%,-50%) scale(1)  }
+  86%  { opacity:1 }
+  88%  { opacity:0 }
+  100% { opacity:0 }
+}
+.badge-title { font-size:13px; color:var(--dim); letter-spacing:4px; }
+.badge-main  { font-size:32px; font-weight:700; color:var(--grn); text-shadow:0 0 12px var(--grn); margin:4px 0; }
+.badge-sub   { font-size:11px; color:var(--yel); letter-spacing:2px; }
+</style>
+</head>
+<body>
+
+<!-- ── Screen 1: Lobby ── -->
+<div class="screen" id="s-lobby">
+  <div class="lobby-logo">
+    <div class="logo-eye">ECHOES OF THE</div>
+    <div class="logo-title">TERMINAL<span class="logo-cursor"></span></div>
+    <div class="logo-sub">TEXT LOG ROGUELIKE</div>
+  </div>
+
+  <div class="class-row">
+    <div class="cls">
+      <span class="cls-name">ANALYST</span>
+      <span>키워드 힌트 · 패널티 -10%</span>
+    </div>
+    <div class="cls">
+      <span class="cls-name">GHOST</span>
+      <span>REST +15% · 타임아웃 완화</span>
+    </div>
+    <div class="cls active">
+      <span class="cls-name">CRACKER</span>
+      <span>속공 스택 · ELITE 아티팩트 +1</span>
+    </div>
+  </div>
+  <button class="btn-start">&gt; START RUN _</button>
+</div>
+
+<!-- ── Screen 2: Boot ── -->
+<div class="screen" id="s-boot">
+  <div class="boot-box">
+    <div class="boot-line">[ INITIALIZING CRACKER CLASS... ]</div>
+    <div class="boot-line">[ LOADING SCENARIO POOL... 290 NODES ]</div>
+    <div class="boot-line">[ BUILDING ROUTE MAP: 7 NODES + BOSS ]</div>
+    <div class="boot-line">[ CONNECTION ESTABLISHED — TRACE: 0% ]</div>
+  </div>
+</div>
+
+<!-- ── Screen 3: Combat ── -->
+<div class="screen" id="s-combat">
+  <div class="term-header">
+    <span>NODE 1/7 &nbsp;·&nbsp; NORMAL &nbsp;·&nbsp; EASY</span>
+    <div class="trace-wrap">
+      <span>TRACE</span>
+      <div class="trace-bar"><div class="trace-fill"></div></div>
+      <span id="trace-pct">0%</span>
+    </div>
+    <span>CRACKER CLASS</span>
+  </div>
+
+  <div class="term-body">
+    <div class="log-block">【수사 조서 #명-1424-A】
+
+작성일시: 1424년 8월
+작성자: 도찰원 어사 왕진
+
+■ 사건 개요
+
+북경 자금성 내 비단 밀매 혐의.
+용의자 상인 이세풍.
+
+■ 진술 내용
+
+이세풍: 저는 황실에 비단을 납품한 적이 없습니다.
+1424년 8월, 영락제 폐하 서거 직후 황성 밖 객잔에 있었습니다.
+비단 구매는 개인 <span style="color:var(--yel)">무역</span>이었습니다.
+
+■ 모순 포인트: 영락제 재위 중 민간 무역은 엄격히 금지되었다.</div>
+
+    <div class="cmd-echo">&gt; cat log</div>
+    <div class="analyze-echo">&gt; analyze 무역</div>
+
+    <div class="success-flash">
+      ✓ CORRECT ANALYSIS — 무역
+      <div class="success-detail">논리적 모순 탐지 완료 · TRACE -5% (CRACKER 속공 보너스)</div>
+    </div>
+  </div>
+
+  <div class="term-footer">
+    <span class="prompt">&gt;&nbsp;</span>
+    <span class="cmd-input" id="cmd-text">_</span>
+  </div>
+
+  <!-- Node Clear Badge -->
+  <div class="node-badge">
+    <div class="badge-title">NODE CLEARED</div>
+    <div class="badge-main">+10 조각</div>
+    <div class="badge-sub">EASY · NEXT NODE →</div>
+  </div>
+</div>
+
+<script>
+// cmd input text animation timeline
+const cmds = [
+  { t: 7.0,  txt: "_" },
+  { t: 7.5,  txt: "c_" },
+  { t: 7.8,  txt: "ca_" },
+  { t: 8.0,  txt: "cat_" },
+  { t: 8.2,  txt: "cat l_" },
+  { t: 8.4,  txt: "cat lo_" },
+  { t: 8.6,  txt: "cat log_" },
+  { t: 8.8,  txt: "" }, // enter
+  { t: 12.2, txt: "_" },
+  { t: 12.5, txt: "a_" },
+  { t: 12.7, txt: "an_" },
+  { t: 12.9, txt: "ana_" },
+  { t: 13.1, txt: "anal_" },
+  { t: 13.3, txt: "analy_" },
+  { t: 13.5, txt: "analyz_" },
+  { t: 13.7, txt: "analyze_" },
+  { t: 13.9, txt: "analyze _" },
+  { t: 14.1, txt: "analyze 무_" },
+  { t: 14.3, txt: "analyze 무역_" },
+  { t: 14.5, txt: "" }, // enter
+];
+
+const el = document.getElementById('cmd-text');
+const LOOP = 20;
+
+function tick() {
+  const now = (Date.now() / 1000) % LOOP;
+  let cur = "_";
+  for (const c of cmds) {
+    if (now >= c.t) cur = c.txt;
+  }
+  el.textContent = cur;
+  requestAnimationFrame(tick);
+}
+tick();
+
+// trace pct counter
+const pctEl = document.getElementById('trace-pct');
+function traceTick() {
+  const now = (Date.now() / 1000) % LOOP;
+  let pct = 0;
+  if (now > 11 && now < 13.5) pct = 0;
+  else if (now >= 13.5) pct = 35;
+  pctEl.textContent = Math.round(pct) + '%';
+  requestAnimationFrame(traceTick);
+}
+traceTick();
+</script>
+</body>
+</html>

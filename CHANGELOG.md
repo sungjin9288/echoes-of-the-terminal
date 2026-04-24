@@ -5,6 +5,16 @@
 
 ---
 
+## [2.0.1] — 2026-04-24
+
+### 추가 (Added)
+- **GIF 트레일러** (`assets/trailer.gif`): 20초 루프 애니메이션 — 로비(CRACKER 선택) → 부팅 → 전투(수사 조서 → `cat log` → `analyze 무역` → 정답 성공 → NODE CLEARED 배지). 800×500, 82프레임, 196 KB.
+- **트레일러 생성 스크립트** (`scripts/make_trailer_gif.py`): Playwright headless + Pillow — CSS 애니메이션 타임라인을 프레임별 시킹 후 PNG 캡처 → GIF 합성.
+- `README.md`: 상단에 트레일러 GIF 삽입, 테스트 배지 749 → 779 갱신.
+- **데모 HTML** (`assets/demo_preview.html`): 트레일러 소스. 800×500 셀프-컨테인드 CSS 애니메이션 (외부 의존 없음).
+
+---
+
 ## [2.0.0] — 2026-04-21
 
 ### 추가 (Added)
