@@ -13,6 +13,10 @@
 |---|---|
 | **Python** | 3.12 (최소 3.11+) |
 | **rich** | `>=13.0.0` (prod), `==14.3.3` (dev) |
+| **fastapi** | `>=0.111` |
+| **uvicorn[standard]** | ASGI 서버 |
+| **jinja2** | 웹 템플릿 엔진 |
+| **httpx** | 테스트용 비동기 HTTP 클라이언트 |
 | **pytest** | `==9.0.2` |
 | **주요 stdlib** | `json`, `dataclasses`, `enum`, `random`, `threading`, `time`, `pathlib`, `hashlib`, `re` |
 
@@ -91,7 +95,7 @@ Echoes of the Terminal/
 │
 ├── Dockerfile               # python:3.12-slim + uvicorn (v2.0)
 │
-├── tests/                   # pytest 테스트 (31파일, 779케이스, 커버리지 81%+)
+├── tests/                   # pytest 테스트 (32파일, 779케이스, 커버리지 81%+)
 │   ├── test_achievement_system.py
 │   ├── test_artifact_effects.py
 │   ├── test_ascension_runtime.py
