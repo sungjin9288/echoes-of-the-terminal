@@ -20,6 +20,7 @@ install_patches()            # builtins.input + PromptBase.ask 패치
 
 # ── 2. 이후 일반 임포트 ───────────────────────────────────────────────────────
 import asyncio
+import pathlib
 import time
 from contextlib import asynccontextmanager
 from typing import Any
@@ -33,7 +34,7 @@ from web.session import SESSION_TTL, store
 
 # ── 앱 설정 ────────────────────────────────────────────────────────────────────
 
-BASE_DIR = __file__[: __file__.rfind("/")]  # web/ 디렉터리
+BASE_DIR = str(pathlib.Path(__file__).parent)  # web/ 디렉터리 (Windows 호환)
 
 
 @asynccontextmanager
