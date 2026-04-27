@@ -148,11 +148,15 @@ class TestExportLeaderboard:
         export_leaderboard(save, out)
         assert Path(out).exists()
 
-    def test_export_raises_oserror_on_invalid_path(self) -> None:
+    def test_export_raises_oserror_on_invalid_path(self, tmp_path: Path) -> None:
+        # 부모 경로에 파일이 존재하면 mkdir 가 NotADirectoryError(OSError) 를 발생시킨다.
+        # Unix/Windows 공통 동작.
+        blocker = tmp_path / "not_a_dir"
+        blocker.write_text("I am a file, not a dir")
+        invalid = str(blocker / "leaderboard.json")
         save = _make_save_data([_make_entry()])
         with pytest.raises(OSError):
-            # 존재하지 않는 드라이브 또는 권한 없는 경로
-            export_leaderboard(save, "/dev/null/impossible/path.json")
+            export_leaderboard(save, invalid)
 
 
 # ── TestImportLeaderboard ──────────────────────────────────────────────────

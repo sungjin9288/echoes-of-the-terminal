@@ -21,6 +21,22 @@ from progression_system import (
 )
 
 
+# ── 픽스처 ───────────────────────────────────────────────────────────────────────
+
+
+@pytest.fixture
+def save_dir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """세이브 파일을 tmp_path 로 격리한다.
+
+    Windows에서 _get_slot_save_path 가 %APPDATA% 를 우선 참조하므로
+    monkeypatch.chdir 만으로는 격리되지 않는다.
+    APPDATA 환경변수를 제거하면 _get_slot_save_path 가 cwd 를 사용하게 된다.
+    """
+    monkeypatch.delenv("APPDATA", raising=False)
+    monkeypatch.chdir(tmp_path)
+    return tmp_path
+
+
 # ── 슬롯 경로 ─────────────────────────────────────────────────────────────────────
 
 def test_slot_paths_are_distinct() -> None:
@@ -64,10 +80,9 @@ def test_get_slot_info_empty_when_no_file(
 
 
 def test_get_slot_info_returns_fragments_and_victories(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    save_dir: Path,
 ) -> None:
     """슬롯 파일이 있으면 data_fragments와 campaign_victories를 반환한다."""
-    monkeypatch.chdir(tmp_path)
     save = deepcopy(DEFAULT_SAVE_DATA)
     save["data_fragments"] = 500
     save["campaign"]["victories"] = 7
@@ -83,10 +98,9 @@ def test_get_slot_info_returns_fragments_and_victories(
 
 
 def test_get_slot_info_corrupted_on_invalid_json(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    save_dir: Path,
 ) -> None:
     """JSON이 깨진 파일은 corrupted=True를 반환한다."""
-    monkeypatch.chdir(tmp_path)
     slot_path = _get_slot_save_path(2)
     slot_path.write_text("NOT_JSON{{{", encoding="utf-8")
 
@@ -130,10 +144,9 @@ def test_save_and_load_slot_roundtrip(
 
 
 def test_save_game_slot_writes_to_correct_file(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    save_dir: Path,
 ) -> None:
     """save_game_slot은 지정 슬롯 파일에만 쓴다."""
-    monkeypatch.chdir(tmp_path)
     save = deepcopy(DEFAULT_SAVE_DATA)
 
     save_game_slot(save, 1)
@@ -145,10 +158,9 @@ def test_save_game_slot_writes_to_correct_file(
 
 
 def test_load_save_slot_creates_default_on_missing_file(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    save_dir: Path,
 ) -> None:
     """파일이 없으면 기본값 세이브가 반환된다."""
-    monkeypatch.chdir(tmp_path)
     loaded = load_save_slot(2)
     assert loaded["data_fragments"] == 0
     assert loaded["schema_version"] == 3
@@ -176,14 +188,13 @@ def test_slots_are_independent(
 # ── migrate_legacy_save ───────────────────────────────────────────────────────────
 
 def test_migrate_legacy_save_copies_to_slot1(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    save_dir: Path,
 ) -> None:
     """save_data.json이 있고 슬롯 1이 없을 때 슬롯 1로 복사된다."""
-    monkeypatch.chdir(tmp_path)
     save = deepcopy(DEFAULT_SAVE_DATA)
     save["data_fragments"] = 42
     # 레거시 파일 생성 (CWD 기준 save_data.json)
-    (tmp_path / "save_data.json").write_text(json.dumps(save), encoding="utf-8")
+    (save_dir / "save_data.json").write_text(json.dumps(save), encoding="utf-8")
 
     migrate_legacy_save()
 
@@ -214,9 +225,8 @@ def test_migrate_legacy_save_skips_if_slot1_exists(
 
 
 def test_migrate_legacy_save_noop_if_no_legacy(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    save_dir: Path,
 ) -> None:
     """레거시 파일이 없으면 슬롯 1 파일을 생성하지 않는다."""
-    monkeypatch.chdir(tmp_path)
     migrate_legacy_save()
     assert not _get_slot_save_path(1).exists()
