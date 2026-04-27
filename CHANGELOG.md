@@ -5,6 +5,19 @@
 
 ---
 
+## [2.0.2] — 2026-04-27
+
+### 추가 (Added)
+- **fly.io 배포 설정** (`fly.toml`): Tokyo(nrt) 리전, 256MB 공유 VM, auto-stop/start (무료 티어 최적화). Play in Browser URL: `https://echoes-terminal.fly.dev`
+- **GitHub Actions 배포 워크플로우** (`.github/workflows/deploy-fly.yml`): 버전 태그 푸시 또는 수동 트리거 시 fly.io 자동 배포. `FLY_API_TOKEN` 시크릿 필요.
+- `README.md`: "Play in Browser" 배지 + 플레이 방법 3가지 (브라우저/터미널/로컬 웹서버) 안내.
+
+### 변경 (Changed)
+- `pyproject.toml`: 버전 `2.0.0` → `2.0.1`, 의존성에 FastAPI / uvicorn / jinja2 / python-multipart 추가 (웹 UI 출시 이후 누락 반영).
+- `.github/workflows/tests.yml` / `release.yml`: `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"` 환경 변수 추가 (Node.js 20 → 24 전환 대응, GitHub Actions 2026-06-02 강제 적용 예정).
+
+---
+
 ## [2.0.1] — 2026-04-24
 
 ### 추가 (Added)

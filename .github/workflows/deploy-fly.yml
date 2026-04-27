@@ -1,0 +1,25 @@
+name: Deploy to fly.io
+
+on:
+  push:
+    tags:
+      - "v*"    # 버전 태그 푸시 시 자동 배포
+  workflow_dispatch:  # 수동 트리거
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"  # Node.js 20 deprecation 대응
+
+jobs:
+  deploy:
+    name: Deploy Web UI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy to fly.io
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

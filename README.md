@@ -7,7 +7,8 @@
   [![License: MIT](https://img.shields.io/badge/License-MIT-39FF14?style=flat-square)](LICENSE)
   [![Tests](https://img.shields.io/badge/Tests-779%20passing-39FF14?style=flat-square&logo=pytest&logoColor=white)](tests/)
   [![Coverage](https://img.shields.io/badge/Coverage-81%25%2B-00FFFF?style=flat-square)](tests/)
-  [![Version](https://img.shields.io/badge/Version-v2.0.0-FFD700?style=flat-square)](CHANGELOG.md)
+  [![Version](https://img.shields.io/badge/Version-v2.0.1-FFD700?style=flat-square)](CHANGELOG.md)
+  [![Play in Browser](https://img.shields.io/badge/Play%20in%20Browser-fly.io-8B5CF6?style=flat-square&logo=fly.io)](https://echoes-terminal.fly.dev)
 
   <br/>
 
@@ -39,9 +40,20 @@
 
 ## 플레이 방법
 
+### 🌐 브라우저에서 바로 플레이
+**https://echoes-terminal.fly.dev** — 설치 없이 브라우저에서 즉시 플레이 (fly.io 무료 티어, 콜드 스타트 ~2초)
+
+### 💻 로컬 터미널 버전 (권장)
 ```bash
 pip install -r requirements.txt
 python main.py
+```
+
+### 🖥️ 웹 서버 직접 실행
+```bash
+pip install -r requirements.txt
+uvicorn web.app:app --reload
+# → http://localhost:8000
 ```
 
 Python 3.11 이상 권장 (3.12 테스트 완료).

@@ -4,6 +4,9 @@ on:
   push:
   pull_request:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"  # Node.js 20 deprecation 대응 (June 2026)
+
 jobs:
   test:
     runs-on: ${{ matrix.os }}
