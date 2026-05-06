@@ -5,6 +5,16 @@
 
 ---
 
+## [2.0.3] — 2026-04-27
+
+### 추가 (Added)
+- **fly.io 실제 배포 완료**: `https://echoes-terminal.fly.dev` 라이브. Tokyo(nrt) 리전, 256MB 공유 VM, auto-stop/start.
+- **GitHub Actions `FLY_API_TOKEN` 시크릿 등록**: 태그 푸시 시 `deploy-fly.yml` 자동 배포 활성화.
+- **동적 CI 배지** (`README.md`): 정적 "Tests: 779 passing" 배지 대신 GitHub Actions 실시간 상태 배지 추가.
+- 버전 배지 v2.0.1 → v2.0.3, `pyproject.toml` / `constants.py` 버전 동기화.
+
+---
+
 ## [2.0.2] — 2026-04-27
 
 ### 추가 (Added)

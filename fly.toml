@@ -1,32 +1,33 @@
-# fly.toml — Echoes of the Terminal 웹 버전 fly.io 배포 설정
-# 최초 배포: fly launch --name echoes-terminal --region nrt --dockerfile Dockerfile
-# 재배포:    fly deploy
+# fly.toml app configuration file generated for echoes-terminal on 2026-05-06T10:28:19+09:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
 
-app = "echoes-terminal"
-primary_region = "nrt"  # Tokyo — 한국 사용자 최저 레이턴시
+app = 'echoes-terminal'
+primary_region = 'nrt'
 
 [build]
-  dockerfile = "Dockerfile"
+  dockerfile = 'Dockerfile'
 
 [env]
-  PORT = "8000"
+  PORT = '8000'
 
 [http_service]
   internal_port = 8000
   force_https = true
-  auto_stop_machines = true   # 요청 없을 때 머신 정지 (무료 티어 유지)
-  auto_start_machines = true  # 요청 수신 시 자동 시작
-  min_machines_running = 0    # 비용 최소화 (콜드 스타트 ~2초)
-  processes = ["app"]
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
 
   [[http_service.checks]]
-    grace_period = "10s"
-    interval = "15s"
-    method = "GET"
-    path = "/"
-    timeout = "5s"
+    interval = '15s'
+    timeout = '5s'
+    grace_period = '10s'
+    method = 'GET'
+    path = '/'
 
 [[vm]]
-  memory = "256mb"
-  cpu_kind = "shared"
+  memory = '256mb'
   cpus = 1
+  memory_mb = 256
