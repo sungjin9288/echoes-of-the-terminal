@@ -5,6 +5,18 @@
 
 ---
 
+## [2.0.4] — 2026-04-27
+
+### 변경 (Changed)
+- **웹 UI: 300ms 폴링 → SSE(Server-Sent Events) 교체** (`web/app.py`, `web/templates/game.html`):
+  - `GET /api/game/{sid}/stream` — SSE 엔드포인트 신규 추가. 50ms 주기로 출력 큐를 체크해 브라우저에 push. 세션 종료 시 `done` 이벤트로 스트림 닫음. `X-Accel-Buffering: no` 헤더로 nginx 버퍼링 비활성화.
+  - `game.html` — `setInterval` + `fetch` 폴링 → `EventSource` 기반으로 전면 교체. 연결 끊김 시 2초 후 자동 재연결.
+  - `GET /api/game/{sid}/poll` — 하위 호환용 폴링 엔드포인트 유지 (테스트용).
+- **SSE 테스트 4케이스 추가** (`tests/test_web_session.py`): 779 → **783 케이스**.
+  - `test_stream_unknown_session_404`, `test_stream_returns_event_stream_content_type`, `test_stream_delivers_pushed_chunks`, `test_stream_sends_done_on_session_end`
+
+---
+
 ## [2.0.3] — 2026-04-27
 
 ### 추가 (Added)

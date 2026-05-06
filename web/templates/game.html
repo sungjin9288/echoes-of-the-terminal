@@ -42,34 +42,34 @@ const SID = document.getElementById('game-root').dataset.sid;
 const termOutput = document.getElementById('term-output');
 const cmdInput = document.getElementById('cmd-input');
 const statusTxt = document.getElementById('status-txt');
-let polling = true;
 let lastStatus = 'playing';
+let evtSource = null;
 
-/* ── 폴링 ────────────────────────────────────────────────────────────── */
-async function poll() {
-  if (!polling) return;
-  try {
-    const res = await fetch(`/api/game/${SID}/poll`);
-    if (!res.ok) { scheduleNext(1000); return; }
-    const data = await res.json();
+/* ── SSE 스트림 ──────────────────────────────────────────────────────── */
+function connectStream() {
+  evtSource = new EventSource(`/api/game/${SID}/stream`);
 
-    // 출력 청크 추가
-    data.chunks.forEach(chunk => appendOutput(chunk.html));
-
-    // 상태 업데이트
-    if (data.status !== lastStatus) {
+  evtSource.onmessage = function(e) {
+    const data = JSON.parse(e.data);
+    if (data.html) appendOutput(data.html);
+    if (data.status && data.status !== lastStatus) {
       lastStatus = data.status;
       updateStatus(data.status);
     }
+    if (data.done) {
+      evtSource.close();
+      evtSource = null;
+    }
+  };
 
-    scheduleNext(data.waiting ? 300 : 500);
-  } catch(e) {
-    scheduleNext(1000);
-  }
-}
-
-function scheduleNext(ms) {
-  if (polling) setTimeout(poll, ms);
+  evtSource.onerror = function() {
+    evtSource.close();
+    evtSource = null;
+    // 게임이 아직 진행 중이면 2초 후 재연결
+    if (lastStatus === 'playing') {
+      setTimeout(connectStream, 2000);
+    }
+  };
 }
 
 /* ── 출력 추가 ───────────────────────────────────────────────────────── */
@@ -78,7 +78,6 @@ function appendOutput(html) {
   const div = document.createElement('div');
   div.innerHTML = html;
   termOutput.appendChild(div);
-  // 스크롤 하단 고정
   termOutput.parentElement.scrollTop = termOutput.parentElement.scrollHeight;
 }
 
@@ -97,7 +96,6 @@ document.getElementById('cmd-form').addEventListener('submit', async e => {
     form.append('cmd', cmd);
     await fetch(`/api/game/${SID}/command`, { method: 'POST', body: form });
   } catch(e) {}
-  poll();
 });
 
 /* ── 상태 업데이트 ───────────────────────────────────────────────────── */
@@ -105,7 +103,6 @@ function updateStatus(s) {
   const map = { playing: 'ONLINE', ended: 'SESSION ENDED', lobby: 'LOBBY' };
   statusTxt.textContent = map[s] || s.toUpperCase();
   if (s === 'ended') {
-    polling = false;
     appendOutput('<pre class="term-out dim">[ SESSION TERMINATED — <a href="/" style="color:#00FFFF">return to lobby</a> ]</pre>');
     document.getElementById('cmd-row').style.opacity = '0.3';
     document.getElementById('cmd-row').style.pointerEvents = 'none';
@@ -115,7 +112,7 @@ function updateStatus(s) {
 /* ── 종료 ────────────────────────────────────────────────────────────── */
 async function quitGame() {
   if (!confirm('런을 포기하고 로비로 돌아갑니까?')) return false;
-  polling = false;
+  if (evtSource) { evtSource.close(); evtSource = null; }
   await fetch(`/api/game/${SID}/quit`, { method: 'POST' });
   window.location.href = '/';
   return false;
@@ -127,6 +124,6 @@ function escHtml(s) {
 
 /* ── 시작 ────────────────────────────────────────────────────────────── */
 cmdInput.focus();
-poll();
+connectStream();
 </script>
 {% endblock %}

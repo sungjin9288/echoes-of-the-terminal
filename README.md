@@ -7,7 +7,7 @@
   [![License: MIT](https://img.shields.io/badge/License-MIT-39FF14?style=flat-square)](LICENSE)
   [![Tests](https://img.shields.io/badge/Tests-779%20passing-39FF14?style=flat-square&logo=pytest&logoColor=white)](tests/)
   [![Coverage](https://img.shields.io/badge/Coverage-81%25%2B-00FFFF?style=flat-square)](tests/)
-  [![Version](https://img.shields.io/badge/Version-v2.0.3-FFD700?style=flat-square)](CHANGELOG.md)
+  [![Version](https://img.shields.io/badge/Version-v2.0.4-FFD700?style=flat-square)](CHANGELOG.md)
   [![CI](https://github.com/sungjin9288/echoes-of-the-terminal/actions/workflows/tests.yml/badge.svg)](https://github.com/sungjin9288/echoes-of-the-terminal/actions/workflows/tests.yml)
   [![Play in Browser](https://img.shields.io/badge/Play%20in%20Browser-fly.io-8B5CF6?style=flat-square&logo=fly.io)](https://echoes-terminal.fly.dev)
 

@@ -282,6 +282,106 @@ class TestSessionStore:
         assert store.get(session.session_id) is session
 
 
+class TestSSEStream:
+    """SSE /stream 엔드포인트 테스트."""
+
+    def test_stream_unknown_session_404(self, client):
+        r = client.get("/api/game/nonexistent/stream")
+        assert r.status_code == 404
+
+    def test_stream_returns_event_stream_content_type(self, client):
+        import asyncio
+        import httpx
+        from web.session import store
+
+        session = store.create()
+        session.status = "ended"  # 즉시 종료 상태로 설정
+
+        async def _read_first_event():
+            transport = httpx.ASGITransport(app=app)
+            async with httpx.AsyncClient(transport=transport, base_url="http://test") as ac:
+                async with ac.stream("GET", f"/api/game/{session.session_id}/stream") as resp:
+                    assert resp.status_code == 200
+                    assert "text/event-stream" in resp.headers.get("content-type", "")
+                    # 첫 이벤트 라인만 읽고 반환
+                    async for line in resp.aiter_lines():
+                        if line.startswith("data:"):
+                            return line
+
+        loop = asyncio.new_event_loop()
+        try:
+            line = loop.run_until_complete(_read_first_event())
+            assert line is not None
+            assert "data:" in line
+        finally:
+            loop.close()
+
+    def test_stream_delivers_pushed_chunks(self, client):
+        import asyncio
+        import json
+        import httpx
+        from web.session import store
+
+        session = store.create()
+        session.push_output("<pre>SSE TEST</pre>", waiting=False)
+        session.status = "ended"
+
+        received = []
+
+        async def _read_events():
+            transport = httpx.ASGITransport(app=app)
+            async with httpx.AsyncClient(transport=transport, base_url="http://test") as ac:
+                async with ac.stream("GET", f"/api/game/{session.session_id}/stream") as resp:
+                    async for line in resp.aiter_lines():
+                        if line.startswith("data:"):
+                            data = json.loads(line[5:].strip())
+                            received.append(data)
+                            if data.get("done"):
+                                break
+
+        loop = asyncio.new_event_loop()
+        try:
+            loop.run_until_complete(_read_events())
+        finally:
+            loop.close()
+
+        html_chunks = [d for d in received if d.get("html")]
+        assert any("SSE TEST" in d["html"] for d in html_chunks)
+
+    def test_stream_sends_done_on_session_end(self, client):
+        import asyncio
+        import json
+        import httpx
+        from web.session import store
+
+        session = store.create()
+        session.status = "ended"
+
+        done_events = []
+
+        async def _read_until_done():
+            transport = httpx.ASGITransport(app=app)
+            async with httpx.AsyncClient(
+                transport=transport, base_url="http://test", timeout=10.0
+            ) as ac:
+                async with ac.stream("GET", f"/api/game/{session.session_id}/stream") as resp:
+                    async for line in resp.aiter_lines():
+                        if line.startswith("data:"):
+                            data = json.loads(line[5:].strip())
+                            if data.get("done"):
+                                done_events.append(data)
+                                break
+
+        loop = asyncio.new_event_loop()
+        try:
+            loop.run_until_complete(_read_until_done())
+        finally:
+            loop.close()
+
+        assert len(done_events) == 1
+        assert done_events[0]["status"] == "ended"
+
+
 class TestWebGameSession:
     def test_initial_status_lobby(self):
         from web.adapters import WebGameSession

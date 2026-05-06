@@ -20,13 +20,14 @@ install_patches()            # builtins.input + PromptBase.ask 패치
 
 # ── 2. 이후 일반 임포트 ───────────────────────────────────────────────────────
 import asyncio
+import json as _json
 import pathlib
 import time
 from contextlib import asynccontextmanager
 from typing import Any
 
 from fastapi import Cookie, FastAPI, Form, HTTPException, Request
-from fastapi.responses import HTMLResponse, JSONResponse, Response
+from fastapi.responses import HTMLResponse, JSONResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -174,9 +175,55 @@ async def game_start(
     return resp
 
 
+@app.get("/api/game/{sid}/stream")
+async def game_stream(sid: str, request: Request):
+    """SSE 스트리밍 — 게임 출력을 실시간으로 브라우저에 push한다.
+
+    각 이벤트 형식: ``data: {"html": "...", "status": "playing"}\n\n``
+    게임 종료 시 ``data: {"done": true, "status": "ended"}\n\n`` 를 전송하고 스트림을 닫는다.
+    """
+    session = store.get(sid)
+    if session is None:
+        return JSONResponse({"error": "session_not_found"}, status_code=404)
+
+    async def _event_gen():
+        drained_ticks = 0
+        while True:
+            if await request.is_disconnected():
+                break
+
+            session.last_active = time.time()
+            chunks = session.pop_output_chunks()
+
+            for chunk in chunks:
+                yield f"data: {_json.dumps(chunk)}\n\n"
+
+            if chunks:
+                drained_ticks = 0
+            else:
+                drained_ticks += 1
+
+            # 세션 종료 + 큐 비워진 것 확인 후 done 이벤트로 스트림 종료
+            if session.status in ("ended", "error") and drained_ticks >= 2:
+                yield f"data: {_json.dumps({'html': '', 'status': session.status, 'done': True})}\n\n"
+                break
+
+            await asyncio.sleep(0.05)  # 50ms 폴링 — CPU 20 fps
+
+    return StreamingResponse(
+        _event_gen(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",   # nginx proxy 버퍼링 비활성화
+            "Connection": "keep-alive",
+        },
+    )
+
+
 @app.get("/api/game/{sid}/poll")
 async def game_poll(sid: str):
-    """게임 출력 청크를 반환한다. htmx 폴링 엔드포인트."""
+    """게임 출력 청크를 반환한다 (하위 호환 폴링 엔드포인트)."""
     session = store.get(sid)
     if session is None:
         return JSONResponse({"error": "session_not_found"}, status_code=404)

@@ -4,7 +4,7 @@ build-backend = "setuptools.backends.legacy:build"
 
 [project]
 name = "echoes-of-the-terminal"
-version = "2.0.3"
+version = "2.0.4"
 description = "터미널 기반 텍스트 로그 추리 roguelike 게임"
 readme = "README.md"
 license = { file = "LICENSE" }
