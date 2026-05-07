@@ -5,6 +5,21 @@
 
 ---
 
+## [2.0.6] — 2026-05-07
+
+### 추가 (Added)
+- **Pack 28 — 우주 재판소 (Orbital Tribunal)** (`packs/pack_28_orbital_tribunal.json`): 근미래 우주 배경 수사물 팩.
+  - node_id 1024-1028, 테마 `ORBITAL_TRIBUNAL_A~E`, Easy×2 / Hard×2 / NIGHTMARE×1 분포.
+  - 국제우주정거장 갈릴레오-III 시약 절도 (무중력 모순, Easy)
+  - 달 기지 채굴 샘플 절도 (달 바람 불가 모순, Easy)
+  - 화성 기지 의약품 불법 반출 (호흡기 없이 야외 활동 불가 모순, Hard)
+  - 목성 궤도 정거장 암호 키 유출 (진공 우주서 천둥 소리 청취 불가 모순, Hard)
+  - 유로파 탐사 기지 사망 사건 (대기 없는 유로파에서 노을 불가 모순, NIGHTMARE)
+- **Pack 28 테스트 20케이스** (`tests/test_new_packs_v13.py`): 790 → **810 케이스**.
+  - 파일 존재·로드·메타데이터·시나리오 수·node_id 범위·순차성·필드 검증·난이도 분포·테마 접두어·is_boss·text_log 길이·키워드 in text_log·패널티-난이도 매핑·예상 키워드 매핑·logical_flaw_explanation·NIGHTMARE 최고 패널티·팩 간 node_id 충돌 없음·전체 팩 고유성.
+
+---
+
 ## [2.0.5] — 2026-04-27
 
 ### 추가 (Added)
