@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block title %}기록 — Echoes of the Terminal{% endblock %}
+
+{% block content %}
+<div class="records-wrap">
+
+  <div class="records-nav">
+    <span class="dim">&gt; SYSTEM :: RECORDS DATABASE</span>
+  </div>
+
+  <!-- ── 요약 통계 ─────────────────────────────────────────────────── -->
+  <div class="stat-strip">
+    <div class="stat-block">
+      <div class="sb-label">TOTAL RUNS</div>
+      <div class="sb-value">{{ total_runs }}</div>
+    </div>
+    <div class="stat-block">
+      <div class="sb-label">WIN RATE</div>
+      <div class="sb-value">{{ win_rate }}%</div>
+    </div>
+    <div class="stat-block">
+      <div class="sb-label">BEST SCORE</div>
+      <div class="sb-value">{{ best_score }}</div>
+    </div>
+    <div class="stat-block">
+      <div class="sb-label">TOTAL FRAGMENTS</div>
+      <div class="sb-value">{{ total_fragments }}</div>
+    </div>
+  </div>
+
+  <!-- ── 로컬 리더보드 ─────────────────────────────────────────────── -->
+  <div class="records-section">
+    <div class="records-section-title">&gt; LEADERBOARD // TOP {{ leaderboard|length }}</div>
+    {% if leaderboard %}
+    <table class="rec-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>SCORE</th>
+          <th>CLASS</th>
+          <th>ASC</th>
+          <th>RESULT</th>
+          <th>TRACE</th>
+          <th>CORRECT</th>
+          <th>DATE</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for e in leaderboard %}
+        <tr>
+          <td class="cell-rank">{{ e.rank }}</td>
+          <td class="cell-score">{{ e.score }}</td>
+          <td class="cell-class">{{ e.class_key }}</td>
+          <td class="cell-asc">{{ e.ascension }}</td>
+          <td class="{% if e.result == 'victory' %}cell-win{% else %}cell-loss{% endif %}">
+            {{ e.result | upper }}
+          </td>
+          <td class="cell-dim">{{ e.trace_final }}%</td>
+          <td class="cell-dim">{{ e.correct_answers }}</td>
+          <td class="cell-dim">{{ e.date[:10] if e.date|length >= 10 else e.date }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-msg">[ NO ENTRIES — COMPLETE A RUN TO REGISTER ]</div>
+    {% endif %}
+  </div>
+
+  <!-- ── 최근 런 히스토리 ───────────────────────────────────────────── -->
+  <div class="records-section">
+    <div class="records-section-title">&gt; RECENT RUNS // LAST {{ run_history|length }}</div>
+    {% if run_history %}
+    <table class="rec-table">
+      <thead>
+        <tr>
+          <th>DATE</th>
+          <th>CLASS</th>
+          <th>ASC</th>
+          <th>RESULT</th>
+          <th>TRACE</th>
+          <th>REWARD</th>
+          <th>CORRECT</th>
+          <th>ENDING</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in run_history %}
+        <tr>
+          <td class="cell-dim">{{ r.date[:10] if r.date|length >= 10 else r.date }}</td>
+          <td class="cell-class">{{ r.class_key }}</td>
+          <td class="cell-asc">{{ r.ascension }}</td>
+          <td class="{% if r.result == 'victory' %}cell-win{% else %}cell-loss{% endif %}">
+            {{ r.result | upper }}
+          </td>
+          <td class="cell-dim">{{ r.trace_final }}%</td>
+          <td class="cell-dim">{{ r.reward }}</td>
+          <td class="cell-dim">{{ r.correct_answers }}</td>
+          <td class="cell-dim">{{ r.ending_id if r.ending_id else '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-msg">[ NO RUN HISTORY — PLAY YOUR FIRST RUN ]</div>
+    {% endif %}
+  </div>
+
+  <!-- ── 개인 최고 기록 ────────────────────────────────────────────── -->
+  <div class="records-section">
+    <div class="records-section-title">&gt; PERSONAL BESTS // BY CLASS &amp; ASCENSION</div>
+    {% if personal_records %}
+    <table class="rec-table">
+      <thead>
+        <tr>
+          <th>CLASS</th>
+          <th>ASC</th>
+          <th>BEST SCORE</th>
+          <th>WINS</th>
+          <th>LOSSES</th>
+          <th>WIN RATE</th>
+          <th>LAST PLAYED</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in personal_records %}
+        <tr>
+          <td class="cell-class">{{ p.class_key }}</td>
+          <td class="cell-asc">{{ p.ascension }}</td>
+          <td class="cell-score">{{ p.best_score }}</td>
+          <td class="cell-win">{{ p.wins }}</td>
+          <td class="cell-loss">{{ p.losses }}</td>
+          <td class="cell-dim">
+            {% set total_pr = p.wins + p.losses %}
+            {% if total_pr > 0 %}{{ ((p.wins / total_pr) * 100) | round(0) | int }}%{% else %}—{% endif %}
+          </td>
+          <td class="cell-dim">{{ p.last_date[:10] if p.last_date and p.last_date|length >= 10 else (p.last_date or '—') }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-msg">[ NO PERSONAL RECORDS YET ]</div>
+    {% endif %}
+  </div>
+
+  <div class="records-nav" style="margin-top:8px; margin-bottom:0">
+    <a href="/">&lt; BACK TO LOBBY</a>
+  </div>
+
+</div>
+{% endblock %}

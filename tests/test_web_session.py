@@ -506,3 +506,76 @@ class TestWebGameSession:
         s.flush_console_html()
         # 두 번째 플러시는 None
         assert s.flush_console_html() is None
+
+
+class TestRecordsPage:
+    """GET /records 엔드포인트 테스트."""
+
+    def test_records_returns_200(self, client):
+        r = client.get("/records")
+        assert r.status_code == 200
+
+    def test_records_contains_leaderboard_section(self, client):
+        r = client.get("/records")
+        assert "LEADERBOARD" in r.text
+
+    def test_records_contains_recent_runs_section(self, client):
+        r = client.get("/records")
+        assert "RECENT RUNS" in r.text
+
+    def test_records_contains_personal_bests_section(self, client):
+        r = client.get("/records")
+        assert "PERSONAL BESTS" in r.text
+
+    def test_records_shows_empty_state_when_no_data(self, client, monkeypatch):
+        """세이브 데이터가 없을 때 빈 상태 메시지를 표시한다."""
+        import progression_system as ps
+
+        monkeypatch.setattr(ps, "load_save", lambda: {})
+        r = client.get("/records")
+        assert r.status_code == 200
+        assert "NO ENTRIES" in r.text or "NO RUN HISTORY" in r.text
+
+    def test_records_shows_nav_links(self, client):
+        r = client.get("/records")
+        assert 'href="/"' in r.text
+        assert 'href="/records"' in r.text
+
+    def test_records_active_page_highlighted(self, client):
+        """records 페이지에서 RECORDS 네비 링크가 active 처리된다."""
+        r = client.get("/records")
+        # active 클래스가 records 링크에 붙어야 함
+        assert 'class="active"' in r.text
+
+    def test_records_shows_stat_blocks(self, client):
+        """요약 통계 4개 블록이 모두 존재한다."""
+        r = client.get("/records")
+        for label in ("TOTAL RUNS", "WIN RATE", "BEST SCORE", "TOTAL FRAGMENTS"):
+            assert label in r.text
+
+    def test_records_shows_version(self, client):
+        """버전 정보가 헤더에 표시된다."""
+        from constants import VERSION
+        r = client.get("/records")
+        assert VERSION in r.text
+
+    def test_records_with_populated_leaderboard(self, client, monkeypatch):
+        """리더보드 데이터가 있을 때 점수와 클래스가 렌더된다."""
+        import progression_system as ps
+
+        fake_save = {
+            "leaderboard": [
+                {
+                    "rank": 1, "score": 9999, "date": "2026-05-07",
+                    "class_key": "GHOST", "ascension": 10,
+                    "result": "victory", "trace_final": 42,
+                    "reward": 300, "correct_answers": 7,
+                }
+            ],
+            "run_history": [],
+            "personal_records": {},
+        }
+        monkeypatch.setattr(ps, "load_save", lambda: dict(fake_save))
+        r = client.get("/records")
+        assert "9999" in r.text
+        assert "GHOST" in r.text

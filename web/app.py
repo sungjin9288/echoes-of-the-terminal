@@ -40,6 +40,7 @@ from web.rate_limit import (
     cleanup,
 )
 from web.session import SESSION_TTL, store
+from constants import VERSION as _GAME_VERSION
 
 # ── 앱 설정 ────────────────────────────────────────────────────────────────────
 
@@ -113,6 +114,8 @@ async def lobby_page(
             "diver_classes": ["ANALYST", "GHOST", "CRACKER"],
             "selected_class": session.selected_class_name,
             "ascension": session.ascension_level,
+            "active_page": "lobby",
+            "version": _GAME_VERSION,
         },
     )
     if is_new:
@@ -133,7 +136,55 @@ async def game_page(
     return templates.TemplateResponse(
         request,
         "game.html",
-        {"session_id": session.session_id, "status": session.status},
+        {
+            "session_id": session.session_id,
+            "status": session.status,
+            "active_page": "game",
+            "version": _GAME_VERSION,
+        },
+    )
+
+
+@app.get("/records", response_class=HTMLResponse)
+async def records_page(request: Request):
+    """런 기록 화면 — 리더보드 · 런 히스토리 · 개인 최고 기록."""
+    from progression_system import (
+        _normalize_save_data,
+        get_leaderboard,
+        get_personal_records,
+        get_run_history,
+        load_save,
+    )
+
+    save_data = load_save()
+    _normalize_save_data(save_data)
+
+    leaderboard = get_leaderboard(save_data)
+    run_history = list(reversed(get_run_history(save_data)))[:20]  # 최근 20개, 최신순
+    personal_records = get_personal_records(save_data)
+
+    # 요약 통계 계산
+    all_runs = get_run_history(save_data)
+    total_runs = len(all_runs)
+    wins = sum(1 for r in all_runs if r.get("result") == "victory")
+    win_rate = round(wins * 100 / total_runs) if total_runs else 0
+    best_score = leaderboard[0]["score"] if leaderboard else 0
+    total_fragments = sum(r.get("reward", 0) for r in all_runs)
+
+    return templates.TemplateResponse(
+        request,
+        "records.html",
+        {
+            "leaderboard": leaderboard,
+            "run_history": run_history,
+            "personal_records": personal_records,
+            "total_runs": total_runs,
+            "win_rate": win_rate,
+            "best_score": best_score,
+            "total_fragments": total_fragments,
+            "active_page": "records",
+            "version": _GAME_VERSION,
+        },
     )
 
 

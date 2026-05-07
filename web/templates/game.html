@@ -103,7 +103,11 @@ function updateStatus(s) {
   const map = { playing: 'ONLINE', ended: 'SESSION ENDED', lobby: 'LOBBY' };
   statusTxt.textContent = map[s] || s.toUpperCase();
   if (s === 'ended') {
-    appendOutput('<pre class="term-out dim">[ SESSION TERMINATED — <a href="/" style="color:#00FFFF">return to lobby</a> ]</pre>');
+    appendOutput(
+      '<pre class="term-out dim">[ SESSION TERMINATED — ' +
+      '<a href="/" style="color:#00FFFF">LOBBY</a> | ' +
+      '<a href="/records" style="color:#39FF14">RECORDS</a> ]</pre>'
+    );
     document.getElementById('cmd-row').style.opacity = '0.3';
     document.getElementById('cmd-row').style.pointerEvents = 'none';
   }

@@ -5,6 +5,23 @@
 
 ---
 
+## [2.0.7] — 2026-05-07
+
+### 추가 (Added)
+- **웹 UI 기록 화면** (`GET /records`, `web/templates/records.html`):
+  - 요약 통계 4개: Total Runs · Win Rate · Best Score · Total Fragments.
+  - 로컬 리더보드 테이블: rank · score · class · ascension · result · trace · correct · date.
+  - 최근 런 히스토리 (최신순 20개): date · class · asc · result · trace · reward · correct · ending.
+  - 개인 최고 기록 테이블: class · asc · best_score · wins · losses · win_rate · last_date.
+  - 빈 상태 메시지: 데이터 없을 때 `[ NO ENTRIES... ]` 안내 표시.
+- **헤더 네비게이션** (`web/templates/base.html`): LOBBY | RECORDS 링크, 현재 페이지 active 하이라이트.
+- **게임 종료 링크 개선** (`web/templates/game.html`): 세션 종료 시 `LOBBY | RECORDS` 양쪽 링크 표시.
+- **버전 헤더 동적 표시**: 모든 페이지 `v{VERSION}` — `constants.VERSION`에서 자동 주입.
+- **Records 테스트 10케이스** (`tests/test_web_session.py`): 810 → **820 케이스**.
+  - 200 응답·섹션 존재·빈 상태·네비 링크·active 하이라이트·통계 블록·버전 표시·리더보드 데이터 렌더.
+
+---
+
 ## [2.0.6] — 2026-05-07
 
 ### 추가 (Added)

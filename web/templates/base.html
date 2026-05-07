@@ -10,7 +10,11 @@
 <body>
 <header class="site-header">
   <span class="header-logo">[ ECHOES OF THE TERMINAL ]</span>
-  <span class="header-ver">v2.0</span>
+  <nav class="header-nav">
+    <a href="/" {% if active_page == 'lobby' %}class="active"{% endif %}>LOBBY</a>
+    <a href="/records" {% if active_page == 'records' %}class="active"{% endif %}>RECORDS</a>
+  </nav>
+  <span class="header-ver">v{{ version }}</span>
 </header>
 
 <main>
