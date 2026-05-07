@@ -5,6 +5,25 @@
 
 ---
 
+## [2.0.5] — 2026-04-27
+
+### 추가 (Added)
+- **인메모리 레이트 리미터** (`web/rate_limit.py`): 슬라이딩 윈도우 방식, 신규 의존성 없음.
+  - `MAX_CONCURRENT_GAMES = 20`: 동시 게임 세션 상한. 초과 시 503 반환.
+  - `GAME_START_PER_MINUTE = 5`: IP당 분당 게임 시작 횟수 제한. 초과 시 429.
+  - `COMMAND_PER_MINUTE = 60`: 세션당 분당 커맨드 입력 횟수 제한. 초과 시 429.
+  - `STREAM_PER_MINUTE = 30`: IP당 분당 SSE 연결 횟수 제한. 초과 시 429.
+  - `cleanup()`: 5분 비활성 키 제거, lifespan cleanup 태스크에 통합.
+- `web/app.py`:
+  - `_client_ip()` 헬퍼: fly.io `Fly-Client-IP` → `X-Forwarded-For` → `request.client.host` 순서로 IP 추출.
+  - `/api/game/start`: 동시 게임 수 상한 + IP당 시작 레이트 리밋 적용.
+  - `/api/game/{sid}/command`: 세션당 커맨드 레이트 리밋 적용.
+  - `/api/game/{sid}/stream`: IP당 SSE 연결 레이트 리밋 적용.
+  - `/api/health`: `active_games`, `max_games`, `rate_limit_keys` 통계 추가.
+- **레이트 리밋 테스트 7케이스** (`tests/test_web_session.py`): 783 → **790 케이스**.
+
+---
+
 ## [2.0.4] — 2026-04-27
 
 ### 변경 (Changed)

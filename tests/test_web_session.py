@@ -282,6 +282,84 @@ class TestSessionStore:
         assert store.get(session.session_id) is session
 
 
+class TestRateLimit:
+    """레이트 리밋 동작 테스트."""
+
+    @pytest.fixture(autouse=True)
+    def _reset_rl(self):
+        from web.rate_limit import reset
+        reset()
+        yield
+        reset()
+
+    def test_check_rate_allows_within_limit(self):
+        from web.rate_limit import check_rate
+        for _ in range(5):
+            assert check_rate("test_key", limit=5) is True
+
+    def test_check_rate_blocks_over_limit(self):
+        from web.rate_limit import check_rate
+        for _ in range(3):
+            check_rate("test_key", limit=3)
+        # 4번째는 차단
+        assert check_rate("test_key", limit=3) is False
+
+    def test_check_rate_different_keys_independent(self):
+        from web.rate_limit import check_rate
+        for _ in range(3):
+            check_rate("key_a", limit=3)
+        # key_b는 별도 카운터
+        assert check_rate("key_b", limit=3) is True
+
+    def test_cleanup_removes_stale_keys(self):
+        import time
+        from web.rate_limit import _counters, cleanup, _lock
+
+        with _lock:
+            _counters["stale_key"] = [time.time() - 400]
+        removed = cleanup()
+        assert removed >= 1
+        with _lock:
+            assert "stale_key" not in _counters
+
+    def test_game_start_rate_limited_429(self, client):
+        """게임 시작 레이트 리밋 초과 시 429."""
+        from web.rate_limit import GAME_START_PER_MINUTE, check_rate
+
+        # X-Forwarded-For 헤더로 IP 고정 → check_rate 와 같은 키 사용 가능
+        test_ip = "203.0.113.1"  # TEST-NET-3 (RFC 5737) — 충돌 없음
+        for _ in range(GAME_START_PER_MINUTE):
+            check_rate(f"start:{test_ip}", limit=GAME_START_PER_MINUTE)
+
+        r = client.post("/api/game/start", headers={"X-Forwarded-For": test_ip})
+        assert r.status_code == 429
+
+    def test_command_rate_limited_429(self, client):
+        """커맨드 레이트 리밋 초과 시 429."""
+        from web.rate_limit import COMMAND_PER_MINUTE, check_rate
+        from web.session import store
+
+        r = client.get("/")
+        sid = r.cookies["echoes_sid"]
+        session = store.get(sid)
+        assert session is not None
+        session.status = "playing"
+
+        # 한도까지 소비
+        for _ in range(COMMAND_PER_MINUTE):
+            check_rate(f"cmd:{sid}", limit=COMMAND_PER_MINUTE)
+
+        r2 = client.post(f"/api/game/{sid}/command", data={"cmd": "ls"})
+        assert r2.status_code == 429
+
+    def test_health_includes_rate_limit_info(self, client):
+        r = client.get("/api/health")
+        data = r.json()
+        assert "active_games" in data
+        assert "max_games" in data
+        assert "rate_limit_keys" in data
+
+
 class TestSSEStream:
     """SSE /stream 엔드포인트 테스트."""
 

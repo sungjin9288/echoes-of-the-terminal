@@ -31,6 +31,14 @@ from fastapi.responses import HTMLResponse, JSONResponse, Response, StreamingRes
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
+from web.rate_limit import (
+    COMMAND_PER_MINUTE,
+    GAME_START_PER_MINUTE,
+    MAX_CONCURRENT_GAMES,
+    STREAM_PER_MINUTE,
+    check_rate,
+    cleanup,
+)
 from web.session import SESSION_TTL, store
 
 # ── 앱 설정 ────────────────────────────────────────────────────────────────────
@@ -45,8 +53,9 @@ async def lifespan(app: FastAPI):
         while True:
             await asyncio.sleep(300)  # 5분마다
             removed = store.cleanup_expired()
-            if removed:
-                print(f"[session] cleaned up {removed} expired sessions")
+            rl_removed = cleanup()
+            if removed or rl_removed:
+                print(f"[session] cleaned up {removed} sessions, {rl_removed} rate-limit keys")
 
     task = asyncio.create_task(_cleanup())
     yield
@@ -156,9 +165,20 @@ async def lobby_select(
 
 @app.post("/api/game/start")
 async def game_start(
+    request: Request,
     echoes_sid: str | None = Cookie(default=None),
 ):
     """게임 스레드를 시작하고 /game 페이지로 리다이렉트한다."""
+    # 동시 실행 게임 수 상한 체크
+    active = sum(1 for s in store._sessions.values() if s.status == "playing")
+    if active >= MAX_CONCURRENT_GAMES:
+        raise HTTPException(503, "서버가 가득 찼습니다. 잠시 후 다시 시도해주세요.")
+
+    # IP당 게임 시작 레이트 리밋
+    ip = _client_ip(request)
+    if not check_rate(f"start:{ip}", limit=GAME_START_PER_MINUTE):
+        raise HTTPException(429, "게임 시작 요청이 너무 많습니다. 1분 후 다시 시도해주세요.")
+
     session, is_new = _resolve_session(echoes_sid)
     if session.status == "playing":
         return JSONResponse({"ok": False, "reason": "already_playing"}, status_code=409)
@@ -175,6 +195,15 @@ async def game_start(
     return resp
 
 
+def _client_ip(request: Request) -> str:
+    """클라이언트 IP 추출 (fly.io Fly-Client-IP 헤더 우선)."""
+    return (
+        request.headers.get("Fly-Client-IP")
+        or request.headers.get("X-Forwarded-For", "").split(",")[0].strip()
+        or (request.client.host if request.client else "unknown")
+    )
+
+
 @app.get("/api/game/{sid}/stream")
 async def game_stream(sid: str, request: Request):
     """SSE 스트리밍 — 게임 출력을 실시간으로 브라우저에 push한다.
@@ -182,6 +211,11 @@ async def game_stream(sid: str, request: Request):
     각 이벤트 형식: ``data: {"html": "...", "status": "playing"}\n\n``
     게임 종료 시 ``data: {"done": true, "status": "ended"}\n\n`` 를 전송하고 스트림을 닫는다.
     """
+    # SSE 연결 레이트 리밋 (IP당 분당 STREAM_PER_MINUTE)
+    ip = _client_ip(request)
+    if not check_rate(f"stream:{ip}", limit=STREAM_PER_MINUTE):
+        raise HTTPException(429, "연결 요청이 너무 많습니다. 잠시 후 다시 시도해주세요.")
+
     session = store.get(sid)
     if session is None:
         return JSONResponse({"error": "session_not_found"}, status_code=404)
@@ -248,6 +282,10 @@ async def game_command(sid: str, cmd: str = Form("")):
     if session.status != "playing":
         raise HTTPException(409, "Game not running")
 
+    # 세션당 커맨드 레이트 리밋
+    if not check_rate(f"cmd:{sid}", limit=COMMAND_PER_MINUTE):
+        raise HTTPException(429, "명령어 입력이 너무 빠릅니다. 잠시 후 다시 시도해주세요.")
+
     session.send_command(cmd)
     return JSONResponse({"ok": True})
 
@@ -264,4 +302,13 @@ async def game_quit(sid: str):
 
 @app.get("/api/health")
 async def health():
-    return {"status": "ok", "sessions": store.stats()}
+    from web.rate_limit import _counters
+
+    active_games = sum(1 for s in store._sessions.values() if s.status == "playing")
+    return {
+        "status": "ok",
+        "sessions": store.stats(),
+        "active_games": active_games,
+        "max_games": MAX_CONCURRENT_GAMES,
+        "rate_limit_keys": len(_counters),
+    }
