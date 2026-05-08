@@ -87,7 +87,7 @@ Echoes of the Terminal/
 │   ├── __init__.py
 │   ├── adapters.py          # ConsoleBridge (thread-local) + WebGameSession + install_patches()
 │   ├── session.py           # SessionStore (인메모리, TTL 1시간)
-│   ├── app.py               # FastAPI 앱 — 라우트 9종 (+ /records) + lifespan 정리 태스크
+│   ├── app.py               # FastAPI 앱 — 라우트 10종 (+ /records, /api/daily/start) + lifespan 정리 태스크
 │   ├── static/style.css     # Design Token CSS 변수 기반 터미널 UI
 │   └── templates/           # Jinja2 템플릿
 │       ├── base.html        # 공통 레이아웃 (htmx CDN, 헤더 네비게이션)
@@ -97,7 +97,7 @@ Echoes of the Terminal/
 │
 ├── Dockerfile               # python:3.12-slim + uvicorn (v2.0)
 │
-├── tests/                   # pytest 테스트 (33파일, 820케이스, 커버리지 81%+)
+├── tests/                   # pytest 테스트 (33파일, 829케이스, 커버리지 81%+)
 │   ├── test_achievement_system.py
 │   ├── test_artifact_effects.py
 │   ├── test_ascension_runtime.py

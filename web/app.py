@@ -95,6 +95,7 @@ async def lobby_page(
     session, is_new = _resolve_session(echoes_sid)
 
     # 세이브 데이터 로드 (lazy)
+    from daily_challenge import get_daily_state, get_today_str, has_played_today
     from progression_system import _normalize_save_data, load_save
 
     save_data = load_save()
@@ -103,6 +104,9 @@ async def lobby_page(
     run_count = len(save_data.get("run_history", []))
     leaderboard = save_data.get("leaderboard", [])
     top_score = leaderboard[0]["score"] if leaderboard else 0
+
+    today_str = get_today_str()
+    daily_played = has_played_today(get_daily_state(save_data), today_str)
 
     resp = templates.TemplateResponse(
         request,
@@ -116,6 +120,8 @@ async def lobby_page(
             "ascension": session.ascension_level,
             "active_page": "lobby",
             "version": _GAME_VERSION,
+            "today_str": today_str,
+            "daily_played": daily_played,
         },
     )
     if is_new:
@@ -212,6 +218,36 @@ async def lobby_select(
     session.selected_class_name = diver_class
     session.ascension_level = ascension
     return {"ok": True, "class": diver_class, "ascension": ascension}
+
+
+@app.post("/api/daily/start")
+async def daily_start(
+    request: Request,
+    echoes_sid: str | None = Cookie(default=None),
+):
+    """데일리 챌린지 스레드를 시작하고 /game 페이지로 리다이렉트한다."""
+    active = sum(1 for s in store._sessions.values() if s.status == "playing")
+    if active >= MAX_CONCURRENT_GAMES:
+        raise HTTPException(503, "서버가 가득 찼습니다. 잠시 후 다시 시도해주세요.")
+
+    ip = _client_ip(request)
+    if not check_rate(f"start:{ip}", limit=GAME_START_PER_MINUTE):
+        raise HTTPException(429, "게임 시작 요청이 너무 많습니다. 1분 후 다시 시도해주세요.")
+
+    session, is_new = _resolve_session(echoes_sid)
+    if session.status == "playing":
+        return JSONResponse({"ok": False, "reason": "already_playing"}, status_code=409)
+
+    from progression_system import _normalize_save_data, load_save
+
+    save_data = load_save()
+    _normalize_save_data(save_data)
+
+    session.start_daily_challenge(save_data)
+    resp = JSONResponse({"ok": True, "redirect": "/game"})
+    if is_new:
+        _attach_cookie(resp, session.session_id)
+    return resp
 
 
 @app.post("/api/game/start")

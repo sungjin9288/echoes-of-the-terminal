@@ -66,6 +66,20 @@
     <button type="submit" class="btn-primary">&gt; START RUN _</button>
   </form>
 
+  <!-- 데일리 챌린지 -->
+  <div class="daily-divider"><span class="dim">──── OR ────</span></div>
+  <form id="daily-form"
+        hx-post="/api/daily/start"
+        hx-on::after-request="handleStartResp(event)">
+    <button type="submit" class="btn-daily {% if daily_played %}btn-daily-done{% endif %}">
+      {% if daily_played %}
+        ✓ DAILY CHALLENGE COMPLETED — {{ today_str }}
+      {% else %}
+        &gt; DAILY CHALLENGE — {{ today_str }} _
+      {% endif %}
+    </button>
+  </form>
+
 </div>
 
 <script>

@@ -660,13 +660,21 @@ def run_game_session(
     )
 
 
-def run_daily_challenge(save_data: dict[str, Any]) -> None:
+def run_daily_challenge(
+    save_data: dict[str, Any],
+    *,
+    diver_class: "DiverClass | None" = None,
+) -> None:
     """데일리 챌린지 런을 실행한다.
 
     - 날짜 고정 시드로 시나리오와 루트를 결정해 모든 플레이어에게 동일한 맵을 제공한다.
     - 하루 1회만 플레이 가능 (재도전 차단).
     - REST/SHOP/ELITE 노드 모두 일반 런과 동일하게 처리한다.
     - 보상 배율 ×1.5 적용.
+
+    Args:
+        save_data:    현재 세이브 데이터.
+        diver_class:  사전 선택된 클래스 (웹 UI 등에서 주입). None이면 대화형으로 선택.
     """
     today = get_today_str()
     daily_state = get_daily_state(save_data)
@@ -678,7 +686,15 @@ def run_daily_challenge(save_data: dict[str, Any]) -> None:
         _wait_for_enter("로비로 복귀하려면 Enter를 누르세요")
         return
 
-    selected_class = _select_diver_class()
+    if diver_class is None:
+        selected_class = _select_diver_class()
+    else:
+        selected_class = diver_class
+        from diver_class import get_class_profile
+        profile = get_class_profile(selected_class)
+        console.print(
+            f"\n[bold white]클래스: [{profile.diver_class.value}] {profile.name}[/bold white]"
+        )
 
     try:
         scenarios, _pack_meta = load_scenarios_with_packs("scenarios.json")

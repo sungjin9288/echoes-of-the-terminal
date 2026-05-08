@@ -206,6 +206,41 @@ input[type="range"] {
 
 .feedback { font-size: 12px; color: var(--green-neon); margin-top: 8px; min-height: 20px; }
 
+/* Daily Challenge button */
+.daily-divider {
+  text-align: center;
+  margin: 16px 0 8px;
+  font-size: 11px;
+  letter-spacing: 3px;
+}
+.btn-daily {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  border: 1px solid var(--cyan-accent);
+  background: transparent;
+  color: var(--cyan-accent);
+  cursor: pointer;
+  transition: box-shadow 0.2s, background 0.2s;
+}
+.btn-daily:hover {
+  background: rgba(0,255,255,0.06);
+  box-shadow: var(--glow-cyan);
+}
+.btn-daily-done {
+  border-color: var(--text-dim);
+  color: var(--text-dim);
+  cursor: default;
+}
+.btn-daily-done:hover {
+  background: transparent;
+  box-shadow: none;
+}
+
 /* ── Game Screen ─────────────────────────────────────────────────────────── */
 .game-wrap {
   display: flex;

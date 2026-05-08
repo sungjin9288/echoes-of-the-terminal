@@ -226,9 +226,12 @@ class WebGameSession:
 
     def _run_game(self, save_data: dict[str, Any]) -> None:
         """실제 게임 세션 실행 (게임 모듈 lazy 임포트)."""
+        from daily_challenge import get_today_str
         from diver_class import DiverClass
         from progression_system import (
             add_run_to_history,
+            apply_ascension_reward_multiplier,
+            calculate_reward,
             get_perks,
             save_game,
             update_leaderboard,
@@ -252,8 +255,81 @@ class WebGameSession:
 
         correct, is_victory, result_label, difficulties, run_stats = result
 
-        # 진행도 반영
-        add_run_to_history(save_data, is_victory, correct, self.ascension_level, diver_class)
-        update_personal_records(save_data, is_victory, correct, self.ascension_level)
-        update_leaderboard(save_data, is_victory, correct, self.ascension_level, diver_class)
+        # 보상 계산 및 세이브 데이터 반영
+        reward = calculate_reward(
+            correct_answers=correct,
+            is_victory=is_victory,
+            node_difficulties=difficulties,
+        )
+        reward, _ = apply_ascension_reward_multiplier(reward, self.ascension_level)
+        save_data["data_fragments"] = save_data.get("data_fragments", 0) + reward
+
+        class_key = diver_class.value if diver_class else "ANALYST"
+        today = get_today_str()
+
+        add_run_to_history(
+            save_data,
+            date=today,
+            class_key=class_key,
+            ascension=self.ascension_level,
+            result=result_label,
+            trace_final=run_stats.get("trace_final", 100),
+            reward=reward,
+            correct_answers=correct,
+            timeline=run_stats.get("timeline", []),
+        )
+        update_personal_records(
+            save_data,
+            class_key=class_key,
+            ascension=self.ascension_level,
+            result=result_label,
+            trace_final=run_stats.get("trace_final", 100),
+            reward=reward,
+            correct_answers=correct,
+        )
+        update_leaderboard(
+            save_data,
+            date=today,
+            class_key=class_key,
+            ascension=self.ascension_level,
+            result=result_label,
+            trace_final=run_stats.get("trace_final", 100),
+            reward=reward,
+            correct_answers=correct,
+        )
         save_game(save_data)
+
+    def start_daily_challenge(self, save_data: dict[str, Any]) -> None:
+        """백그라운드 스레드에서 데일리 챌린지 루프를 시작한다."""
+        if self._thread and self._thread.is_alive():
+            return
+        self.status = "playing"
+        self._thread = threading.Thread(
+            target=self._daily_worker,
+            args=(save_data,),
+            daemon=True,
+            name=f"daily-{self.session_id[:8]}",
+        )
+        self._thread.start()
+
+    def _daily_worker(self, save_data: dict[str, Any]) -> None:
+        """데일리 챌린지 스레드 진입점."""
+        _thread_local.session = self
+        try:
+            from diver_class import DiverClass
+            from run_loops import run_daily_challenge
+
+            try:
+                diver_class = DiverClass[self.selected_class_name]
+            except KeyError:
+                diver_class = None
+
+            run_daily_challenge(save_data, diver_class=diver_class)
+        except Exception as exc:
+            self.console.print(f"\n[bold red]SYSTEM ERROR: {exc}[/bold red]")
+        finally:
+            html = self.flush_console_html()
+            if html:
+                self.push_output(html, waiting=False)
+            self.status = "ended"
+            _thread_local.session = None

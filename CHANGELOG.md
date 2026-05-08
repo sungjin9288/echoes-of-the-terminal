@@ -5,6 +5,21 @@
 
 ---
 
+## [2.0.8] — 2026-05-07
+
+### 추가 (Added)
+- **웹 UI 데일리 챌린지 지원** (`POST /api/daily/start`):
+  - 로비 페이지에 `DAILY CHALLENGE — YYYY-MM-DD` 버튼 추가. 이미 플레이한 경우 완료 상태(회색)로 표시.
+  - `WebGameSession.start_daily_challenge()` + `_daily_worker()`: 사전 선택된 클래스로 `run_daily_challenge` 호출.
+  - `run_daily_challenge`에 `diver_class` 선택 파라미터 추가 — 웹/API 환경에서 대화형 클래스 선택 건너뜀.
+- **데일리 챌린지 테스트 9케이스** (`tests/test_web_session.py`): 820 → **829 케이스**.
+
+### 수정 (Fixed)
+- **웹 진행도 저장 버그** (`web/adapters.py::_run_game`): `add_run_to_history` · `update_personal_records` · `update_leaderboard` 를 키워드 인자로 올바르게 호출. 이전까지 `TypeError`로 런 완료 후 세이브 데이터가 반영되지 않던 문제 수정.
+- **보상 계산 누락**: `_run_game`에서 `calculate_reward` + `apply_ascension_reward_multiplier`를 실제 호출해 `data_fragments` 정확히 반영.
+
+---
+
 ## [2.0.7] — 2026-05-07
 
 ### 추가 (Added)

@@ -508,6 +508,79 @@ class TestWebGameSession:
         assert s.flush_console_html() is None
 
 
+class TestDailyChallenge:
+    """데일리 챌린지 엔드포인트 테스트."""
+
+    def test_daily_start_redirects_to_game(self, client):
+        """POST /api/daily/start → 200 + redirect to /game."""
+        r = client.get("/")
+        sid = r.cookies["echoes_sid"]
+        r2 = client.post("/api/daily/start", cookies={"echoes_sid": sid})
+        assert r2.status_code == 200
+        data = r2.json()
+        assert data["ok"] is True
+        assert data["redirect"] == "/game"
+
+    def test_daily_start_sets_session_to_playing(self, client):
+        r = client.get("/")
+        sid = r.cookies["echoes_sid"]
+        client.post("/api/daily/start", cookies={"echoes_sid": sid})
+        session = store.get(sid)
+        assert session is not None
+        assert session.status == "playing"
+
+    def test_daily_start_already_playing_409(self, client):
+        r = client.get("/")
+        sid = r.cookies["echoes_sid"]
+        session = store.get(sid)
+        assert session is not None
+        session.status = "playing"
+        r2 = client.post("/api/daily/start", cookies={"echoes_sid": sid})
+        assert r2.status_code == 409
+
+    def test_daily_start_creates_session_if_missing(self, client):
+        """세션 쿠키 없이 요청하면 새 세션을 생성한다."""
+        r = client.post("/api/daily/start")
+        assert r.status_code == 200
+        assert r.json()["ok"] is True
+        assert "echoes_sid" in r.cookies
+
+    def test_lobby_shows_daily_button(self, client):
+        """로비 페이지에 DAILY CHALLENGE 버튼이 있다."""
+        r = client.get("/")
+        assert "DAILY CHALLENGE" in r.text
+
+    def test_lobby_shows_today_date(self, client):
+        """로비 페이지에 오늘 날짜가 표시된다."""
+        from daily_challenge import get_today_str
+        today = get_today_str()
+        r = client.get("/")
+        assert today in r.text
+
+    def test_lobby_shows_completed_when_played(self, client, monkeypatch):
+        """이미 플레이한 경우 완료 상태로 표시된다."""
+        import daily_challenge as dc
+        monkeypatch.setattr(dc, "has_played_today", lambda *a, **kw: True)
+        r = client.get("/")
+        assert "COMPLETED" in r.text
+
+    def test_daily_rate_limited_429(self, client):
+        """데일리 챌린지도 IP당 레이트 리밋을 공유한다."""
+        from web.rate_limit import GAME_START_PER_MINUTE, check_rate
+        test_ip = "203.0.113.2"
+        for _ in range(GAME_START_PER_MINUTE):
+            check_rate(f"start:{test_ip}", limit=GAME_START_PER_MINUTE)
+        r = client.post("/api/daily/start", headers={"X-Forwarded-For": test_ip})
+        assert r.status_code == 429
+
+    def test_web_game_session_has_start_daily_method(self):
+        """WebGameSession에 start_daily_challenge 메서드가 존재한다."""
+        from web.adapters import WebGameSession
+        s = WebGameSession("test-daily-id")
+        assert hasattr(s, "start_daily_challenge")
+        assert callable(s.start_daily_challenge)
+
+
 class TestRecordsPage:
     """GET /records 엔드포인트 테스트."""
 
