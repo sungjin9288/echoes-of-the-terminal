@@ -51,7 +51,8 @@ Echoes of the Terminal/
 │   ├── pack_25_neon_underground.json  # 팩 25 (네온 지하경제, 5개 시나리오, node_id 1009~1013)
 │   ├── pack_26_quantum_heist.json     # 팩 26 (양자 강도, 5개 시나리오, node_id 1014~1018)
 │   ├── pack_27_biomech_asylum.json    # 팩 27 (생체공학 수용소, 5개 시나리오, node_id 1019~1023)
-│   └── pack_28_orbital_tribunal.json  # 팩 28 (우주 재판소, 5개 시나리오, node_id 1024~1028)
+│   ├── pack_28_orbital_tribunal.json  # 팩 28 (우주 재판소, 5개 시나리오, node_id 1024~1028)
+│   └── pack_29_abyssal_court.json     # 팩 29 (심해 법정, 5개 시나리오, node_id 1029~1033)
 ├── progression_system.py    # 세이브/퍼크/캠페인/어센션 (587줄)
 ├── combat_commands.py       # 전투 커맨드 핸들러 + 페널티 계산 (279줄)
 ├── artifact_system.py       # 28종 아티팩트 시스템 (400줄)
@@ -97,7 +98,7 @@ Echoes of the Terminal/
 │
 ├── Dockerfile               # python:3.12-slim + uvicorn (v2.0)
 │
-├── tests/                   # pytest 테스트 (33파일, 829케이스, 커버리지 81%+)
+├── tests/                   # pytest 테스트 (34파일, 850케이스, 커버리지 81%+)
 │   ├── test_achievement_system.py
 │   ├── test_artifact_effects.py
 │   ├── test_ascension_runtime.py
@@ -130,7 +131,8 @@ Echoes of the Terminal/
 │   ├── test_daily_history.py
 │   ├── test_leaderboard_io.py
 │   ├── test_web_session.py          # 51케이스 (records 엔드포인트 포함)
-│   └── test_new_packs_v13.py
+│   ├── test_new_packs_v13.py
+│   └── test_new_packs_v14.py
 │
 ├── scripts/                 # 유틸리티 스크립트
 │   ├── generate_boss_phase_pack_template.py  # 보스 페이즈 팩 템플릿 생성기
@@ -367,6 +369,7 @@ def test_penalty_with_elite_modifier(monkeypatch) -> None:
 | `test_leaderboard_io.py` | 31 | 서명 결정성·변조 탐지·익스포트 파일 구조·임포트 병합·중복 제거·순위 재계산·왕복 통합 |
 | `test_web_session.py` | 51 | 로비 페이지·쿠키·클래스 선택·SSE 스트리밍·레이트 리밋·커맨드·세션 스토어·WebGameSession 단위·records 페이지 |
 | `test_new_packs_v13.py` | 20 | Pack 28 로드·메타데이터·node_id 범위·필드 검증·난이도 분포·키워드 in text_log·팩 간 충돌 감지·예상 키워드 매핑 |
+| `test_new_packs_v14.py` | 21 | Pack 29 로드·메타데이터·node_id 범위·필드 검증·난이도 분포·키워드 in text_log·패널티-난이도 매핑·예상 키워드·심해 배경 키워드·팩 간 충돌·전체 고유성 |
 
 ---
 
