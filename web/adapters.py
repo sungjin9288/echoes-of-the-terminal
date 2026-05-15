@@ -145,6 +145,9 @@ class WebGameSession:
         self.selected_class_name: str = "ANALYST"
         self.ascension_level: int = 0
 
+        # UI 설정
+        self.theme: str = "default"  # default | colorblind | high_contrast
+
     # ── 출력 관리 ──────────────────────────────────────────────────────────────
 
     def flush_console_html(self) -> str | None:

@@ -1,8 +1,9 @@
 /* Echoes of the Terminal — Web UI CSS
    디자인 토큰: assets/tokens.json 기준 */
 
-/* ── CSS 변수 (Design Tokens) ────────────────────────────────────────────── */
-:root {
+/* ── CSS 변수 (Design Tokens) — Default 테마 ─────────────────────────────── */
+:root,
+:root[data-theme="default"] {
   --bg-primary:     #0A0E14;
   --bg-surface:     #111820;
   --bg-overlay:     #1A2332;
@@ -22,6 +23,56 @@
   --glow-green: 0 0 8px #39FF14, 0 0 20px #39FF1466;
   --glow-cyan:  0 0 8px #00FFFF, 0 0 20px #00FFFF44;
 }
+
+/* ── Colorblind 테마 — 적록색맹 대응 (초록 → 청색, 빨강 → 주황) ──────────── */
+:root[data-theme="colorblind"] {
+  --bg-primary:     #0A0E14;
+  --bg-surface:     #111820;
+  --bg-overlay:     #1A2332;
+  --text-primary:   #E5E9F0;
+  --text-dim:       #6B7A8D;
+  --green-neon:     #1E90FF;   /* dodger blue (초록 대체) */
+  --green-safe:     #4FC3F7;
+  --yellow-warn:    #FFD700;
+  --red-danger:     #FF8C00;   /* orange (빨강 대체) */
+  --cyan-accent:    #00BFFF;
+  --orange-alert:   #FF8C00;
+  --purple-mystery: #BF5FFF;
+  --border:         #2A3F5A;
+
+  --glow-green: 0 0 8px #1E90FF, 0 0 20px #1E90FF66;
+  --glow-cyan:  0 0 8px #00BFFF, 0 0 20px #00BFFF44;
+}
+
+/* ── High-Contrast 테마 — 색 없이 흑백+굵기/언더라인 (OLED·단색 대응) ──── */
+:root[data-theme="high_contrast"] {
+  --bg-primary:     #000000;
+  --bg-surface:     #0A0A0A;
+  --bg-overlay:     #1A1A1A;
+  --text-primary:   #FFFFFF;
+  --text-dim:       #B8B8B8;
+  --green-neon:     #FFFFFF;
+  --green-safe:     #FFFFFF;
+  --yellow-warn:    #FFFFFF;
+  --red-danger:     #FFFFFF;
+  --cyan-accent:    #FFFFFF;
+  --orange-alert:   #FFFFFF;
+  --purple-mystery: #FFFFFF;
+  --border:         #FFFFFF;
+
+  --glow-green: 0 0 0 1px #FFFFFF;
+  --glow-cyan:  0 0 0 1px #FFFFFF;
+}
+
+/* High-contrast: 색이 모두 흰색이라 구분이 안 되므로 굵기·반전·언더라인으로 보완 */
+:root[data-theme="high_contrast"] .cell-win,
+:root[data-theme="high_contrast"] .term-out.echo,
+:root[data-theme="high_contrast"] .header-nav a.active { font-weight: 900; text-decoration: underline; }
+:root[data-theme="high_contrast"] .cell-loss,
+:root[data-theme="high_contrast"] .quit-link { font-weight: 900; text-decoration: line-through; }
+:root[data-theme="high_contrast"] .cell-score,
+:root[data-theme="high_contrast"] .sb-value { font-weight: 900; }
+:root[data-theme="high_contrast"] .header-logo { text-shadow: none; }
 
 /* ── Reset ───────────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -441,3 +492,35 @@ input[type="range"] {
 .header-nav a { color: var(--text-dim); }
 .header-nav a:hover { color: var(--cyan-accent); text-decoration: none; }
 .header-nav a.active { color: var(--green-neon); }
+
+/* Header right cluster (theme toggle + version) */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Theme toggle buttons */
+.theme-toggle {
+  display: inline-flex;
+  gap: 4px;
+  border: 1px solid var(--border);
+  padding: 2px;
+}
+.theme-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  width: 22px;
+  height: 22px;
+  line-height: 18px;
+  cursor: pointer;
+  padding: 0;
+}
+.theme-btn:hover { color: var(--cyan-accent); }
+.theme-btn.active {
+  color: var(--green-neon);
+  background: var(--bg-overlay);
+}

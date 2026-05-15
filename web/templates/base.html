@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-theme="{{ theme or 'default' }}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,8 +14,42 @@
     <a href="/" {% if active_page == 'lobby' %}class="active"{% endif %}>LOBBY</a>
     <a href="/records" {% if active_page == 'records' %}class="active"{% endif %}>RECORDS</a>
   </nav>
-  <span class="header-ver">v{{ version }}</span>
+  <div class="header-right">
+    <div class="theme-toggle" role="group" aria-label="Theme">
+      <button type="button" class="theme-btn {% if (theme or 'default') == 'default' %}active{% endif %}"
+              data-theme-value="default" title="Default" onclick="setTheme('default')">●</button>
+      <button type="button" class="theme-btn {% if theme == 'colorblind' %}active{% endif %}"
+              data-theme-value="colorblind" title="Colorblind" onclick="setTheme('colorblind')">◐</button>
+      <button type="button" class="theme-btn {% if theme == 'high_contrast' %}active{% endif %}"
+              data-theme-value="high_contrast" title="High Contrast" onclick="setTheme('high_contrast')">◯</button>
+    </div>
+    <span class="header-ver">v{{ version }}</span>
+  </div>
 </header>
+
+<script>
+// 테마 토글 — 서버 세션과 localStorage 모두 저장
+function setTheme(name) {
+  document.documentElement.setAttribute('data-theme', name);
+  try { localStorage.setItem('echoes_theme', name); } catch(e) {}
+  document.querySelectorAll('.theme-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.themeValue === name);
+  });
+  fetch('/api/settings/theme', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    body: 'theme=' + encodeURIComponent(name)
+  }).catch(() => {});
+}
+// 페이지 로드 시 localStorage가 서버보다 신선하면 동기화
+(function() {
+  try {
+    const saved = localStorage.getItem('echoes_theme');
+    const current = document.documentElement.getAttribute('data-theme');
+    if (saved && saved !== current) setTheme(saved);
+  } catch(e) {}
+})();
+</script>
 
 <main>
 {% block content %}{% endblock %}

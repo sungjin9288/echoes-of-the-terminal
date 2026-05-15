@@ -85,6 +85,20 @@ def _attach_cookie(resp: Any, session_id: str) -> None:
     resp.set_cookie(COOKIE_NAME, session_id, max_age=SESSION_TTL, httponly=True)
 
 
+VALID_THEMES = frozenset({"default", "colorblind", "high_contrast"})
+
+
+def _get_theme(sid: str | None) -> str:
+    """세션에서 선택된 테마를 반환한다 (없으면 default)."""
+    if not sid:
+        return "default"
+    session = store.get(sid)
+    if session is None:
+        return "default"
+    theme = getattr(session, "theme", "default")
+    return theme if theme in VALID_THEMES else "default"
+
+
 # ── 페이지 라우트 ─────────────────────────────────────────────────────────────
 
 @app.get("/", response_class=HTMLResponse)
@@ -122,6 +136,7 @@ async def lobby_page(
             "version": _GAME_VERSION,
             "today_str": today_str,
             "daily_played": daily_played,
+            "theme": session.theme,
         },
     )
     if is_new:
@@ -147,12 +162,16 @@ async def game_page(
             "status": session.status,
             "active_page": "game",
             "version": _GAME_VERSION,
+            "theme": session.theme,
         },
     )
 
 
 @app.get("/records", response_class=HTMLResponse)
-async def records_page(request: Request):
+async def records_page(
+    request: Request,
+    echoes_sid: str | None = Cookie(default=None),
+):
     """런 기록 화면 — 리더보드 · 런 히스토리 · 개인 최고 기록."""
     from progression_system import (
         _normalize_save_data,
@@ -190,11 +209,30 @@ async def records_page(request: Request):
             "total_fragments": total_fragments,
             "active_page": "records",
             "version": _GAME_VERSION,
+            "theme": _get_theme(echoes_sid),
         },
     )
 
 
 # ── API 라우트 ────────────────────────────────────────────────────────────────
+
+@app.post("/api/settings/theme")
+async def set_theme(
+    theme: str = Form(...),
+    echoes_sid: str | None = Cookie(default=None),
+):
+    """세션의 테마를 변경한다 (default | colorblind | high_contrast)."""
+    if theme not in VALID_THEMES:
+        raise HTTPException(400, f"Invalid theme: {theme}")
+
+    session, is_new = _resolve_session(echoes_sid)
+    session.theme = theme
+
+    resp = JSONResponse({"ok": True, "theme": theme})
+    if is_new:
+        _attach_cookie(resp, session.session_id)
+    return resp
+
 
 @app.post("/api/lobby/select")
 async def lobby_select(

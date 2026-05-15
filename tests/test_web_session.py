@@ -508,6 +508,86 @@ class TestWebGameSession:
         assert s.flush_console_html() is None
 
 
+class TestThemeToggle:
+    """테마 토글 엔드포인트 테스트 (POST /api/settings/theme)."""
+
+    def test_default_theme_on_lobby(self, client):
+        """초기 로비는 default 테마로 렌더된다."""
+        r = client.get("/")
+        assert 'data-theme="default"' in r.text
+
+    def test_set_valid_theme_ok(self, client):
+        r = client.get("/")
+        sid = r.cookies["echoes_sid"]
+        r2 = client.post(
+            "/api/settings/theme",
+            data={"theme": "colorblind"},
+            cookies={"echoes_sid": sid},
+        )
+        assert r2.status_code == 200
+        body = r2.json()
+        assert body["ok"] is True
+        assert body["theme"] == "colorblind"
+
+    def test_theme_persists_on_lobby_after_set(self, client):
+        r = client.get("/")
+        sid = r.cookies["echoes_sid"]
+        client.post(
+            "/api/settings/theme",
+            data={"theme": "high_contrast"},
+            cookies={"echoes_sid": sid},
+        )
+        r2 = client.get("/", cookies={"echoes_sid": sid})
+        assert 'data-theme="high_contrast"' in r2.text
+
+    def test_theme_persists_on_records_page(self, client):
+        r = client.get("/")
+        sid = r.cookies["echoes_sid"]
+        client.post(
+            "/api/settings/theme",
+            data={"theme": "colorblind"},
+            cookies={"echoes_sid": sid},
+        )
+        r2 = client.get("/records", cookies={"echoes_sid": sid})
+        assert 'data-theme="colorblind"' in r2.text
+
+    def test_invalid_theme_400(self, client):
+        r = client.post(
+            "/api/settings/theme",
+            data={"theme": "neon_disco"},
+        )
+        assert r.status_code == 400
+
+    def test_set_theme_creates_session_if_missing(self, client):
+        """쿠키 없이 요청 시 새 세션 생성."""
+        r = client.post(
+            "/api/settings/theme",
+            data={"theme": "default"},
+        )
+        assert r.status_code == 200
+        assert "echoes_sid" in r.cookies
+
+    def test_theme_toggle_buttons_in_base_html(self, client):
+        """헤더에 3개 테마 토글 버튼이 렌더된다."""
+        r = client.get("/")
+        for name in ("default", "colorblind", "high_contrast"):
+            assert f'data-theme-value="{name}"' in r.text
+
+    def test_web_game_session_has_theme_field(self):
+        """WebGameSession.theme 기본값 검증."""
+        from web.adapters import WebGameSession
+        s = WebGameSession("theme-test")
+        assert s.theme == "default"
+
+    def test_css_contains_theme_variants(self):
+        """style.css에 세 가지 테마 분기가 모두 정의됨."""
+        from pathlib import Path
+        css = (Path(__file__).parent.parent / "web" / "static" / "style.css").read_text(encoding="utf-8")
+        assert ':root[data-theme="default"]' in css
+        assert ':root[data-theme="colorblind"]' in css
+        assert ':root[data-theme="high_contrast"]' in css
+
+
 class TestDailyChallenge:
     """데일리 챌린지 엔드포인트 테스트."""
 

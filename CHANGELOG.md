@@ -5,6 +5,21 @@
 
 ---
 
+## [2.1.0] — 2026-05-08
+
+### 추가 (Added)
+- **웹 UI 테마 시스템 포팅** — v3.0 "Complete Web Game" 비전의 Phase D 첫 단계:
+  - 헤더 우측 3-버튼 토글 (●/◐/◯) — Default / Colorblind / High-Contrast.
+  - `web/static/style.css`: `:root[data-theme="default|colorblind|high_contrast"]` 셀렉터로 CSS 변수 세트 분기.
+    - **Colorblind**: 초록→Dodger Blue(`#1E90FF`), 빨강→Orange(`#FF8C00`) — 적록색맹 대응.
+    - **High-Contrast**: 모든 색을 흰색으로 단일화, 굵기·언더라인·반전·라인스루로 의미 구분 (단색/OLED 디스플레이 대응).
+  - `web/adapters.py`: `WebGameSession.theme: str` 필드 (default).
+  - `web/app.py`: `POST /api/settings/theme` 엔드포인트, 모든 페이지 컨텍스트에 `theme` 주입.
+  - `web/templates/base.html`: `<html data-theme="...">` 속성, 로컬스토리지 + 서버 세션 동기화 스크립트.
+  - **테스트 9케이스 신규** (`tests/test_web_session.py::TestThemeToggle`): 859 케이스 통과.
+
+---
+
 ## [2.0.9] — 2026-05-07
 
 ### 추가 (Added)
