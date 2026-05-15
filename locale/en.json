@@ -145,5 +145,16 @@
   "web.game.quit": "[ QUIT ]",
   "web.game.connecting": "CONNECTING",
   "web.game.terminated": "[ SESSION TERMINATED — ",
-  "web.game.confirm_quit": "Abandon run and return to lobby?"
+  "web.game.confirm_quit": "Abandon run and return to lobby?",
+
+  "web.header.achievements": "ACHIEVEMENTS",
+  "web.achievements.title": "Achievements",
+  "web.achievements.subtitle": "SYSTEM :: ACHIEVEMENT DATABASE",
+  "web.achievements.cat_all": "ALL",
+  "web.achievements.cat_exploration": "EXPLORATION",
+  "web.achievements.cat_class": "CLASS",
+  "web.achievements.cat_collection": "COLLECTION",
+  "web.achievements.cat_campaign": "CAMPAIGN",
+  "web.achievements.cat_mystery": "MYSTERY",
+  "web.achievements.cat_extreme": "EXTREME"
 }

@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}{{ translate(lang, 'web.achievements.title') }} — Echoes of the Terminal{% endblock %}
+
+{% block content %}
+<div class="ach-wrap">
+
+  <!-- 요약 헤더 -->
+  <div class="ach-summary">
+    <div class="ach-summary-title">
+      &gt; {{ translate(lang, 'web.achievements.subtitle') }}
+    </div>
+    <div class="ach-summary-stats">
+      <span class="ach-completion-val">{{ unlocked_count }}</span>
+      <span class="dim">/</span>
+      <span class="dim">{{ total }}</span>
+      <span class="dim">({{ completion }}%)</span>
+    </div>
+    <div class="ach-overall-bar">
+      <div class="ach-overall-fill" style="width: {{ completion }}%"></div>
+    </div>
+  </div>
+
+  <!-- 카테고리 탭 -->
+  <div class="ach-tabs" role="tablist">
+    <button type="button" class="ach-tab active" data-cat="all" onclick="filterCat(this, 'all')">
+      {{ translate(lang, 'web.achievements.cat_all') }}
+    </button>
+    {% for cat in categories %}
+    {% set items = by_category[cat] %}
+    {% set ucount = items | selectattr('unlocked') | list | length %}
+    <button type="button" class="ach-tab" data-cat="{{ cat }}" onclick="filterCat(this, '{{ cat }}')">
+      {{ translate(lang, 'web.achievements.cat_' + cat) }}
+      <span class="ach-tab-count">{{ ucount }}/{{ items|length }}</span>
+    </button>
+    {% endfor %}
+  </div>
+
+  <!-- 카테고리별 섹션 -->
+  {% for cat in categories %}
+  {% set items = by_category[cat] %}
+  {% if items %}
+  <section class="ach-section" data-cat-section="{{ cat }}">
+    <div class="ach-section-title">
+      &gt; {{ translate(lang, 'web.achievements.cat_' + cat) }}
+      <span class="dim">// {{ items | selectattr('unlocked') | list | length }} / {{ items|length }}</span>
+    </div>
+    <div class="ach-grid">
+      {% for item in items %}
+      <div class="ach-card {% if item.unlocked %}unlocked{% else %}locked{% endif %}">
+        <div class="ach-card-head">
+          <span class="ach-status">{% if item.unlocked %}✓{% else %}◯{% endif %}</span>
+          <span class="ach-title">
+            {% if item.unlocked %}{{ item.title }}{% else %}???{% endif %}
+          </span>
+        </div>
+        <div class="ach-desc">
+          {% if item.unlocked %}
+            {{ item.desc }}
+          {% else %}
+            <span class="dim">{{ item.desc | replace('했다', '하시오') | replace('했', '???') }}</span>
+          {% endif %}
+        </div>
+        {% if item.target is not none %}
+        <div class="ach-progress-row">
+          <div class="ach-progress-bar">
+            <div class="ach-progress-fill" style="width: {{ item.ratio }}%"></div>
+          </div>
+          <span class="ach-progress-text">{{ item.current }} / {{ item.target }}</span>
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+  {% endfor %}
+
+</div>
+
+<script>
+function filterCat(btn, cat) {
+  document.querySelectorAll('.ach-tab').forEach(b => b.classList.toggle('active', b === btn));
+  document.querySelectorAll('.ach-section').forEach(s => {
+    s.style.display = (cat === 'all' || s.dataset.catSection === cat) ? '' : 'none';
+  });
+}
+</script>
+{% endblock %}

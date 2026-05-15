@@ -508,6 +508,75 @@ class TestWebGameSession:
         assert s.flush_console_html() is None
 
 
+class TestAchievementsPage:
+    """업적 갤러리 페이지 (GET /achievements)."""
+
+    def test_returns_200(self, client):
+        r = client.get("/achievements")
+        assert r.status_code == 200
+
+    def test_contains_summary_completion(self, client):
+        """전체/해금 카운트가 렌더된다."""
+        r = client.get("/achievements")
+        # 형식: 0 / 118 (0%) 또는 0/118
+        assert "118" in r.text or "115" in r.text  # 현재 총 업적 수 (118)
+
+    def test_contains_category_tabs(self, client):
+        """6개 카테고리 + ALL 탭이 모두 렌더된다."""
+        r = client.get("/achievements")
+        for cat in ("exploration", "class", "collection", "campaign", "mystery", "extreme"):
+            assert f'data-cat="{cat}"' in r.text
+        assert 'data-cat="all"' in r.text
+
+    def test_locked_achievements_show_masked_title(self, client, monkeypatch):
+        """모든 업적이 잠금 상태인 경우 ??? 마스킹 표시."""
+        import progression_system as ps
+        # 깨끗한 세이브 (해금 없음)
+        monkeypatch.setattr(ps, "load_save", lambda: {})
+        r = client.get("/achievements")
+        assert "???" in r.text
+
+    def test_unlocked_achievement_shows_real_title(self, client, monkeypatch):
+        """해금된 업적은 실제 제목으로 표시된다."""
+        import progression_system as ps
+        fake = {"achievements": {"unlocked": ["first_breach"]}}
+        monkeypatch.setattr(ps, "load_save", lambda: fake)
+        r = client.get("/achievements")
+        # first_breach 업적 제목 "첫 번째 돌파" (KO) — 기본 ko
+        assert "첫 번째 돌파" in r.text or "First Breach" in r.text
+
+    def test_progress_bar_for_trackable_achievement(self, client, monkeypatch):
+        """진행률 추적 가능한 업적은 current/target 표시."""
+        import progression_system as ps
+        fake = {
+            "run_history": [{"result": "victory"}] * 3,
+            "achievements": {"unlocked": []},
+        }
+        monkeypatch.setattr(ps, "load_save", lambda: fake)
+        r = client.get("/achievements")
+        # runs_10 진행률: 3 / 10
+        assert "/ 10" in r.text or "/10" in r.text
+
+    def test_categorize_helper(self):
+        """카테고리 분류 헬퍼 — 6개 카테고리 정확히 매핑."""
+        from web.app import _categorize_achievement
+        assert _categorize_achievement("runs_10") == "exploration"
+        assert _categorize_achievement("analyst_victory") == "class"
+        assert _categorize_achievement("mystery_master") == "mystery"
+        assert _categorize_achievement("artifact_collector") == "collection"
+        assert _categorize_achievement("campaign_complete") == "campaign"
+        assert _categorize_achievement("asc20_clear") == "extreme"
+
+    def test_header_nav_has_achievements_link(self, client):
+        r = client.get("/")
+        assert 'href="/achievements"' in r.text
+
+    def test_active_page_highlighted(self, client):
+        r = client.get("/achievements")
+        # active 클래스가 있어야 함
+        assert 'class="active"' in r.text
+
+
 class TestI18nToggle:
     """언어 토글 엔드포인트 테스트 (POST /api/settings/lang)."""
 

@@ -145,5 +145,16 @@
   "web.game.quit": "[ 종료 ]",
   "web.game.connecting": "연결 중",
   "web.game.terminated": "[ 세션 종료 — ",
-  "web.game.confirm_quit": "런을 포기하고 로비로 돌아갑니까?"
+  "web.game.confirm_quit": "런을 포기하고 로비로 돌아갑니까?",
+
+  "web.header.achievements": "업적",
+  "web.achievements.title": "업적",
+  "web.achievements.subtitle": "시스템 :: 업적 데이터베이스",
+  "web.achievements.cat_all": "전체",
+  "web.achievements.cat_exploration": "탐험",
+  "web.achievements.cat_class": "클래스",
+  "web.achievements.cat_collection": "수집",
+  "web.achievements.cat_campaign": "캠페인",
+  "web.achievements.cat_mystery": "미스터리",
+  "web.achievements.cat_extreme": "극한"
 }

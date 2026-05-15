@@ -5,6 +5,23 @@
 
 ---
 
+## [2.1.2] — 2026-05-08
+
+### 추가 (Added)
+- **웹 UI 업적 갤러리 페이지** (`GET /achievements`) — v3.0 Phase D 세 번째 마이크로 릴리즈:
+  - 118종 업적을 6개 카테고리(Exploration / Class / Collection / Campaign / Mystery / Extreme)별 카드 그리드로 표시.
+  - 카테고리 탭 — `ALL` + 6 카테고리 각각의 해금/전체 카운트 표시. 클라이언트 사이드 필터링.
+  - 카드: 잠금/해금 상태(✓/◯), 잠금 시 제목 `???` 마스킹, 해금 시 녹색 글로우.
+  - 진행률 바: PROGRESS_SPECS 등록 업적(45종)에 한해 `current/target` + 색 막대.
+  - 요약 헤더: `unlocked / total (n%)` + 전체 진행 바.
+  - `web/app.py::_categorize_achievement()`: ID 접두사 기반 6분류 헬퍼.
+  - 헤더 nav: LOBBY | RECORDS | **ACHIEVEMENTS** (3종).
+  - `locale/ko.json` + `locale/en.json`: 신규 키 11개 (`web.achievements.*`, `web.header.achievements`).
+  - **테스트 9케이스 신규** (`TestAchievementsPage`): 870 → **879 케이스**.
+- 재사용: `achievement_data.ACHIEVEMENTS`, `achievement_progress.compute_achievement_progress`, `achievement_system.normalize_achievement_state`.
+
+---
+
 ## [2.1.1] — 2026-05-08
 
 ### 추가 (Added)

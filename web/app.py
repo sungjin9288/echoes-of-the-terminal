@@ -117,6 +117,35 @@ from i18n import translate as _translate  # noqa: E402
 templates.env.globals["translate"] = _translate
 
 
+# ── 업적 카테고리 분류 ────────────────────────────────────────────────────────
+
+ACH_CATEGORIES: tuple[str, ...] = (
+    "exploration", "class", "collection", "campaign", "mystery", "extreme",
+)
+
+
+def _categorize_achievement(ach_id: str) -> str:
+    """업적 ID로부터 6개 카테고리 중 하나로 분류한다.
+
+    분류 우선순위는 명시적으로 가장 구체적인 것부터.
+    """
+    aid = ach_id.lower()
+    # daily / mystery 는 collection 으로 묶음
+    if aid.startswith(("mystery_", "argos_lure", "phantom_node", "deepscan_streak")):
+        return "mystery"
+    if aid.startswith(("artifact_", "perk_", "daily_", "fragments_")) or "endings" in aid:
+        return "collection"
+    if aid.startswith("campaign_"):
+        return "campaign"
+    # 극한: ascension 20 / 핸디캡 / nightmare 다회
+    if "asc20" in aid or "handicap" in aid or "extreme" in aid or "nightmare_only" in aid:
+        return "extreme"
+    if aid.startswith(("analyst_", "ghost_", "cracker_", "class_", "all_classes", "trinity")):
+        return "class"
+    # 기본: exploration (runs, victories, first, perfect, no_perk 등)
+    return "exploration"
+
+
 # ── 페이지 라우트 ─────────────────────────────────────────────────────────────
 
 @app.get("/", response_class=HTMLResponse)
@@ -228,6 +257,69 @@ async def records_page(
             "best_score": best_score,
             "total_fragments": total_fragments,
             "active_page": "records",
+            "version": _GAME_VERSION,
+            "theme": _get_theme(echoes_sid),
+            "lang": _get_lang(echoes_sid),
+        },
+    )
+
+
+@app.get("/achievements", response_class=HTMLResponse)
+async def achievements_page(
+    request: Request,
+    echoes_sid: str | None = Cookie(default=None),
+):
+    """업적 갤러리 — 115+ 업적을 카테고리별 카드 그리드로 표시."""
+    from achievement_data import ACHIEVEMENTS
+    from achievement_progress import compute_achievement_progress
+    from achievement_system import normalize_achievement_state
+    from progression_system import _normalize_save_data, load_save
+
+    save_data = load_save()
+    _normalize_save_data(save_data)
+
+    state = normalize_achievement_state(save_data.get("achievements", {}))
+    unlocked: set[str] = set(state["unlocked"])
+
+    # 카테고리별로 그룹화
+    by_category: dict[str, list[dict[str, Any]]] = {c: [] for c in ACH_CATEGORIES}
+    for ach in ACHIEVEMENTS:
+        ach_id = str(ach["id"])
+        cat = _categorize_achievement(ach_id)
+        is_unlocked = ach_id in unlocked
+        progress = compute_achievement_progress(ach_id, save_data)
+
+        item: dict[str, Any] = {
+            "id": ach_id,
+            "title": str(ach.get("title", "")),
+            "desc": str(ach.get("desc", "")),
+            "unlocked": is_unlocked,
+        }
+        if progress is not None and progress[1] > 0:
+            item["current"] = progress[0]
+            item["target"] = progress[1]
+            item["ratio"] = round(progress[0] * 100 / progress[1])
+        else:
+            item["current"] = None
+            item["target"] = None
+            item["ratio"] = None
+
+        by_category.setdefault(cat, []).append(item)
+
+    total = len(ACHIEVEMENTS)
+    unlocked_count = sum(1 for a in ACHIEVEMENTS if str(a["id"]) in unlocked)
+    completion = round(unlocked_count * 100 / total) if total else 0
+
+    return templates.TemplateResponse(
+        request,
+        "achievements.html",
+        {
+            "by_category": by_category,
+            "categories": list(ACH_CATEGORIES),
+            "total": total,
+            "unlocked_count": unlocked_count,
+            "completion": completion,
+            "active_page": "achievements",
             "version": _GAME_VERSION,
             "theme": _get_theme(echoes_sid),
             "lang": _get_lang(echoes_sid),
