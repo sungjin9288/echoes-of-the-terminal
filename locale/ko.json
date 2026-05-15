@@ -156,5 +156,23 @@
   "web.achievements.cat_collection": "수집",
   "web.achievements.cat_campaign": "캠페인",
   "web.achievements.cat_mystery": "미스터리",
-  "web.achievements.cat_extreme": "극한"
+  "web.achievements.cat_extreme": "극한",
+
+  "web.header.endings": "엔딩",
+  "web.endings.title": "엔딩",
+  "web.endings.subtitle": "시스템 :: 엔딩 데이터베이스",
+  "web.endings.locked_flavor": "이 엔딩의 내용은 아직 봉인되어 있습니다. 조건을 만족시켜 해금하세요.",
+  "web.endings.hint.TRUE_END": "여러 조건의 정점 — 캠페인·아티팩트·엔딩 누적 통과의 최종 보상",
+  "web.endings.hint.ASCENSION_END": "ASC-20 단일 클리어",
+  "web.endings.hint.GHOST_END": "추적도 10% 이하로 승리 (스텔스)",
+  "web.endings.hint.ANALYST_END": "ANALYST로 오답 없이 완벽 클리어",
+  "web.endings.hint.SURVIVOR_END": "추적도 95% 이상의 위기에서 역전 승리",
+  "web.endings.hint.SPEEDRUN_END": "런 1분 이내 완료 또는 모든 노드 즉답",
+  "web.endings.hint.CRACKER_END": "CRACKER 활성 스킬로 결정적 노드 돌파",
+  "web.endings.hint.VETERAN_END": "다수의 런을 누적 클리어한 베테랑",
+  "web.endings.hint.MYSTERY_END": "다수의 MYSTERY 이벤트에 개입해 성공",
+  "web.endings.hint.COLLECTOR_END": "아티팩트·퍼크·엔딩의 광범위한 수집",
+  "web.endings.hint.COMEBACK_END": "후반 위기에서 추적도를 크게 낮춰 승리",
+  "web.endings.hint.PACIFIST_END": "전투 회피 노드 활용으로 클리어",
+  "web.endings.hint.PERK_END": "특정 퍼크 조합을 적극 활용해 클리어"
 }

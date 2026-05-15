@@ -508,6 +508,60 @@ class TestWebGameSession:
         assert s.flush_console_html() is None
 
 
+class TestEndingsPage:
+    """엔딩 갤러리 페이지 (GET /endings)."""
+
+    def test_returns_200(self, client):
+        r = client.get("/endings")
+        assert r.status_code == 200
+
+    def test_shows_total_count(self, client):
+        """13개 엔딩 카드가 모두 렌더된다."""
+        r = client.get("/endings")
+        # ID 또는 잠금 상태가 13번 등장
+        from ending_system import ENDINGS
+        # 각 엔딩 ID가 텍스트에 포함됨 (잠금이면 "??? — ID" 형식)
+        for eid in ENDINGS.keys():
+            assert eid in r.text, f"엔딩 {eid}가 렌더에 없음"
+
+    def test_locked_endings_show_question_marks(self, client, monkeypatch):
+        """기본 상태에서 모든 엔딩이 잠금 표시."""
+        import progression_system as ps
+        monkeypatch.setattr(ps, "load_save", lambda: {})
+        r = client.get("/endings")
+        # 모든 엔딩 = locked → ??? 마스킹
+        assert r.text.count("???") >= 13
+
+    def test_unlocked_ending_shows_title(self, client, monkeypatch):
+        """해금된 엔딩은 실제 타이틀로 표시."""
+        import progression_system as ps
+        fake = {"endings": {"unlocked": ["GHOST_END"]}}
+        monkeypatch.setattr(ps, "load_save", lambda: fake)
+        r = client.get("/endings")
+        # GHOST_END 의 title = "PHANTOM BREACH"
+        assert "PHANTOM BREACH" in r.text
+
+    def test_header_nav_has_endings_link(self, client):
+        r = client.get("/")
+        assert 'href="/endings"' in r.text
+
+    def test_shows_completion_summary(self, client, monkeypatch):
+        import progression_system as ps
+        fake = {"endings": {"unlocked": ["GHOST_END", "ANALYST_END"]}}
+        monkeypatch.setattr(ps, "load_save", lambda: fake)
+        r = client.get("/endings")
+        # 2 / 13 (15%) 형식으로 렌더됨
+        assert "2" in r.text and "13" in r.text
+
+    def test_hint_keys_present_for_locked(self, client, monkeypatch):
+        """잠금된 엔딩은 i18n 힌트가 노출된다."""
+        import progression_system as ps
+        monkeypatch.setattr(ps, "load_save", lambda: {})
+        r = client.get("/endings")
+        # 한국어 기본 — TRUE_END 힌트 일부
+        assert "정점" in r.text or "Apex" in r.text
+
+
 class TestAchievementsPage:
     """업적 갤러리 페이지 (GET /achievements)."""
 

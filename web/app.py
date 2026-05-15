@@ -264,6 +264,53 @@ async def records_page(
     )
 
 
+@app.get("/endings", response_class=HTMLResponse)
+async def endings_page(
+    request: Request,
+    echoes_sid: str | None = Cookie(default=None),
+):
+    """엔딩 갤러리 — 13종 엔딩 카드. 잠금된 엔딩은 힌트만 표시."""
+    from ending_system import ENDINGS, get_endings_snapshot
+    from progression_system import _normalize_save_data, load_save
+
+    save_data = load_save()
+    _normalize_save_data(save_data)
+
+    snapshot = get_endings_snapshot(save_data)
+    unlocked: set[str] = set(snapshot["unlocked_ids"])
+
+    # priority 순으로 정렬해서 노출 (낮을수록 우선)
+    sorted_endings = sorted(ENDINGS.values(), key=lambda e: e.priority)
+    items: list[dict[str, Any]] = []
+    for ending in sorted_endings:
+        is_unlocked = ending.ending_id in unlocked
+        items.append({
+            "id": ending.ending_id,
+            "title": ending.title,
+            "subtitle": ending.subtitle,
+            "flavor_text": ending.flavor_text,
+            "color": ending.color,
+            "priority": ending.priority,
+            "unlocked": is_unlocked,
+        })
+
+    return templates.TemplateResponse(
+        request,
+        "endings.html",
+        {
+            "endings": items,
+            "unlocked_count": snapshot["unlocked_count"],
+            "total": snapshot["total_count"],
+            "completion": round(snapshot["unlocked_count"] * 100 / snapshot["total_count"])
+                          if snapshot["total_count"] else 0,
+            "active_page": "endings",
+            "version": _GAME_VERSION,
+            "theme": _get_theme(echoes_sid),
+            "lang": _get_lang(echoes_sid),
+        },
+    )
+
+
 @app.get("/achievements", response_class=HTMLResponse)
 async def achievements_page(
     request: Request,

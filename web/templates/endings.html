@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}{{ translate(lang, 'web.endings.title') }} — Echoes of the Terminal{% endblock %}
+
+{% block content %}
+<div class="endings-wrap">
+
+  <!-- 요약 헤더 -->
+  <div class="ach-summary">
+    <div class="ach-summary-title">
+      &gt; {{ translate(lang, 'web.endings.subtitle') }}
+    </div>
+    <div class="ach-summary-stats">
+      <span class="ach-completion-val">{{ unlocked_count }}</span>
+      <span class="dim">/</span>
+      <span class="dim">{{ total }}</span>
+      <span class="dim">({{ completion }}%)</span>
+    </div>
+    <div class="ach-overall-bar">
+      <div class="ach-overall-fill" style="width: {{ completion }}%"></div>
+    </div>
+  </div>
+
+  <!-- 엔딩 카드 그리드 -->
+  <div class="endings-grid">
+    {% for ending in endings %}
+    <div class="ending-card {% if ending.unlocked %}unlocked{% else %}locked{% endif %}"
+         {% if ending.unlocked %}style="border-color: {{ ending.color | replace('bold ', '') }};"{% endif %}>
+      <div class="ending-card-head">
+        <span class="ending-status">{% if ending.unlocked %}✓{% else %}◯{% endif %}</span>
+        <div class="ending-head-text">
+          <div class="ending-id">
+            {% if ending.unlocked %}
+              <span style="color: {{ ending.color | replace('bold ', '') }};">{{ ending.title }}</span>
+            {% else %}
+              ??? — {{ ending.id }}
+            {% endif %}
+          </div>
+          {% if ending.unlocked %}
+          <div class="ending-subtitle">{{ ending.subtitle }}</div>
+          {% else %}
+          <div class="ending-subtitle dim">
+            {{ translate(lang, 'web.endings.hint.' + ending.id) }}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      {% if ending.unlocked %}
+      <div class="ending-flavor">
+        {% for line in ending.flavor_text.split('\n') %}
+          {% if line %}{{ line }}{% else %}<br>{% endif %}<br>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="ending-flavor dim">
+        <em>{{ translate(lang, 'web.endings.locked_flavor') }}</em>
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}

@@ -156,5 +156,23 @@
   "web.achievements.cat_collection": "COLLECTION",
   "web.achievements.cat_campaign": "CAMPAIGN",
   "web.achievements.cat_mystery": "MYSTERY",
-  "web.achievements.cat_extreme": "EXTREME"
+  "web.achievements.cat_extreme": "EXTREME",
+
+  "web.header.endings": "ENDINGS",
+  "web.endings.title": "Endings",
+  "web.endings.subtitle": "SYSTEM :: ENDING DATABASE",
+  "web.endings.locked_flavor": "This ending remains sealed. Meet its conditions to unlock.",
+  "web.endings.hint.TRUE_END": "Apex of all conditions — campaign, artifacts, and ending mastery",
+  "web.endings.hint.ASCENSION_END": "Clear ASC-20 in a single run",
+  "web.endings.hint.GHOST_END": "Win with trace ≤ 10% (stealth)",
+  "web.endings.hint.ANALYST_END": "Flawless ANALYST run — zero wrong answers",
+  "web.endings.hint.SURVIVOR_END": "Win from trace ≥ 95% crisis",
+  "web.endings.hint.SPEEDRUN_END": "Complete a run under 60s or instant answers",
+  "web.endings.hint.CRACKER_END": "Use CRACKER active skill on a critical node",
+  "web.endings.hint.VETERAN_END": "Accumulate clears across many runs",
+  "web.endings.hint.MYSTERY_END": "Engage and succeed in many MYSTERY events",
+  "web.endings.hint.COLLECTOR_END": "Broad collection of artifacts/perks/endings",
+  "web.endings.hint.COMEBACK_END": "Win after a deep trace recovery",
+  "web.endings.hint.PACIFIST_END": "Clear by leveraging non-combat nodes",
+  "web.endings.hint.PERK_END": "Win by exploiting a specific perk loadout"
 }

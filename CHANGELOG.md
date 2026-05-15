@@ -5,6 +5,21 @@
 
 ---
 
+## [2.1.3] — 2026-05-16
+
+### 추가 (Added)
+- **웹 UI 엔딩 갤러리 페이지** (`GET /endings`) — v3.0 Phase D 네 번째 마이크로 릴리즈:
+  - 13종 엔딩을 priority 오름차순 카드 그리드로 표시.
+  - **잠금 엔딩**: ID + `???` 마스킹 제목 + i18n 힌트 (한 줄), 봉인 안내 플레이버.
+  - **해금 엔딩**: 실제 타이틀 + 부제 + 다중행 플레이버 텍스트, 엔딩 고유 색상 보더.
+  - 요약 헤더: `n / 13 (m%)` + 전체 진행 바 (업적 페이지와 통일 디자인).
+  - `locale/ko.json` + `locale/en.json`: `web.header.endings`, `web.endings.title|subtitle|locked_flavor` + 13개 엔딩별 `web.endings.hint.*` 키 (총 17 신규).
+  - 헤더 nav: LOBBY | RECORDS | ACHIEVEMENTS | **ENDINGS** (4종).
+  - **테스트 7케이스 신규** (`TestEndingsPage`): 879 → **886 케이스**.
+- 재사용: `ending_system.ENDINGS`, `ending_system.get_endings_snapshot()`.
+
+---
+
 ## [2.1.2] — 2026-05-08
 
 ### 추가 (Added)
