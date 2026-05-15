@@ -88,7 +88,7 @@ Echoes of the Terminal/
 │   ├── __init__.py
 │   ├── adapters.py          # ConsoleBridge (thread-local) + WebGameSession + install_patches()
 │   ├── session.py           # SessionStore (인메모리, TTL 1시간)
-│   ├── app.py               # FastAPI 앱 — 라우트 15종 (+ /records, /achievements, /endings, /profile, /api/daily/start, /api/settings/theme|lang) + lifespan 정리 태스크
+│   ├── app.py               # FastAPI 앱 — 라우트 17종 (+ /records, /achievements, /endings, /profile, /shop, /api/daily/start, /api/shop/buy_perk, /api/settings/theme|lang) + lifespan 정리 태스크
 │   ├── static/style.css     # Design Token CSS 변수 기반 터미널 UI
 │   └── templates/           # Jinja2 템플릿
 │       ├── base.html        # 공통 레이아웃 (htmx CDN, 헤더 네비게이션)
@@ -97,11 +97,12 @@ Echoes of the Terminal/
 │       ├── records.html     # 리더보드·런 히스토리·개인 최고 기록 조회
 │       ├── achievements.html # 118종 업적 갤러리 (6 카테고리 탭 + 진행률 바)
 │       ├── endings.html     # 13종 엔딩 갤러리 (잠금=힌트, 해금=플레이버 풀텍스트)
-│       └── profile.html     # 다이버 프로필 카드 + 100h 캠페인 진행도
+│       ├── profile.html     # 다이버 프로필 카드 + 100h 캠페인 진행도
+│       └── shop.html        # 13종 퍼크 상점 (카드 그리드 + 비동기 구매)
 │
 ├── Dockerfile               # python:3.12-slim + uvicorn (v2.0)
 │
-├── tests/                   # pytest 테스트 (34파일, 895케이스, 커버리지 81%+)
+├── tests/                   # pytest 테스트 (34파일, 906케이스, 커버리지 81%+)
 │   ├── test_achievement_system.py
 │   ├── test_artifact_effects.py
 │   ├── test_ascension_runtime.py
@@ -370,7 +371,7 @@ def test_penalty_with_elite_modifier(monkeypatch) -> None:
 | `test_new_packs_v12.py` | 26 | Pack 26/27 로드·메타데이터·node_id 범위·필드 검증·난이도 분포·키워드 in text_log·팩 간 충돌 감지·패널티-난이도 매핑 |
 | `test_daily_history.py` | 36 | 바 차트 렌더·streak 업적 해금·records screen 통합·링버퍼 정규화·record_daily_result 저장 |
 | `test_leaderboard_io.py` | 31 | 서명 결정성·변조 탐지·익스포트 파일 구조·임포트 병합·중복 제거·순위 재계산·왕복 통합 |
-| `test_web_session.py` | 105 | 로비·쿠키·SSE·레이트 리밋·세션·records·데일리·테마·i18n·achievements·endings·profile 페이지 |
+| `test_web_session.py` | 116 | 로비·SSE·레이트 리밋·세션·records·데일리·테마·i18n·achievements·endings·profile·shop |
 | `test_new_packs_v13.py` | 20 | Pack 28 로드·메타데이터·node_id 범위·필드 검증·난이도 분포·키워드 in text_log·팩 간 충돌 감지·예상 키워드 매핑 |
 | `test_new_packs_v14.py` | 21 | Pack 29 로드·메타데이터·node_id 범위·필드 검증·난이도 분포·키워드 in text_log·패널티-난이도 매핑·예상 키워드·심해 배경 키워드·팩 간 충돌·전체 고유성 |
 

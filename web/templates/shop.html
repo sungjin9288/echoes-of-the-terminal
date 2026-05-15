@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}{{ translate(lang, 'web.shop.title') }} — Echoes of the Terminal{% endblock %}
+
+{% block content %}
+<div class="shop-wrap">
+
+  <!-- 헤더: 잔액 + 구매 진행도 -->
+  <div class="shop-header">
+    <div>
+      <div class="ach-summary-title">&gt; {{ translate(lang, 'web.shop.subtitle') }}</div>
+      <div class="shop-progress">
+        <span class="ach-completion-val">{{ owned_count }}</span>
+        <span class="dim">/ {{ total }} ({{ completion }}%)</span>
+      </div>
+    </div>
+    <div class="shop-balance">
+      <div class="dim">{{ translate(lang, 'web.shop.balance') }}</div>
+      <div class="shop-balance-val" id="frag-val">{{ fragments }}</div>
+    </div>
+  </div>
+
+  <div class="ach-overall-bar" style="margin-bottom: 24px;">
+    <div class="ach-overall-fill" style="width: {{ completion }}%"></div>
+  </div>
+
+  <!-- 알림 -->
+  <div id="shop-toast" class="shop-toast hidden"></div>
+
+  <!-- 퍼크 카드 그리드 -->
+  <div class="shop-grid">
+    {% for p in perks %}
+    <div class="perk-card {% if p.owned %}owned{% elif p.affordable %}affordable{% else %}locked{% endif %}"
+         data-perk="{{ p.id }}" data-price="{{ p.price }}">
+      <div class="perk-head">
+        <span class="perk-status">{% if p.owned %}✓{% else %}◯{% endif %}</span>
+        <span class="perk-label">{{ p.label }}</span>
+      </div>
+      <div class="perk-desc">{{ p.desc }}</div>
+      <div class="perk-foot">
+        <span class="perk-price">{{ p.price }} <span class="dim">{{ translate(lang, 'web.shop.frag_short') }}</span></span>
+        {% if p.owned %}
+          <span class="perk-owned-tag">{{ translate(lang, 'web.shop.owned') }}</span>
+        {% else %}
+          <button type="button" class="perk-buy-btn"
+                  {% if not p.affordable %}disabled{% endif %}
+                  onclick="buyPerk('{{ p.id }}')">
+            {{ translate(lang, 'web.shop.buy') }}
+          </button>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+
+<script>
+function showToast(msg, ok) {
+  const t = document.getElementById('shop-toast');
+  t.textContent = msg;
+  t.className = 'shop-toast ' + (ok ? 'ok' : 'err');
+  setTimeout(() => t.classList.add('hidden'), 3000);
+}
+
+async function buyPerk(perkId) {
+  const card = document.querySelector(`.perk-card[data-perk="${perkId}"]`);
+  if (!card || card.classList.contains('owned')) return;
+
+  const form = new FormData();
+  form.append('perk_id', perkId);
+
+  try {
+    const resp = await fetch('/api/shop/buy_perk', { method: 'POST', body: form });
+    const data = await resp.json();
+    if (data.ok) {
+      // 즉시 UI 갱신
+      card.classList.remove('affordable', 'locked');
+      card.classList.add('owned');
+      card.querySelector('.perk-status').textContent = '✓';
+      const btn = card.querySelector('.perk-buy-btn');
+      if (btn) btn.remove();
+      // 페이지 새로고침으로 잔액/affordable 재계산
+      setTimeout(() => location.reload(), 800);
+      showToast({{ translate(lang, 'web.shop.purchased') | tojson }} + ': ' + data.label, true);
+    } else {
+      const reasonMsg = {
+        'insufficient_funds': {{ translate(lang, 'web.shop.err_funds') | tojson }},
+        'already_owned': {{ translate(lang, 'web.shop.err_owned') | tojson }},
+        'unknown_perk': {{ translate(lang, 'web.shop.err_unknown') | tojson }},
+      }[data.reason] || data.reason;
+      showToast(reasonMsg, false);
+    }
+  } catch (e) {
+    showToast({{ translate(lang, 'web.shop.err_network') | tojson }}, false);
+  }
+}
+</script>
+{% endblock %}

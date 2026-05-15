@@ -508,6 +508,106 @@ class TestWebGameSession:
         assert s.flush_console_html() is None
 
 
+class TestShop:
+    """상점 페이지 + 구매 API."""
+
+    def test_shop_page_returns_200(self, client):
+        r = client.get("/shop")
+        assert r.status_code == 200
+
+    def test_shop_renders_all_13_perks(self, client):
+        """13종 퍼크 카드가 모두 렌더된다."""
+        from progression_system import PERK_PRICES
+        r = client.get("/shop")
+        for perk_id in PERK_PRICES.keys():
+            assert f'data-perk="{perk_id}"' in r.text
+
+    def test_shop_shows_balance(self, client, monkeypatch):
+        import progression_system as ps
+        monkeypatch.setattr(ps, "load_save", lambda: {"data_fragments": 999})
+        r = client.get("/shop")
+        assert "999" in r.text
+
+    def test_header_nav_has_shop_link(self, client):
+        r = client.get("/")
+        assert 'href="/shop"' in r.text
+
+    def test_buy_perk_success(self, client, monkeypatch, tmp_path):
+        """충분한 잔액으로 구매 성공."""
+        import progression_system as ps
+        # 메모리 상태로 저장 시뮬레이트
+        state = {"data_fragments": 500, "perks": {}}
+        monkeypatch.setattr(ps, "load_save", lambda: state)
+        monkeypatch.setattr(ps, "save_game", lambda data: None)
+
+        r = client.post("/api/shop/buy_perk", data={"perk_id": "glitch_filter"})
+        assert r.status_code == 200
+        body = r.json()
+        assert body["ok"] is True
+        assert body["perk_id"] == "glitch_filter"
+        # glitch_filter price = 20, 500 - 20 = 480
+        assert body["fragments_after"] == 480
+        assert body["perks_owned"] == 1
+
+    def test_buy_perk_insufficient_funds_402(self, client, monkeypatch):
+        import progression_system as ps
+        state = {"data_fragments": 5, "perks": {}}
+        monkeypatch.setattr(ps, "load_save", lambda: state)
+        monkeypatch.setattr(ps, "save_game", lambda data: None)
+
+        r = client.post("/api/shop/buy_perk", data={"perk_id": "glitch_filter"})
+        assert r.status_code == 402
+        body = r.json()
+        assert body["ok"] is False
+        assert body["reason"] == "insufficient_funds"
+
+    def test_buy_perk_already_owned_409(self, client, monkeypatch):
+        import progression_system as ps
+        state = {"data_fragments": 500, "perks": {"glitch_filter": True}}
+        monkeypatch.setattr(ps, "load_save", lambda: state)
+        monkeypatch.setattr(ps, "save_game", lambda data: None)
+
+        r = client.post("/api/shop/buy_perk", data={"perk_id": "glitch_filter"})
+        assert r.status_code == 409
+        body = r.json()
+        assert body["reason"] == "already_owned"
+
+    def test_buy_perk_unknown_404(self, client, monkeypatch):
+        import progression_system as ps
+        state = {"data_fragments": 500, "perks": {}}
+        monkeypatch.setattr(ps, "load_save", lambda: state)
+        monkeypatch.setattr(ps, "save_game", lambda data: None)
+
+        r = client.post("/api/shop/buy_perk", data={"perk_id": "nonexistent_perk"})
+        assert r.status_code == 404
+        body = r.json()
+        assert body["reason"] == "unknown_perk"
+
+    def test_purchase_perk_pure_function_unknown(self):
+        from progression_system import purchase_perk
+        result = purchase_perk({"data_fragments": 100, "perks": {}}, "bogus_id")
+        assert result["ok"] is False
+        assert result["reason"] == "unknown_perk"
+
+    def test_purchase_perk_pure_function_success(self):
+        from progression_system import purchase_perk
+        save = {"data_fragments": 100, "perks": {}}
+        result = purchase_perk(save, "glitch_filter")
+        assert result["ok"] is True
+        # glitch_filter price = 20
+        assert save["data_fragments"] == 80
+        assert save["perks"]["glitch_filter"] is True
+
+    def test_purchase_perk_idempotent_on_failure(self):
+        """실패 시 save_data 가 변경되지 않아야 한다."""
+        from progression_system import purchase_perk
+        save = {"data_fragments": 5, "perks": {}}
+        before = dict(save)
+        purchase_perk(save, "backtrack_protocol")  # price=80, 부족
+        assert save["data_fragments"] == before["data_fragments"]
+        assert save["perks"] == {}
+
+
 class TestProfilePage:
     """다이버 프로필 + 캠페인 진행도 페이지 (GET /profile)."""
 

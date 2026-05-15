@@ -195,5 +195,18 @@
   "web.profile.campaign_victories": "총 승리",
   "web.profile.campaign_clear_yes": "캠페인 클리어 완료",
   "web.profile.campaign_clear_no": "캠페인 진행 중",
-  "web.profile.unlocked": "해금"
+  "web.profile.unlocked": "해금",
+
+  "web.header.shop": "상점",
+  "web.shop.title": "상점",
+  "web.shop.subtitle": "시스템 :: 영구 특성 상점",
+  "web.shop.balance": "잔액",
+  "web.shop.frag_short": "조각",
+  "web.shop.buy": "구매",
+  "web.shop.owned": "보유 중",
+  "web.shop.purchased": "구매 완료",
+  "web.shop.err_funds": "데이터 조각이 부족합니다",
+  "web.shop.err_owned": "이미 보유한 특성입니다",
+  "web.shop.err_unknown": "알 수 없는 특성입니다",
+  "web.shop.err_network": "네트워크 오류 — 다시 시도해주세요"
 }

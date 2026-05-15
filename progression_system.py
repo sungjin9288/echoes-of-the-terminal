@@ -233,6 +233,80 @@ PERK_PRICES: dict[str, int] = {
     "swift_analysis": 75,
 }
 
+
+# ── 퍼크 구매 (대화형 UI 비의존 순수 함수) ───────────────────────────────────
+
+def purchase_perk(save_data: dict[str, Any], perk_id: str) -> dict[str, Any]:
+    """퍼크 1개를 구매한다. 대화형 UI 없는 순수 함수.
+
+    터미널 ``lobby.run_shop()``과 웹 ``POST /api/shop/buy_perk`` 양쪽에서 재사용.
+
+    Args:
+        save_data: 현재 세이브 데이터 (성공 시 직접 수정됨).
+        perk_id:   구매할 퍼크 키 (PERK_PRICES 키 중 하나).
+
+    Returns:
+        ``{"ok": bool, "reason": str, "fragments_after": int, "perks_owned": int, "label": str}``
+        성공 시 ``reason`` 은 빈 문자열. 실패 사유는 다음 중 하나:
+          - ``"unknown_perk"``      알 수 없는 퍼크 ID
+          - ``"already_owned"``     이미 보유
+          - ``"insufficient_funds"`` 데이터 조각 부족
+    """
+    if perk_id not in PERK_PRICES:
+        return {
+            "ok": False,
+            "reason": "unknown_perk",
+            "fragments_after": int(save_data.get("data_fragments", 0)),
+            "perks_owned": _count_owned_perks(save_data),
+            "label": "",
+        }
+
+    # 세이브 데이터 정합성 — perks 딕셔너리 존재 보장
+    perks = save_data.setdefault("perks", {})
+    if not isinstance(perks, dict):
+        perks = {}
+        save_data["perks"] = perks
+
+    price = int(PERK_PRICES[perk_id])
+    label = str(PERK_LABEL_MAP.get(perk_id, perk_id))
+    fragments = int(save_data.get("data_fragments", 0))
+
+    if perks.get(perk_id, False):
+        return {
+            "ok": False,
+            "reason": "already_owned",
+            "fragments_after": fragments,
+            "perks_owned": _count_owned_perks(save_data),
+            "label": label,
+        }
+
+    if fragments < price:
+        return {
+            "ok": False,
+            "reason": "insufficient_funds",
+            "fragments_after": fragments,
+            "perks_owned": _count_owned_perks(save_data),
+            "label": label,
+        }
+
+    save_data["data_fragments"] = fragments - price
+    perks[perk_id] = True
+
+    return {
+        "ok": True,
+        "reason": "",
+        "fragments_after": int(save_data["data_fragments"]),
+        "perks_owned": _count_owned_perks(save_data),
+        "label": label,
+    }
+
+
+def _count_owned_perks(save_data: dict[str, Any]) -> int:
+    perks = save_data.get("perks", {})
+    if not isinstance(perks, dict):
+        return 0
+    return sum(1 for v in perks.values() if v)
+
 # ── 장기 캠페인(100시간 목표) 메타 진행도 ───────────────────────────────────────
 CAMPAIGN_TARGET_HOURS: int = 100
 CAMPAIGN_CLEAR_POINTS: int = 60000

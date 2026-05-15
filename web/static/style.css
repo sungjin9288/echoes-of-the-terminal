@@ -646,6 +646,139 @@ input[type="range"] {
   text-align: right;
 }
 
+/* ── Shop Page ───────────────────────────────────────────────────────────── */
+.shop-wrap {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.shop-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 12px;
+  padding: 18px 22px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+}
+
+.shop-progress {
+  margin-top: 6px;
+  font-size: 16px;
+  letter-spacing: 2px;
+}
+
+.shop-balance { text-align: right; }
+.shop-balance-val {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--yellow-warn);
+  margin-top: 4px;
+}
+
+.shop-toast {
+  margin-bottom: 16px;
+  padding: 10px 16px;
+  font-size: 12px;
+  letter-spacing: 1px;
+  border: 1px solid var(--border);
+  background: var(--bg-surface);
+}
+.shop-toast.ok { border-color: var(--green-neon); color: var(--green-neon); }
+.shop-toast.err { border-color: var(--red-danger); color: var(--red-danger); }
+.shop-toast.hidden { display: none; }
+
+.shop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.perk-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: border-color 0.15s, background 0.15s;
+}
+.perk-card.owned {
+  border-color: var(--green-neon);
+  opacity: 0.9;
+}
+.perk-card.owned .perk-label { color: var(--green-neon); text-shadow: var(--glow-green); }
+.perk-card.affordable {
+  border-color: var(--cyan-accent);
+}
+.perk-card.affordable:hover {
+  background: var(--bg-overlay);
+  box-shadow: var(--glow-cyan);
+}
+.perk-card.locked { opacity: 0.55; }
+
+.perk-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.perk-status { font-size: 14px; color: var(--green-neon); }
+.perk-card.locked .perk-status,
+.perk-card.affordable .perk-status { color: var(--text-dim); }
+.perk-label {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--text-primary);
+}
+.perk-desc {
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.5;
+  min-height: 44px;
+}
+.perk-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  border-top: 1px dashed var(--border);
+  padding-top: 8px;
+}
+.perk-price {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--yellow-warn);
+  letter-spacing: 1px;
+}
+.perk-owned-tag {
+  font-size: 10px;
+  color: var(--green-neon);
+  letter-spacing: 2px;
+  border: 1px solid var(--green-neon);
+  padding: 2px 8px;
+}
+.perk-buy-btn {
+  background: transparent;
+  border: 1px solid var(--cyan-accent);
+  color: var(--cyan-accent);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  padding: 4px 12px;
+  cursor: pointer;
+}
+.perk-buy-btn:hover:not(:disabled) {
+  background: var(--cyan-accent);
+  color: var(--bg-primary);
+}
+.perk-buy-btn:disabled {
+  border-color: var(--border);
+  color: var(--text-dim);
+  cursor: not-allowed;
+}
+
 /* ── Profile Page ────────────────────────────────────────────────────────── */
 .profile-wrap {
   max-width: 900px;

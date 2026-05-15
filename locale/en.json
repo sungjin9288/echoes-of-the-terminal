@@ -195,5 +195,18 @@
   "web.profile.campaign_victories": "TOTAL VICTORIES",
   "web.profile.campaign_clear_yes": "CAMPAIGN CLEARED",
   "web.profile.campaign_clear_no": "CAMPAIGN IN PROGRESS",
-  "web.profile.unlocked": "unlocked"
+  "web.profile.unlocked": "unlocked",
+
+  "web.header.shop": "SHOP",
+  "web.shop.title": "Shop",
+  "web.shop.subtitle": "SYSTEM :: PERMANENT PERK SHOP",
+  "web.shop.balance": "BALANCE",
+  "web.shop.frag_short": "frag",
+  "web.shop.buy": "BUY",
+  "web.shop.owned": "OWNED",
+  "web.shop.purchased": "Purchased",
+  "web.shop.err_funds": "Insufficient data fragments",
+  "web.shop.err_owned": "Already owned",
+  "web.shop.err_unknown": "Unknown perk",
+  "web.shop.err_network": "Network error — please retry"
 }

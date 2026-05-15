@@ -264,6 +264,114 @@ async def records_page(
     )
 
 
+@app.get("/shop", response_class=HTMLResponse)
+async def shop_page(
+    request: Request,
+    echoes_sid: str | None = Cookie(default=None),
+):
+    """상점 페이지 — 13종 퍼크 카드, 데이터 조각으로 구매."""
+    from progression_system import (
+        PERK_DESC_MAP,
+        PERK_LABEL_MAP,
+        PERK_PRICES,
+        _normalize_save_data,
+        load_save,
+    )
+
+    save_data = load_save()
+    _normalize_save_data(save_data)
+
+    perks_owned = save_data.get("perks", {}) if isinstance(save_data.get("perks"), dict) else {}
+    fragments = int(save_data.get("data_fragments", 0))
+
+    items: list[dict[str, Any]] = []
+    for perk_id, price in PERK_PRICES.items():
+        owned = bool(perks_owned.get(perk_id, False))
+        items.append({
+            "id": perk_id,
+            "label": PERK_LABEL_MAP.get(perk_id, perk_id),
+            "desc": PERK_DESC_MAP.get(perk_id, ""),
+            "price": price,
+            "owned": owned,
+            "affordable": (not owned) and fragments >= price,
+        })
+
+    total = len(items)
+    owned_count = sum(1 for it in items if it["owned"])
+
+    return templates.TemplateResponse(
+        request,
+        "shop.html",
+        {
+            "perks": items,
+            "fragments": fragments,
+            "owned_count": owned_count,
+            "total": total,
+            "completion": round(owned_count * 100 / total) if total else 0,
+            "active_page": "shop",
+            "version": _GAME_VERSION,
+            "theme": _get_theme(echoes_sid),
+            "lang": _get_lang(echoes_sid),
+        },
+    )
+
+
+@app.post("/api/shop/buy_perk")
+async def buy_perk(
+    perk_id: str = Form(...),
+    echoes_sid: str | None = Cookie(default=None),
+):
+    """퍼크 1개를 구매한다.
+
+    결과 코드:
+      - ok=True            구매 성공
+      - unknown_perk       404 — 알 수 없는 퍼크 ID
+      - already_owned      409
+      - insufficient_funds 402 (Payment Required)
+    """
+    from progression_system import (
+        _normalize_save_data,
+        load_save,
+        purchase_perk,
+        save_game,
+    )
+
+    save_data = load_save()
+    _normalize_save_data(save_data)
+
+    result = purchase_perk(save_data, perk_id)
+
+    if not result["ok"]:
+        reason = result["reason"]
+        status_code = {
+            "unknown_perk": 404,
+            "already_owned": 409,
+            "insufficient_funds": 402,
+        }.get(reason, 400)
+        return JSONResponse(
+            {"ok": False, "reason": reason, "fragments_after": result["fragments_after"],
+             "perks_owned": result["perks_owned"]},
+            status_code=status_code,
+        )
+
+    # 영속화
+    try:
+        save_game(save_data)
+    except OSError as exc:
+        return JSONResponse(
+            {"ok": False, "reason": "save_failed", "error": str(exc)},
+            status_code=500,
+        )
+
+    return JSONResponse({
+        "ok": True,
+        "perk_id": perk_id,
+        "label": result["label"],
+        "fragments_after": result["fragments_after"],
+        "perks_owned": result["perks_owned"],
+    })
+
+
 @app.get("/profile", response_class=HTMLResponse)
 async def profile_page(
     request: Request,

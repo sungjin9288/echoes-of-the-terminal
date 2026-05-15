@@ -5,6 +5,24 @@
 
 ---
 
+## [2.1.5] — 2026-05-16
+
+### 추가 (Added)
+- **웹 UI 상점 페이지** (`GET /shop`, `POST /api/shop/buy_perk`) — v3.0 Phase D 여섯 번째 마이크로 릴리즈, **Phase D 핵심 기능**:
+  - 13종 퍼크를 카드 그리드로 표시. 카드 상태: `owned`(녹색 글로우) / `affordable`(시안 보더) / `locked`(흐림).
+  - 헤더에 데이터 조각 잔액 + 구매 진행도 (`n/13 (m%)`) 표시.
+  - **클라이언트 사이드 구매 플로우**: 카드 BUY 버튼 → `fetch POST` → 토스트 알림 → 페이지 리로드 (잔액·affordable 재계산).
+  - 에러 코드별 i18n 토스트: `insufficient_funds`(402), `already_owned`(409), `unknown_perk`(404).
+  - 헤더 nav: LOBBY | RECORDS | ACHIEVEMENTS | ENDINGS | PROFILE | **SHOP** (6종 — Phase D 패리티 완료).
+- **`progression_system.purchase_perk(save_data, perk_id)`** 순수 함수 추출:
+  - 대화형 UI 비의존, 터미널 `lobby.run_shop()`과 웹 양쪽에서 재사용 가능.
+  - 결과 dict: `{ok, reason, fragments_after, perks_owned, label}` — 실패 사유 3가지(unknown/owned/insufficient).
+  - 실패 시 save_data 멱등 (변경 없음).
+- `locale/ko.json` + `locale/en.json`: `web.header.shop`, `web.shop.*` 키 13개.
+- **테스트 11케이스 신규** (`TestShop`): 페이지 렌더 + 구매 API 4 케이스 + 순수 함수 3 케이스. 895 → **906 케이스**.
+
+---
+
 ## [2.1.4] — 2026-05-16
 
 ### 추가 (Added)
