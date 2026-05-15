@@ -264,6 +264,47 @@ async def records_page(
     )
 
 
+@app.get("/profile", response_class=HTMLResponse)
+async def profile_page(
+    request: Request,
+    echoes_sid: str | None = Cookie(default=None),
+):
+    """다이버 프로필 + 캠페인 진행도 페이지."""
+    from progression_system import (
+        _normalize_save_data,
+        get_campaign_progress_snapshot,
+        get_diver_profile,
+        load_save,
+    )
+
+    save_data = load_save()
+    _normalize_save_data(save_data)
+
+    profile = get_diver_profile(save_data)
+    campaign_raw = save_data.get("campaign", {})
+    campaign = get_campaign_progress_snapshot(campaign_raw if isinstance(campaign_raw, dict) else {})
+
+    # 데이터 조각 잔액
+    data_fragments = int(save_data.get("data_fragments", 0))
+
+    return templates.TemplateResponse(
+        request,
+        "profile.html",
+        {
+            "profile": profile,
+            "campaign": campaign,
+            "data_fragments": data_fragments,
+            "campaign_points_pct": round(campaign["points_ratio"] * 100),
+            "campaign_victories_pct": round(campaign["victories_ratio"] * 100),
+            "class_keys": ("ANALYST", "GHOST", "CRACKER"),
+            "active_page": "profile",
+            "version": _GAME_VERSION,
+            "theme": _get_theme(echoes_sid),
+            "lang": _get_lang(echoes_sid),
+        },
+    )
+
+
 @app.get("/endings", response_class=HTMLResponse)
 async def endings_page(
     request: Request,

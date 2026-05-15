@@ -174,5 +174,26 @@
   "web.endings.hint.COLLECTOR_END": "Broad collection of artifacts/perks/endings",
   "web.endings.hint.COMEBACK_END": "Win after a deep trace recovery",
   "web.endings.hint.PACIFIST_END": "Clear by leveraging non-combat nodes",
-  "web.endings.hint.PERK_END": "Win by exploiting a specific perk loadout"
+  "web.endings.hint.PERK_END": "Win by exploiting a specific perk loadout",
+
+  "web.header.profile": "PROFILE",
+  "web.profile.title": "Profile",
+  "web.profile.diver_profile": "DIVER PROFILE",
+  "web.profile.signature_class": "Signature Class",
+  "web.profile.fragments": "FRAGMENTS",
+  "web.profile.total_runs": "TOTAL RUNS",
+  "web.profile.win_rate": "WIN RATE",
+  "web.profile.avg_trace": "AVG TRACE",
+  "web.profile.best_ascension": "BEST ASC",
+  "web.profile.favorite_ending": "TOP ENDING",
+  "web.profile.best_score": "BEST SCORE",
+  "web.profile.achievements": "ACHIEVEMENTS",
+  "web.profile.campaign_cleared": "CAMPAIGN",
+  "web.profile.campaign_progress": "CAMPAIGN PROGRESS",
+  "web.profile.campaign_target": "TARGET",
+  "web.profile.campaign_points": "POINTS",
+  "web.profile.campaign_victories": "TOTAL VICTORIES",
+  "web.profile.campaign_clear_yes": "CAMPAIGN CLEARED",
+  "web.profile.campaign_clear_no": "CAMPAIGN IN PROGRESS",
+  "web.profile.unlocked": "unlocked"
 }

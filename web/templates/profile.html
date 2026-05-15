@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}{{ translate(lang, 'web.profile.title') }} — Echoes of the Terminal{% endblock %}
+
+{% block content %}
+<div class="profile-wrap">
+
+  <!-- 다이버 프로필 카드 -->
+  <div class="profile-card">
+    <div class="profile-card-head">
+      <div class="profile-title-block">
+        <div class="profile-eyebrow">&gt; {{ translate(lang, 'web.profile.diver_profile') }}</div>
+        <div class="profile-title">{{ profile.title }}</div>
+        <div class="profile-sig">
+          {{ translate(lang, 'web.profile.signature_class') }}:
+          <span class="cell-class">{{ profile.signature_class }}</span>
+        </div>
+      </div>
+      <div class="profile-frag">
+        <div class="dim">{{ translate(lang, 'web.profile.fragments') }}</div>
+        <div class="profile-frag-val">{{ data_fragments }}</div>
+      </div>
+    </div>
+
+    <div class="profile-stats">
+      <div class="profile-stat">
+        <span class="dim">{{ translate(lang, 'web.profile.total_runs') }}</span>
+        <span class="val">{{ profile.total_runs }}</span>
+      </div>
+      <div class="profile-stat">
+        <span class="dim">{{ translate(lang, 'web.profile.win_rate') }}</span>
+        <span class="val">{{ profile.win_rate }}%</span>
+      </div>
+      <div class="profile-stat">
+        <span class="dim">{{ translate(lang, 'web.profile.avg_trace') }}</span>
+        <span class="val">{{ profile.avg_trace }}%</span>
+      </div>
+      <div class="profile-stat">
+        <span class="dim">{{ translate(lang, 'web.profile.best_ascension') }}</span>
+        <span class="val">ASC-{{ profile.best_ascension }}</span>
+      </div>
+      <div class="profile-stat">
+        <span class="dim">{{ translate(lang, 'web.profile.favorite_ending') }}</span>
+        <span class="val">{{ profile.favorite_ending }}</span>
+      </div>
+      <div class="profile-stat">
+        <span class="dim">{{ translate(lang, 'web.profile.best_score') }}</span>
+        <span class="val cell-score">{{ profile.best_lb_score }}</span>
+      </div>
+      <div class="profile-stat">
+        <span class="dim">{{ translate(lang, 'web.profile.achievements') }}</span>
+        <span class="val">{{ profile.achievements_count }}</span>
+      </div>
+      <div class="profile-stat">
+        <span class="dim">{{ translate(lang, 'web.profile.campaign_cleared') }}</span>
+        <span class="val {% if profile.campaign_cleared %}cell-win{% else %}dim{% endif %}">
+          {% if profile.campaign_cleared %}✓ CLEARED{% else %}—{% endif %}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 캠페인 진행도 -->
+  <div class="profile-card">
+    <div class="profile-eyebrow">&gt; {{ translate(lang, 'web.profile.campaign_progress') }}</div>
+    <div class="campaign-target dim">
+      {{ translate(lang, 'web.profile.campaign_target') }}: {{ campaign.target_hours }}h
+    </div>
+
+    <!-- 포인트 진행도 -->
+    <div class="campaign-bar-row">
+      <div class="campaign-bar-label">
+        {{ translate(lang, 'web.profile.campaign_points') }}
+        <span class="dim">{{ campaign.points }} / {{ campaign.points_target }} ({{ campaign_points_pct }}%)</span>
+      </div>
+      <div class="campaign-bar">
+        <div class="campaign-bar-fill" style="width: {{ campaign_points_pct }}%"></div>
+      </div>
+    </div>
+
+    <!-- 총 승리 -->
+    <div class="campaign-bar-row">
+      <div class="campaign-bar-label">
+        {{ translate(lang, 'web.profile.campaign_victories') }}
+        <span class="dim">{{ campaign.victories }} / {{ campaign.victories_target }} ({{ campaign_victories_pct }}%)</span>
+      </div>
+      <div class="campaign-bar">
+        <div class="campaign-bar-fill" style="width: {{ campaign_victories_pct }}%"></div>
+      </div>
+    </div>
+
+    <!-- 클래스별 승리 -->
+    <div class="campaign-class-grid">
+      {% for cls in class_keys %}
+      {% set v = campaign.class_victories.get(cls, 0) %}
+      {% set t = campaign.class_target %}
+      {% set pct = ((v / t * 100) | round) | int if t > 0 else 0 %}
+      <div class="campaign-class-block">
+        <div class="campaign-class-name cell-class">{{ cls }}</div>
+        <div class="campaign-bar">
+          <div class="campaign-bar-fill" style="width: {{ pct if pct < 100 else 100 }}%"></div>
+        </div>
+        <div class="campaign-class-val dim">{{ v }} / {{ t }}</div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- 캠페인 클리어 상태 -->
+    <div class="campaign-status">
+      {% if campaign.cleared %}
+        <span class="cell-win">✓ {{ translate(lang, 'web.profile.campaign_clear_yes') }}</span>
+        — ASC {{ campaign.ascension_unlocked }} {{ translate(lang, 'web.profile.unlocked') }}
+      {% else %}
+        <span class="dim">◯ {{ translate(lang, 'web.profile.campaign_clear_no') }}</span>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

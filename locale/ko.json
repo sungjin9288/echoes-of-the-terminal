@@ -174,5 +174,26 @@
   "web.endings.hint.COLLECTOR_END": "아티팩트·퍼크·엔딩의 광범위한 수집",
   "web.endings.hint.COMEBACK_END": "후반 위기에서 추적도를 크게 낮춰 승리",
   "web.endings.hint.PACIFIST_END": "전투 회피 노드 활용으로 클리어",
-  "web.endings.hint.PERK_END": "특정 퍼크 조합을 적극 활용해 클리어"
+  "web.endings.hint.PERK_END": "특정 퍼크 조합을 적극 활용해 클리어",
+
+  "web.header.profile": "프로필",
+  "web.profile.title": "프로필",
+  "web.profile.diver_profile": "다이버 프로필",
+  "web.profile.signature_class": "주력 클래스",
+  "web.profile.fragments": "데이터 조각",
+  "web.profile.total_runs": "전체 런",
+  "web.profile.win_rate": "승률",
+  "web.profile.avg_trace": "평균 추적도",
+  "web.profile.best_ascension": "최고 어센션",
+  "web.profile.favorite_ending": "최다 엔딩",
+  "web.profile.best_score": "리더보드 최고점",
+  "web.profile.achievements": "해금 업적",
+  "web.profile.campaign_cleared": "캠페인 클리어",
+  "web.profile.campaign_progress": "캠페인 진행도",
+  "web.profile.campaign_target": "목표 시간",
+  "web.profile.campaign_points": "포인트",
+  "web.profile.campaign_victories": "총 승리",
+  "web.profile.campaign_clear_yes": "캠페인 클리어 완료",
+  "web.profile.campaign_clear_no": "캠페인 진행 중",
+  "web.profile.unlocked": "해금"
 }

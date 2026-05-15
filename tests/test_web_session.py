@@ -508,6 +508,73 @@ class TestWebGameSession:
         assert s.flush_console_html() is None
 
 
+class TestProfilePage:
+    """다이버 프로필 + 캠페인 진행도 페이지 (GET /profile)."""
+
+    def test_returns_200(self, client):
+        r = client.get("/profile")
+        assert r.status_code == 200
+
+    def test_renders_diver_title(self, client):
+        """다이버 프로필 헤더가 렌더된다."""
+        r = client.get("/profile")
+        # i18n 키 — 한국어 기본 "다이버 프로필" 또는 영문
+        assert "다이버 프로필" in r.text or "DIVER PROFILE" in r.text
+
+    def test_renders_campaign_section(self, client):
+        r = client.get("/profile")
+        assert "캠페인 진행도" in r.text or "CAMPAIGN PROGRESS" in r.text
+
+    def test_renders_class_grid(self, client):
+        """3개 클래스 그리드가 모두 렌더된다."""
+        r = client.get("/profile")
+        for cls in ("ANALYST", "GHOST", "CRACKER"):
+            assert cls in r.text
+
+    def test_renders_fragment_count(self, client, monkeypatch):
+        import progression_system as ps
+        fake = {"data_fragments": 1234}
+        monkeypatch.setattr(ps, "load_save", lambda: fake)
+        r = client.get("/profile")
+        assert "1234" in r.text
+
+    def test_renders_campaign_points(self, client, monkeypatch):
+        """캠페인 포인트가 진행 바와 함께 렌더된다."""
+        import progression_system as ps
+        fake = {
+            "campaign": {"points": 12000, "victories": 30, "class_victories": {}},
+        }
+        monkeypatch.setattr(ps, "load_save", lambda: fake)
+        r = client.get("/profile")
+        # 포인트 표시 (12000 / 60000)
+        assert "12000" in r.text
+        assert "60000" in r.text  # CAMPAIGN_CLEAR_POINTS
+
+    def test_campaign_cleared_renders_status(self, client, monkeypatch):
+        import progression_system as ps
+        fake = {
+            "campaign": {
+                "cleared": True,
+                "ascension_unlocked": 10,
+                "points": 60000,
+                "victories": 500,
+                "class_victories": {"ANALYST": 150, "GHOST": 150, "CRACKER": 150},
+            }
+        }
+        monkeypatch.setattr(ps, "load_save", lambda: fake)
+        r = client.get("/profile")
+        # cleared status 라벨 한/영 모두 허용
+        assert "CLEARED" in r.text or "클리어 완료" in r.text or "✓" in r.text
+
+    def test_header_nav_has_profile_link(self, client):
+        r = client.get("/")
+        assert 'href="/profile"' in r.text
+
+    def test_active_page_highlighted(self, client):
+        r = client.get("/profile")
+        assert 'class="active"' in r.text
+
+
 class TestEndingsPage:
     """엔딩 갤러리 페이지 (GET /endings)."""
 

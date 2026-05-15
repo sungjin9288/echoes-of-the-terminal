@@ -5,6 +5,19 @@
 
 ---
 
+## [2.1.4] — 2026-05-16
+
+### 추가 (Added)
+- **웹 UI 프로필 페이지** (`GET /profile`) — v3.0 Phase D 다섯 번째 마이크로 릴리즈:
+  - **다이버 프로필 카드**: 칭호 · 주력 클래스 · 데이터 조각 잔액 + 8종 통계 그리드 (전체 런/승률/평균 추적도/최고 어센션/최다 엔딩/리더보드 최고점/해금 업적/캠페인 클리어 상태).
+  - **캠페인 진행도 카드**: 100시간 목표, 포인트 진행 바 (`points/60000`), 총 승리 바 (`victories/450`), 클래스별 승리 그리드 (3종 × 120 목표), 클리어 상태 (`✓ CLEARED` 또는 `진행 중`).
+  - 헤더 nav: LOBBY | RECORDS | ACHIEVEMENTS | ENDINGS | **PROFILE** (5종).
+  - `locale/ko.json` + `locale/en.json`: `web.header.profile`, `web.profile.*` 키 20개.
+  - **테스트 9케이스 신규** (`TestProfilePage`): 886 → **895 케이스**.
+- 재사용: `progression_system.get_diver_profile()`, `get_campaign_progress_snapshot()`.
+
+---
+
 ## [2.1.3] — 2026-05-16
 
 ### 추가 (Added)
