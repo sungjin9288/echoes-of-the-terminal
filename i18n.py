@@ -145,5 +145,57 @@ def reload() -> None:
     _catalog = _load_catalog(_current_lang)
 
 
+# ── 멀티 세션 안전 헬퍼 (웹 UI 등) ────────────────────────────────────────────
+
+from functools import lru_cache
+
+
+@lru_cache(maxsize=4)
+def _cached_catalog(lang: str) -> dict[str, str]:
+    """언어별 카탈로그를 메모리에 캐싱한다. 멀티 세션 환경에서 재로드 비용 방지."""
+    return _load_catalog(lang)
+
+
+def translate(lang: str, key: str, **kwargs: object) -> str:
+    """언어를 인자로 받는 stateless 번역 함수. 멀티 세션(웹) 환경 안전.
+
+    글로벌 ``_current_lang``과 무관하게 동작하므로 동시 요청에 안전.
+
+    Args:
+        lang:   언어 코드 (ko/en). 지원하지 않으면 ko로 폴백.
+        key:    번역 키
+        **kwargs: format_map 인수
+
+    Returns:
+        번역된 문자열 (폴백 시 ko → key 순)
+    """
+    normalized = lang.strip().lower() if isinstance(lang, str) else _DEFAULT_LANG
+    if normalized not in SUPPORTED_LANGUAGES:
+        normalized = _DEFAULT_LANG
+
+    catalog = _cached_catalog(normalized)
+    raw = catalog.get(key)
+
+    # 폴백: 한국어 카탈로그
+    if raw is None and normalized != _DEFAULT_LANG:
+        raw = _cached_catalog(_DEFAULT_LANG).get(key)
+
+    if raw is None:
+        return key
+
+    if kwargs:
+        try:
+            return raw.format_map(kwargs)
+        except (KeyError, ValueError):
+            return raw
+
+    return raw
+
+
+def clear_cache() -> None:
+    """카탈로그 캐시를 모두 비운다 (테스트용)."""
+    _cached_catalog.cache_clear()
+
+
 # ── 모듈 초기화: 기본 언어(ko) 카탈로그 즉시 로드 ─────────────────────────────
 reload()

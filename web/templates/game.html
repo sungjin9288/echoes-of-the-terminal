@@ -20,19 +20,19 @@
           autocomplete="off"
           autocorrect="off"
           spellcheck="false"
-          placeholder="analyze [keyword] | cat log | ls | help"
+          placeholder="{{ translate(lang, 'web.game.placeholder') }}"
           autofocus
         >
-        <button type="submit" class="btn-send">SEND</button>
+        <button type="submit" class="btn-send">{{ translate(lang, 'web.game.send') }}</button>
       </form>
     </div>
   </div>
 
   <!-- 상태 표시 -->
   <div class="game-status-bar">
-    <span id="status-txt" class="dim">CONNECTING</span>
+    <span id="status-txt" class="dim">{{ translate(lang, 'web.game.connecting') }}</span>
     <span class="sep">|</span>
-    <a href="/" class="dim quit-link" onclick="return quitGame()">[ QUIT ]</a>
+    <a href="/" class="dim quit-link" onclick="return quitGame()">{{ translate(lang, 'web.game.quit') }}</a>
   </div>
 
 </div>
@@ -115,7 +115,7 @@ function updateStatus(s) {
 
 /* ── 종료 ────────────────────────────────────────────────────────────── */
 async function quitGame() {
-  if (!confirm('런을 포기하고 로비로 돌아갑니까?')) return false;
+  if (!confirm({{ translate(lang, 'web.game.confirm_quit') | tojson }})) return false;
   if (evtSource) { evtSource.close(); evtSource = null; }
   await fetch(`/api/game/${SID}/quit`, { method: 'POST' });
   window.location.href = '/';

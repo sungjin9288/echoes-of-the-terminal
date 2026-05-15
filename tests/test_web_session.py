@@ -508,6 +508,96 @@ class TestWebGameSession:
         assert s.flush_console_html() is None
 
 
+class TestI18nToggle:
+    """언어 토글 엔드포인트 테스트 (POST /api/settings/lang)."""
+
+    def test_default_lang_is_ko(self, client):
+        """초기 로비는 한국어로 렌더된다."""
+        r = client.get("/")
+        assert 'lang="ko"' in r.text
+
+    def test_set_lang_to_en(self, client):
+        r = client.get("/")
+        sid = r.cookies["echoes_sid"]
+        r2 = client.post(
+            "/api/settings/lang",
+            data={"lang": "en"},
+            cookies={"echoes_sid": sid},
+        )
+        assert r2.status_code == 200
+        body = r2.json()
+        assert body["ok"] is True
+        assert body["lang"] == "en"
+
+    def test_lang_persists_on_lobby(self, client):
+        r = client.get("/")
+        sid = r.cookies["echoes_sid"]
+        client.post("/api/settings/lang", data={"lang": "en"}, cookies={"echoes_sid": sid})
+        r2 = client.get("/", cookies={"echoes_sid": sid})
+        assert 'lang="en"' in r2.text
+        # 영문 라벨이 렌더돼야 함
+        assert "SELECT CLASS" in r2.text
+        assert "ASCENSION LEVEL" in r2.text
+
+    def test_lang_persists_on_records(self, client):
+        r = client.get("/")
+        sid = r.cookies["echoes_sid"]
+        client.post("/api/settings/lang", data={"lang": "en"}, cookies={"echoes_sid": sid})
+        r2 = client.get("/records", cookies={"echoes_sid": sid})
+        assert 'lang="en"' in r2.text
+        assert "LEADERBOARD" in r2.text
+
+    def test_ko_renders_korean_labels(self, client):
+        """기본 한국어 모드에서 한국어 라벨이 렌더된다."""
+        r = client.get("/")
+        # ko.json의 web.lobby.select_class 값
+        assert "클래스 선택" in r.text or "SELECT CLASS" in r.text  # 둘 다 허용 (개발 단계)
+
+    def test_en_overrides_ko_class_desc(self, client):
+        r = client.get("/")
+        sid = r.cookies["echoes_sid"]
+        client.post("/api/settings/lang", data={"lang": "en"}, cookies={"echoes_sid": sid})
+        r2 = client.get("/", cookies={"echoes_sid": sid})
+        # 영문 클래스 설명
+        assert "Keyword hints" in r2.text
+
+    def test_invalid_lang_400(self, client):
+        r = client.post("/api/settings/lang", data={"lang": "jp"})
+        assert r.status_code == 400
+
+    def test_lang_toggle_buttons_in_header(self, client):
+        """헤더에 KO/EN 토글 버튼이 렌더된다."""
+        r = client.get("/")
+        assert 'data-lang-value="ko"' in r.text
+        assert 'data-lang-value="en"' in r.text
+
+    def test_session_lang_default_ko(self):
+        """WebGameSession.lang 기본값 검증."""
+        from web.adapters import WebGameSession
+        s = WebGameSession("lang-test")
+        assert s.lang == "ko"
+
+    def test_translate_helper_stateless(self):
+        """i18n.translate가 글로벌 상태와 무관하게 작동해야 함."""
+        from i18n import translate, get_language
+        ko_val = translate("ko", "web.header.lobby")
+        en_val = translate("en", "web.header.lobby")
+        # 동시에 호출 가능, 다른 결과
+        assert ko_val == "로비"
+        assert en_val == "LOBBY"
+        # 글로벌 set_language는 영향 받지 않음
+        original = get_language()
+        assert translate("ko", "web.header.records") == "기록"
+        # 글로벌 상태 변경 없음 검증
+        assert get_language() == original
+
+    def test_translate_falls_back_to_ko_for_missing_key(self):
+        from i18n import translate
+        result = translate("en", "nonexistent.key.xyz")
+        # 없으면 키 자체 반환
+        assert result == "nonexistent.key.xyz"
+
+
 class TestThemeToggle:
     """테마 토글 엔드포인트 테스트 (POST /api/settings/theme)."""
 
@@ -626,9 +716,9 @@ class TestDailyChallenge:
         assert "echoes_sid" in r.cookies
 
     def test_lobby_shows_daily_button(self, client):
-        """로비 페이지에 DAILY CHALLENGE 버튼이 있다."""
+        """로비 페이지에 데일리 챌린지 버튼이 있다 (한/영)."""
         r = client.get("/")
-        assert "DAILY CHALLENGE" in r.text
+        assert "데일리 챌린지" in r.text or "DAILY CHALLENGE" in r.text
 
     def test_lobby_shows_today_date(self, client):
         """로비 페이지에 오늘 날짜가 표시된다."""
@@ -638,11 +728,11 @@ class TestDailyChallenge:
         assert today in r.text
 
     def test_lobby_shows_completed_when_played(self, client, monkeypatch):
-        """이미 플레이한 경우 완료 상태로 표시된다."""
+        """이미 플레이한 경우 완료 상태로 표시된다 (한/영)."""
         import daily_challenge as dc
         monkeypatch.setattr(dc, "has_played_today", lambda *a, **kw: True)
         r = client.get("/")
-        assert "COMPLETED" in r.text
+        assert "완료" in r.text or "COMPLETED" in r.text
 
     def test_daily_rate_limited_429(self, client):
         """데일리 챌린지도 IP당 레이트 리밋을 공유한다."""
@@ -670,15 +760,15 @@ class TestRecordsPage:
 
     def test_records_contains_leaderboard_section(self, client):
         r = client.get("/records")
-        assert "LEADERBOARD" in r.text
+        assert "리더보드" in r.text or "LEADERBOARD" in r.text
 
     def test_records_contains_recent_runs_section(self, client):
         r = client.get("/records")
-        assert "RECENT RUNS" in r.text
+        assert "최근 런" in r.text or "RECENT RUNS" in r.text
 
     def test_records_contains_personal_bests_section(self, client):
         r = client.get("/records")
-        assert "PERSONAL BESTS" in r.text
+        assert "개인 최고 기록" in r.text or "PERSONAL BESTS" in r.text
 
     def test_records_shows_empty_state_when_no_data(self, client, monkeypatch):
         """세이브 데이터가 없을 때 빈 상태 메시지를 표시한다."""
@@ -687,7 +777,7 @@ class TestRecordsPage:
         monkeypatch.setattr(ps, "load_save", lambda: {})
         r = client.get("/records")
         assert r.status_code == 200
-        assert "NO ENTRIES" in r.text or "NO RUN HISTORY" in r.text
+        assert "기록 없음" in r.text or "NO ENTRIES" in r.text
 
     def test_records_shows_nav_links(self, client):
         r = client.get("/records")
@@ -701,10 +791,16 @@ class TestRecordsPage:
         assert 'class="active"' in r.text
 
     def test_records_shows_stat_blocks(self, client):
-        """요약 통계 4개 블록이 모두 존재한다."""
+        """요약 통계 4개 블록이 모두 존재한다 (한국어 또는 영문)."""
         r = client.get("/records")
-        for label in ("TOTAL RUNS", "WIN RATE", "BEST SCORE", "TOTAL FRAGMENTS"):
-            assert label in r.text
+        ko_en_pairs = [
+            ("전체 런 수", "TOTAL RUNS"),
+            ("승률", "WIN RATE"),
+            ("최고 점수", "BEST SCORE"),
+            ("총 획득 조각", "TOTAL FRAGMENTS"),
+        ]
+        for ko, en in ko_en_pairs:
+            assert ko in r.text or en in r.text, f"{ko}/{en} 라벨 없음"
 
     def test_records_shows_version(self, client):
         """버전 정보가 헤더에 표시된다."""

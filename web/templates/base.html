@@ -1,5 +1,8 @@
+{% set L = lang or 'ko' %}
+{% set T = theme or 'default' %}
+{% macro t(key) %}{{ translate(L, key) }}{% endmacro %}
 <!DOCTYPE html>
-<html lang="ko" data-theme="{{ theme or 'default' }}">
+<html lang="{{ L }}" data-theme="{{ T }}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,16 +14,22 @@
 <header class="site-header">
   <span class="header-logo">[ ECHOES OF THE TERMINAL ]</span>
   <nav class="header-nav">
-    <a href="/" {% if active_page == 'lobby' %}class="active"{% endif %}>LOBBY</a>
-    <a href="/records" {% if active_page == 'records' %}class="active"{% endif %}>RECORDS</a>
+    <a href="/" {% if active_page == 'lobby' %}class="active"{% endif %}>{{ translate(L, 'web.header.lobby') }}</a>
+    <a href="/records" {% if active_page == 'records' %}class="active"{% endif %}>{{ translate(L, 'web.header.records') }}</a>
   </nav>
   <div class="header-right">
+    <div class="lang-toggle" role="group" aria-label="Language">
+      <button type="button" class="lang-btn {% if L == 'ko' %}active{% endif %}"
+              data-lang-value="ko" onclick="setLang('ko')">KO</button>
+      <button type="button" class="lang-btn {% if L == 'en' %}active{% endif %}"
+              data-lang-value="en" onclick="setLang('en')">EN</button>
+    </div>
     <div class="theme-toggle" role="group" aria-label="Theme">
-      <button type="button" class="theme-btn {% if (theme or 'default') == 'default' %}active{% endif %}"
+      <button type="button" class="theme-btn {% if T == 'default' %}active{% endif %}"
               data-theme-value="default" title="Default" onclick="setTheme('default')">●</button>
-      <button type="button" class="theme-btn {% if theme == 'colorblind' %}active{% endif %}"
+      <button type="button" class="theme-btn {% if T == 'colorblind' %}active{% endif %}"
               data-theme-value="colorblind" title="Colorblind" onclick="setTheme('colorblind')">◐</button>
-      <button type="button" class="theme-btn {% if theme == 'high_contrast' %}active{% endif %}"
+      <button type="button" class="theme-btn {% if T == 'high_contrast' %}active{% endif %}"
               data-theme-value="high_contrast" title="High Contrast" onclick="setTheme('high_contrast')">◯</button>
     </div>
     <span class="header-ver">v{{ version }}</span>
@@ -28,7 +37,7 @@
 </header>
 
 <script>
-// 테마 토글 — 서버 세션과 localStorage 모두 저장
+// 테마 토글
 function setTheme(name) {
   document.documentElement.setAttribute('data-theme', name);
   try { localStorage.setItem('echoes_theme', name); } catch(e) {}
@@ -41,12 +50,21 @@ function setTheme(name) {
     body: 'theme=' + encodeURIComponent(name)
   }).catch(() => {});
 }
+// 언어 토글 — 서버 저장 후 페이지 리로드 (번역 갱신)
+function setLang(name) {
+  try { localStorage.setItem('echoes_lang', name); } catch(e) {}
+  fetch('/api/settings/lang', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    body: 'lang=' + encodeURIComponent(name)
+  }).then(() => location.reload()).catch(() => location.reload());
+}
 // 페이지 로드 시 localStorage가 서버보다 신선하면 동기화
 (function() {
   try {
-    const saved = localStorage.getItem('echoes_theme');
-    const current = document.documentElement.getAttribute('data-theme');
-    if (saved && saved !== current) setTheme(saved);
+    const savedTheme = localStorage.getItem('echoes_theme');
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    if (savedTheme && savedTheme !== currentTheme) setTheme(savedTheme);
   } catch(e) {}
 })();
 </script>

@@ -1,36 +1,36 @@
 {% extends "base.html" %}
-{% block title %}기록 — Echoes of the Terminal{% endblock %}
+{% block title %}{{ translate(lang, 'web.records.title') }} — Echoes of the Terminal{% endblock %}
 
 {% block content %}
 <div class="records-wrap">
 
   <div class="records-nav">
-    <span class="dim">&gt; SYSTEM :: RECORDS DATABASE</span>
+    <span class="dim">&gt; {{ translate(lang, 'web.records.subtitle') }}</span>
   </div>
 
   <!-- ── 요약 통계 ─────────────────────────────────────────────────── -->
   <div class="stat-strip">
     <div class="stat-block">
-      <div class="sb-label">TOTAL RUNS</div>
+      <div class="sb-label">{{ translate(lang, 'web.records.total_runs') }}</div>
       <div class="sb-value">{{ total_runs }}</div>
     </div>
     <div class="stat-block">
-      <div class="sb-label">WIN RATE</div>
+      <div class="sb-label">{{ translate(lang, 'web.records.win_rate') }}</div>
       <div class="sb-value">{{ win_rate }}%</div>
     </div>
     <div class="stat-block">
-      <div class="sb-label">BEST SCORE</div>
+      <div class="sb-label">{{ translate(lang, 'web.records.best_score') }}</div>
       <div class="sb-value">{{ best_score }}</div>
     </div>
     <div class="stat-block">
-      <div class="sb-label">TOTAL FRAGMENTS</div>
+      <div class="sb-label">{{ translate(lang, 'web.records.total_fragments') }}</div>
       <div class="sb-value">{{ total_fragments }}</div>
     </div>
   </div>
 
   <!-- ── 로컬 리더보드 ─────────────────────────────────────────────── -->
   <div class="records-section">
-    <div class="records-section-title">&gt; LEADERBOARD // TOP {{ leaderboard|length }}</div>
+    <div class="records-section-title">&gt; {{ translate(lang, 'web.records.leaderboard') }} // TOP {{ leaderboard|length }}</div>
     {% if leaderboard %}
     <table class="rec-table">
       <thead>
@@ -63,13 +63,13 @@
       </tbody>
     </table>
     {% else %}
-    <div class="empty-msg">[ NO ENTRIES — COMPLETE A RUN TO REGISTER ]</div>
+    <div class="empty-msg">{{ translate(lang, 'web.records.no_entries') }}</div>
     {% endif %}
   </div>
 
   <!-- ── 최근 런 히스토리 ───────────────────────────────────────────── -->
   <div class="records-section">
-    <div class="records-section-title">&gt; RECENT RUNS // LAST {{ run_history|length }}</div>
+    <div class="records-section-title">&gt; {{ translate(lang, 'web.records.recent_runs') }} // LAST {{ run_history|length }}</div>
     {% if run_history %}
     <table class="rec-table">
       <thead>
@@ -102,13 +102,13 @@
       </tbody>
     </table>
     {% else %}
-    <div class="empty-msg">[ NO RUN HISTORY — PLAY YOUR FIRST RUN ]</div>
+    <div class="empty-msg">{{ translate(lang, 'web.records.no_history') }}</div>
     {% endif %}
   </div>
 
   <!-- ── 개인 최고 기록 ────────────────────────────────────────────── -->
   <div class="records-section">
-    <div class="records-section-title">&gt; PERSONAL BESTS // BY CLASS &amp; ASCENSION</div>
+    <div class="records-section-title">&gt; {{ translate(lang, 'web.records.personal_bests') }}</div>
     {% if personal_records %}
     <table class="rec-table">
       <thead>
@@ -140,12 +140,12 @@
       </tbody>
     </table>
     {% else %}
-    <div class="empty-msg">[ NO PERSONAL RECORDS YET ]</div>
+    <div class="empty-msg">{{ translate(lang, 'web.records.no_personal') }}</div>
     {% endif %}
   </div>
 
   <div class="records-nav" style="margin-top:8px; margin-bottom:0">
-    <a href="/">&lt; BACK TO LOBBY</a>
+    <a href="/">{{ translate(lang, 'web.records.back') }}</a>
   </div>
 
 </div>

@@ -14,11 +14,11 @@
   <!-- 플레이어 통계 -->
   <div class="stat-row">
     <div class="stat-chip">
-      <span class="dim">RUNS</span>
+      <span class="dim">{{ translate(lang, 'web.lobby.runs') }}</span>
       <span class="val">{{ run_count }}</span>
     </div>
     <div class="stat-chip">
-      <span class="dim">TOP SCORE</span>
+      <span class="dim">{{ translate(lang, 'web.lobby.top_score') }}</span>
       <span class="val">{{ top_score }}</span>
     </div>
   </div>
@@ -28,7 +28,7 @@
         hx-post="/api/lobby/select"
         hx-target="#lobby-feedback"
         hx-swap="innerHTML">
-    <div class="section-title">&gt; SELECT CLASS</div>
+    <div class="section-title">&gt; {{ translate(lang, 'web.lobby.select_class') }}</div>
     <div class="class-grid">
       {% for cls in diver_classes %}
       <label class="class-card {% if cls == selected_class %}active{% endif %}">
@@ -36,18 +36,18 @@
                {% if cls == selected_class %}checked{% endif %}>
         <span class="cls-name">{{ cls }}</span>
         {% if cls == "ANALYST" %}
-          <span class="cls-desc">키워드 힌트 · Hard+ 패널티 -10%</span>
+          <span class="cls-desc">{{ translate(lang, 'web.lobby.cls_analyst_desc') }}</span>
         {% elif cls == "GHOST" %}
-          <span class="cls-desc">REST +15% · 타임아웃 완화</span>
+          <span class="cls-desc">{{ translate(lang, 'web.lobby.cls_ghost_desc') }}</span>
         {% else %}
-          <span class="cls-desc">속공 스택 · ELITE 아티팩트 +1</span>
+          <span class="cls-desc">{{ translate(lang, 'web.lobby.cls_cracker_desc') }}</span>
         {% endif %}
       </label>
       {% endfor %}
     </div>
 
     <!-- 어센션 선택 -->
-    <div class="section-title asc-title">&gt; ASCENSION LEVEL</div>
+    <div class="section-title asc-title">&gt; {{ translate(lang, 'web.lobby.ascension') }}</div>
     <div class="asc-row">
       <input type="range" name="ascension" id="asc-slider"
              min="0" max="20" value="{{ ascension }}"
@@ -55,7 +55,7 @@
       <span id="asc-val" class="asc-val">{{ ascension }}</span>
     </div>
 
-    <button type="submit" class="btn-secondary">SAVE SETTINGS</button>
+    <button type="submit" class="btn-secondary">{{ translate(lang, 'web.lobby.save_settings') }}</button>
     <div id="lobby-feedback" class="feedback"></div>
   </form>
 
@@ -63,19 +63,19 @@
   <form id="start-form"
         hx-post="/api/game/start"
         hx-on::after-request="handleStartResp(event)">
-    <button type="submit" class="btn-primary">&gt; START RUN _</button>
+    <button type="submit" class="btn-primary">&gt; {{ translate(lang, 'web.lobby.start_run') }}</button>
   </form>
 
   <!-- 데일리 챌린지 -->
-  <div class="daily-divider"><span class="dim">──── OR ────</span></div>
+  <div class="daily-divider"><span class="dim">──── {{ translate(lang, 'web.lobby.or') }} ────</span></div>
   <form id="daily-form"
         hx-post="/api/daily/start"
         hx-on::after-request="handleStartResp(event)">
     <button type="submit" class="btn-daily {% if daily_played %}btn-daily-done{% endif %}">
       {% if daily_played %}
-        ✓ DAILY CHALLENGE COMPLETED — {{ today_str }}
+        {{ translate(lang, 'web.lobby.daily_done') }} — {{ today_str }}
       {% else %}
-        &gt; DAILY CHALLENGE — {{ today_str }} _
+        &gt; {{ translate(lang, 'web.lobby.daily_btn') }} — {{ today_str }} _
       {% endif %}
     </button>
   </form>

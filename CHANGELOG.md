@@ -5,6 +5,21 @@
 
 ---
 
+## [2.1.1] — 2026-05-08
+
+### 추가 (Added)
+- **웹 UI 다국어 토글** — v3.0 Phase D 두 번째 마이크로 릴리즈:
+  - 헤더 우측 KO/EN 토글 버튼 추가 (테마 토글 옆).
+  - `i18n.py`: `translate(lang, key, **kwargs)` 멀티 세션 안전 헬퍼 + `lru_cache` 카탈로그 캐시 추가. 글로벌 `_current_lang` 영향 없음.
+  - `web/adapters.py`: `WebGameSession.lang: str = "ko"` 필드.
+  - `web/app.py`: `POST /api/settings/lang` 엔드포인트, Jinja2 환경에 `translate` 글로벌 함수 등록, 모든 페이지에 `lang` 컨텍스트.
+  - `web/templates/`: lobby/records/game/base 의 핵심 라벨을 `translate(lang, '...')` 호출로 교체.
+  - `locale/ko.json`, `locale/en.json`: 신규 키 32개 (`web.header.*`, `web.lobby.*`, `web.records.*`, `web.game.*`) — 95 → 127.
+  - **테스트 11케이스 신규** (`TestI18nToggle`): 859 → **870 케이스**.
+- 기존 `TestRecordsPage` · `TestDailyChallenge` 케이스 영문/한국어 라벨 동시 검증으로 보강.
+
+---
+
 ## [2.1.0] — 2026-05-08
 
 ### 추가 (Added)

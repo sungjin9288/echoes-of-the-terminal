@@ -501,13 +501,15 @@ input[type="range"] {
 }
 
 /* Theme toggle buttons */
-.theme-toggle {
+.theme-toggle,
+.lang-toggle {
   display: inline-flex;
   gap: 4px;
   border: 1px solid var(--border);
   padding: 2px;
 }
-.theme-btn {
+.theme-btn,
+.lang-btn {
   background: transparent;
   border: none;
   color: var(--text-dim);
@@ -519,8 +521,9 @@ input[type="range"] {
   cursor: pointer;
   padding: 0;
 }
-.theme-btn:hover { color: var(--cyan-accent); }
-.theme-btn.active {
+.lang-btn { width: 30px; font-size: 10px; letter-spacing: 1px; }
+.theme-btn:hover, .lang-btn:hover { color: var(--cyan-accent); }
+.theme-btn.active, .lang-btn.active {
   color: var(--green-neon);
   background: var(--bg-overlay);
 }

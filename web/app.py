@@ -86,6 +86,7 @@ def _attach_cookie(resp: Any, session_id: str) -> None:
 
 
 VALID_THEMES = frozenset({"default", "colorblind", "high_contrast"})
+VALID_LANGS = frozenset({"ko", "en"})
 
 
 def _get_theme(sid: str | None) -> str:
@@ -97,6 +98,23 @@ def _get_theme(sid: str | None) -> str:
         return "default"
     theme = getattr(session, "theme", "default")
     return theme if theme in VALID_THEMES else "default"
+
+
+def _get_lang(sid: str | None) -> str:
+    """세션에서 선택된 언어를 반환한다 (없으면 ko)."""
+    if not sid:
+        return "ko"
+    session = store.get(sid)
+    if session is None:
+        return "ko"
+    lang = getattr(session, "lang", "ko")
+    return lang if lang in VALID_LANGS else "ko"
+
+
+# Jinja2 환경에 i18n 헬퍼 등록 — 모든 템플릿에서 t('key', lang=...) 호출 가능
+from i18n import translate as _translate  # noqa: E402
+
+templates.env.globals["translate"] = _translate
 
 
 # ── 페이지 라우트 ─────────────────────────────────────────────────────────────
@@ -137,6 +155,7 @@ async def lobby_page(
             "today_str": today_str,
             "daily_played": daily_played,
             "theme": session.theme,
+            "lang": session.lang,
         },
     )
     if is_new:
@@ -163,6 +182,7 @@ async def game_page(
             "active_page": "game",
             "version": _GAME_VERSION,
             "theme": session.theme,
+            "lang": session.lang,
         },
     )
 
@@ -210,6 +230,7 @@ async def records_page(
             "active_page": "records",
             "version": _GAME_VERSION,
             "theme": _get_theme(echoes_sid),
+            "lang": _get_lang(echoes_sid),
         },
     )
 
@@ -229,6 +250,24 @@ async def set_theme(
     session.theme = theme
 
     resp = JSONResponse({"ok": True, "theme": theme})
+    if is_new:
+        _attach_cookie(resp, session.session_id)
+    return resp
+
+
+@app.post("/api/settings/lang")
+async def set_lang(
+    lang: str = Form(...),
+    echoes_sid: str | None = Cookie(default=None),
+):
+    """세션의 언어를 변경한다 (ko | en)."""
+    if lang not in VALID_LANGS:
+        raise HTTPException(400, f"Invalid lang: {lang}")
+
+    session, is_new = _resolve_session(echoes_sid)
+    session.lang = lang
+
+    resp = JSONResponse({"ok": True, "lang": lang})
     if is_new:
         _attach_cookie(resp, session.session_id)
     return resp

@@ -147,6 +147,7 @@ class WebGameSession:
 
         # UI 설정
         self.theme: str = "default"  # default | colorblind | high_contrast
+        self.lang: str = "ko"        # ko | en
 
     # ── 출력 관리 ──────────────────────────────────────────────────────────────
 
